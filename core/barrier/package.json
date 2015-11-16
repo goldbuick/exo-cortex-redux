@@ -1,0 +1,23 @@
+{
+  "name": "barrier",
+  "version": "0.0.1",
+  "description": "A Mimosa starter skeleton",
+  "dependencies": {
+    "body-parser": "1.5.2",
+    "compression": "1.0.6",
+    "consolidate": "0.10.0",
+    "cookie-parser": "1.3.2",
+    "ejs": "1.0.0",
+    "errorhandler": "1.1.1",
+    "express": "4.7.2",
+    "express-session": "^1.12.1",
+    "http-proxy": "^1.12.0",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "serve-favicon": "2.0.1"
+  },
+  "devDependencies": {
+    "mimosa-less": "*",
+    "mimosa-html-templates": "*"
+  }
+}

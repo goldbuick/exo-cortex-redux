@@ -1,0 +1,11 @@
+html, body {
+    margin: 0;
+    padding: 5;
+    background-color: #999;
+}
+
+.logo {
+    margin: 10px;
+    width: 256px;
+    height: 256px;
+}

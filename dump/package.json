@@ -1,0 +1,24 @@
+{
+  "name": "stem-core",
+  "version": "1.0.0",
+  "description": "a framework for building a composite IOT API",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/goldbuick/exo-cortex-redux.git"
+  },
+  "dependencies": {
+    "babel-preset-es2015": "^6.1.18",
+    "express": "^4.13.3",
+    "node-uuid": "^1.4.7",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "rethinkdb": "^2.2.0",
+    "socket.io": "^1.3.7",
+    "yargs": "^3.29.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  }
+}
