@@ -5,12 +5,14 @@ var Background = React.createClass({
         ThreeRender
     ],
 
-    animate3D: function (state, delta) {
-        // console.log('animate', state, delta);
+    animate3D: function (delta, anim, obj) {
+        // anim.y = (anim.y || 0) + delta;
+        // obj.rotation.y = anim.y;
+        // console.log('animate', obj.rotation.y);
     },
 
     render3D: function () {
-        return new THREE.Object3D();
+        return new THREE.Mesh();
     }
 });
 
