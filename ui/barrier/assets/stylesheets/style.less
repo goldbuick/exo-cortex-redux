@@ -1,26 +1,17 @@
-@blue: #5B83AD;
-@yellow: #FFFFE0;
 
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+@import "lib/theme.less";
 
-  .template {
-    background-color: @yellow;
-  }
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: @bg-color;
+}
 
-  .helper {
-    border:1px solid @blue;
-  }
-
-  .styled {
-    -webkit-transform: rotate(-30deg);
-    -moz-transform: rotate(-30deg);
-    -ms-transform: rotate(-30deg);
-    -o-transform: rotate(-30deg);
-    transform: rotate(-30deg);
-
-    margin-top: 100px;
+#page, .container {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     position: absolute;
-  }
 }

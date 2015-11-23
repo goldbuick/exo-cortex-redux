@@ -1,13 +1,8 @@
-(function() {
-
-  require({
-    urlArgs: "b=" + ((new Date()).getTime()),
-    paths: {
-      jquery: 'vendor/jquery/jquery'
-    }
-  }, ['app/example-view'], function(ExampleView) {
-    var view = new ExampleView();
-    view.render('body');
-  });
-
-}).call(this);
+require([
+    'app/page'
+], function (Page) {
+    'use strict';
+    var page = React.createElement(Page, {}),
+        container = document.getElementById('page');
+    ReactDOM.render(page, container);
+});

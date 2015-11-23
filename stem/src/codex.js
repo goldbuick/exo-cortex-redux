@@ -8,6 +8,7 @@ let gstore = { },
     codex = client('codex', CONFIG.PORTS.TERRACE);
 
 // STORAGE
+
 db.ready(function () {
     // query for config values
     db.run(db.q(), function (err, cursor) {
@@ -18,10 +19,10 @@ db.ready(function () {
             if (record.value === undefined) return;
 
             gstore[record.id] = record.value;
-            log('read config', node.id);
+            log.msg('codex', 'read', record.id);
 
         }, function () {
-            log('finished reading config');
+            log.msg('codex', 'finished reading');
         });
     });  
 });
@@ -30,7 +31,7 @@ db.connect(CONFIG.HOSTS.VAULT, CONFIG.PORTS.VAULT);
 
 function writeValue (key) {
     var json = {
-        key: key,
+        id: key,
         value: gstore[key]
     };
 
@@ -43,7 +44,7 @@ function writeValue (key) {
         { conflict: 'replace' }
     ), function (err) {
         if (db.check(err)) return;
-        log('wrote config', JSON.stringify(json));
+        log.msg('codex', 'wrote', JSON.stringify(json));
     });
 
     signalValue(key);
@@ -56,12 +57,14 @@ function signalValue (key) {
 // MESSAGE HANDLERS
 
 codex.message('get', message => {
+    log.msg('codex', 'get', message);
     let key = message.meta.key;
-    if (key === undefined) return;
+    if (gstore[key] === undefined) gstore[key] = { };
     signalValue(key);
 });
 
 codex.message('set', message => {
+    log.msg('codex', 'set', message);
     let key = message.meta.key,
         value = message.meta.value;
     if (key === undefined || value === undefined) return;

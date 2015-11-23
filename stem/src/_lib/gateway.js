@@ -3,6 +3,10 @@ import makeMessage from './message';
 import Server from 'socket.io';
 import Client from 'socket.io-client';
 
+function _sub(channel, type) {
+    return [channel, type].join('/');
+}
+
 export function server (name, port) {
     let io = new Server(port),
         services = { };
@@ -20,15 +24,14 @@ export function server (name, port) {
             messages = { };
             Object.keys(data).forEach(chan => {
                 data[chan].forEach(type => {
-                    var path = [chan, type].join('/');
-                    messages[path] = true;
+                    messages[_sub(chan, type)] = true;
                 });
             });
 
             // add paths
             Object.keys(messages).forEach(path => {
-                log('adding', path);
                 services[path] = true;
+                log.server(name, 'adding', path);
             });
 
             // list the supported paths
@@ -36,21 +39,27 @@ export function server (name, port) {
         });
 
         socket.on('message', data => {
-            log('message', data);
-            // emit message to given channel
-            if (data && data.channel) io.emit(data.channel, data);
+            log.msg(name, 'message', data);
+            if (data && data.channel) {
+                // emit message to given channel
+                io.emit(data.channel, data);
+                if (data.type) {
+                    // emit message to given channel/type
+                    io.emit(_sub(data.channel, data.type), data);
+                }
+            }
         });
 
         socket.on('disconnect', () => {
             // unregister api
             Object.keys(messages).forEach(path => {
-                log('dropping', path);
                 delete services[path];
+                log.server(name, 'dropping', path);
             });
         });
 
     });
-    log.server(name, port);
+    log.server(name, 'started on', port);
 };
 
 class GatewayClient {
@@ -60,29 +69,51 @@ class GatewayClient {
         self.channel = channel;
         self.socket = Client('http://localhost:' + port);
         self.socket.on('connect', () => {
-            log.server(self.channel, port);
-            self.start();
+            self.socket.emit('register', {
+                [self.channel]: Object.keys(self.types)
+            });
+            log.client('gateway', 'connected');
         });
     }
 
-    start () {
-        this.socket.emit('register', {
-            [this.channel]: Object.keys(this.types)
-        });
-    }
-
-    message (name, handler) {
-        var path = [this.channel, name].join('/');
-        this.types[name] = true;
-        this.socket.on(path, handler);
+    message (type, handler) {
+        this.types[type] = true;
+        this.socket.on(_sub(this.channel, type), handler);
     }
 
     emit (type, data) {
         let message = makeMessage(this.channel, type, data);
-        this.socket.emit(message.channel, message);
+        this.socket.emit('message', message);
     }
 }
 
-export function client (name, port) {
-    return new GatewayClient(name, port);
+export function client (channel, port) {
+    return new GatewayClient(channel, port);
 };
+
+class GatewayListen {
+    constructor (port, handler) {
+        let self = this;
+        self.socket = Client('http://localhost:' + port);
+        self.socket.on('connect', () => {
+            log.client('listen', 'connected');
+            handler();
+        });
+    }
+
+    message (channel, handler) {
+        this.socket.on(channel, handler);
+        log.client('listen', 'to', channel);
+    }
+    
+    emit (channel, type, data) {
+        let message = makeMessage(channel, type, data);
+        this.socket.emit('message', message);
+        log.client('listen', 'sent', message);
+    }
+}
+
+export function listen (port, handler) {
+    return new GatewayListen(port, handler);
+};
+

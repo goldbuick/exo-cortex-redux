@@ -4,7 +4,7 @@ import r from 'rethinkdb';
 function check (err) {
     if (!err) return false;
 
-    log('rethinkdb error', err);
+    log.msg('rethinkdb', 'error', err);
     return true;
 }
 
@@ -47,7 +47,7 @@ class RethinkDB {
             });
         }
 
-        log('rethinkdb connect', host, port, self.db, self.table);
+        log.msg('rethinkdb', 'connect', host, port, self.db, self.table);
         r.connect({
             host: host,
             port: port,
@@ -58,7 +58,7 @@ class RethinkDB {
             self.conn = conn;
             createdb(function () {
                 createtable(function () {
-                    log('rethinkdb connected', self.db, self.table);
+                    log.msg('rethinkdb', 'connected', self.db, self.table);
                     if (self.onReady) self.onReady();
                 });
             });
