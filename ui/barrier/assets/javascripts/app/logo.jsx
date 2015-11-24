@@ -16,7 +16,7 @@ var Logo = React.createClass({
         let r = alea('barrier-logo'),
             logo = new Graph();
 
-        let center = 512,
+        let center = 600,
             width = 16,
             edge = 128,
             step = 8,
@@ -68,16 +68,16 @@ var Logo = React.createClass({
 
         let group = logo.build(Graph.projectFacePlane(1));
         group.add(Graph.genText({
-            scale: 4,
+            scale: 3,
             logo: true,
-            text: 'BARRIER',
+            text: 'exoBARRIER',
             pos: [ 0, 128, 0 ],
             nudge: [ 8, 0, 0 ]
         }));
         group.add(Graph.genText({
-            scale: 4,
+            scale: 3,
             logo: true,
-            text: '------',
+            text: '------------',
             pos: [ 0, 0, 0 ],
             nudge: [ 8, 0, 0 ]
         }));
