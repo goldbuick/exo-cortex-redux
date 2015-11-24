@@ -4,10 +4,10 @@ import BmFontText from 'lib/threejs/bmfont/text';
 import BmFontShader from 'lib/threejs/bmfont/sdf';
 import BmFontLoad from 'lib/threejs/bmfont/load';
 
-var fontColor, fontConfig, fontTexture;
+var fontColor, fontConfig, fontTexture, fontQueue = [ ];
 BmFontLoad({
-    font: '/media/OCRA.fnt',
-    image: '/media/OCRA.png'
+    font: '/media/lib/OCRA.fnt',
+    image: '/media/lib/OCRA.png'
 }, (font, texture) => {
     fontColor = css.getStyleRuleValue('.fg-color', 'color');
     fontConfig = font;
@@ -17,6 +17,22 @@ BmFontLoad({
     fontTexture.magFilter = THREE.LinearFilter;
     fontTexture.generateMipmaps = true;
     fontTexture.anisotropy = window.maxAni;
+    fontQueue.forEach(fn => { fn(); });
+});
+
+var logoFontConfig, logoFontTexture, logoFontQueue = [ ];
+BmFontLoad({
+    font: '/media/lib/LOGO.fnt',
+    image: '/media/lib/LOGO.png'
+}, (font, texture) => {
+    logoFontConfig = font;
+    logoFontTexture = texture;
+    logoFontTexture.needsUpdate = true;
+    logoFontTexture.minFilter = THREE.LinearMipMapLinearFilter;
+    logoFontTexture.magFilter = THREE.LinearFilter;
+    logoFontTexture.generateMipmaps = true;
+    logoFontTexture.anisotropy = window.maxAni;
+    logoFontQueue.forEach(fn => { fn(); });
 });
 
 class Graph {
@@ -30,6 +46,19 @@ class Graph {
 
     build (transform) {
         return this.glyph.build(transform);
+    }
+
+    drawPoints (points) {
+        var self = this,
+            offset = self.glyph.count;
+
+        points.forEach(vert => {
+            self.glyph.addVert(vert.x, vert.y, vert.z);
+        });
+
+        for (var i=0; i < points.length; ++i) {
+            self.glyph.addPoint(offset + i);
+        }
     }
 
     drawLine (points) {
@@ -230,72 +259,90 @@ Graph.genArc = function (x, y, z, sides, radius, front, back, drift) {
     return points;
 };
 
-Graph.genText = function (pos, text, scale, flip) {
-    if (!fontConfig) return;
-    flip = flip ? -1 : 1;
-    var geometry = BmFontText({
-            text: text,
-            font: fontConfig
-        }),
-        material = new THREE.ShaderMaterial(BmFontShader({
-            map: fontTexture,
-            smooth: 1 / 16,
-            transparent: true,
-            side: THREE.DoubleSide,
-            color: fontColor,
-            scramble: 0
-        })),
-        mesh = new THREE.Mesh(geometry, material);
+// Graph.genText = function (pos, text, scale, flip) {
+//     if (!fontConfig) return;
+//     flip = flip ? -1 : 1;
+//     var geometry = BmFontText({
+//             text: text,
+//             font: fontConfig
+//         }),
+//         material = new THREE.ShaderMaterial(BmFontShader({
+//             map: fontTexture,
+//             smooth: 1 / 16,
+//             transparent: true,
+//             side: THREE.DoubleSide,
+//             color: fontColor,
+//             scramble: 0
+//         })),
+//         mesh = new THREE.Mesh(geometry, material);
 
-    var _width = geometry.layout.width * (scale * 0.5 * flip),
-        _height = geometry.layout.height * (scale * 0.25);
+//     var _width = geometry.layout.width * (scale * 0.5 * flip),
+//         _height = geometry.layout.height * (scale * 0.25);
 
-    mesh.scale.multiplyScalar(scale);
-    mesh.scale.x *= flip;
-    mesh.position.set(pos[0], pos[1] - _height, pos[2] - _width);
-    mesh.rotation.y = Math.PI * 0.5;
-    mesh.rotation.z = Math.PI;
-    return mesh;
-};
+//     mesh.scale.multiplyScalar(scale);
+//     mesh.scale.x *= flip;
+//     mesh.position.set(pos[0], pos[1] - _height, pos[2] - _width);
+//     mesh.rotation.y = Math.PI * 0.5;
+//     mesh.rotation.z = Math.PI;
+//     return mesh;
+// };
 
-Graph.genTextFlat = function (pos, text, scale) {
-    if (!fontConfig) return;
-    var geometry = BmFontText({
-            text: text,
-            font: fontConfig
-        }),
-        material = new THREE.ShaderMaterial(BmFontShader({
-            map: fontTexture,
-            smooth: 1 / 16,
-            transparent: true,
-            side: THREE.DoubleSide,
-            color: fontColor,
-            scramble: 0
-        })),
-        mesh = new THREE.Mesh(geometry, material);
+// Graph.genTextFlat = function (pos, text, scale) {
+//     if (!fontConfig) return;
+//     var geometry = BmFontText({
+//             text: text,
+//             font: fontConfig
+//         }),
+//         material = new THREE.ShaderMaterial(BmFontShader({
+//             map: fontTexture,
+//             smooth: 1 / 16,
+//             transparent: true,
+//             side: THREE.DoubleSide,
+//             color: fontColor,
+//             scramble: 0
+//         })),
+//         mesh = new THREE.Mesh(geometry, material);
 
-    var _height = geometry.layout.height * (scale * 0.25);
+//     var _height = geometry.layout.height * (scale * 0.25);
 
-    mesh.scale.multiplyScalar(scale);
-    mesh.scale.x *= -1;
-    mesh.position.set(pos[0], pos[1] - _height, pos[2]);
-    mesh.rotation.z = Math.PI;
-    return mesh;
-};
+//     mesh.scale.multiplyScalar(scale);
+//     mesh.scale.x *= -1;
+//     mesh.position.set(pos[0], pos[1] - _height, pos[2]);
+//     mesh.rotation.z = Math.PI;
+//     return mesh;
+// };
 
-Graph.genTextEx = function (opts) {
-    if (!fontConfig) return;
+function genTextRetry (temp, opts) {
+    let _opts = JSON.parse(JSON.stringify(opts));
+    return function() {
+        let text = Graph.genText(_opts);
+        temp.parent.add(text);
+        temp.parent.remove(temp);
+    };
+}
+
+Graph.genText = function (opts) {
+    if (!opts.logo && !fontConfig) {
+        let temp = new THREE.Object3D();
+        fontQueue.push(genTextRetry(temp, opts));
+        return temp;
+    }
+    if (opts.logo && !logoFontConfig) {
+        let temp = new THREE.Object3D();
+        logoFontQueue.push(genTextRetry(temp, opts));
+        return temp;
+    }
     
     var fopts = {
         text: opts.text,
-        font: fontConfig
+        font: opts.logo ? logoFontConfig : fontConfig
     };
     if (opts.mode !== undefined) fopts.mode = opts.mode;
     if (opts.width !== undefined) fopts.width = opts.width;
     
     var geometry = BmFontText(fopts),
         material = new THREE.ShaderMaterial(BmFontShader({
-            map: fontTexture,
+            map: opts.logo ? logoFontTexture : fontTexture,
             smooth: 1 / 16,
             transparent: true,
             side: THREE.DoubleSide,
@@ -314,14 +361,16 @@ Graph.genTextEx = function (opts) {
 
     mesh.scale.multiplyScalar(opts.scale);
     mesh.scale.x *= flip;
+    opts.pos[0] -= _width * opts.ax * -flip;
     opts.pos[1] -= _height * opts.ay;
-    opts.pos[2] -= _width * opts.ax * -flip;
 
+    if (opts.nudge) {
+        for (let i=0; i<3; ++i) opts.pos[i] += opts.nudge[i];
+    }
     mesh.position.set(opts.pos[0], opts.pos[1], opts.pos[2]);
     mesh.rotation.z = Math.PI;
 
     return mesh;
 };
-
 
 export default Graph;

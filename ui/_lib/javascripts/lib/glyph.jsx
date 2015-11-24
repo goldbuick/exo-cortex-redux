@@ -5,6 +5,12 @@ baseColor = baseColor.substring(4, baseColor.length - 1).split(',').map(str => {
     return parseFloat(str.trim(str)) / 255.0;
 });
 
+var pointMaterial = new THREE.PointsMaterial({
+    size: 1,
+    sizeAttenuation: false,
+    vertexColors: THREE.VertexColors
+});
+
 var lineMaterial = new THREE.LineBasicMaterial({
     vertexColors: THREE.VertexColors
 });
@@ -157,6 +163,17 @@ class Glyph {
         for (var i=0; i<this.positions.length; i+=3) {
             var result = transform(this.positions[i], this.positions[i+1], this.positions[i+2]);
             positions.push(result[0], result[1], result[2]);
+        }
+
+        if (this.points.length) {
+            var pointGeometry = new THREE.BufferGeometry();
+            pointGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.points), 1));
+            pointGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+            pointGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
+            pointGeometry.computeBoundingSphere();
+
+            var pointMesh = new THREE.Points(pointGeometry, pointMaterial);
+            group.add(pointMesh);
         }
 
         if (this.lines.length) {

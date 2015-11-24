@@ -62,8 +62,12 @@ var ThreeScene = React.createClass({
         // add canvas to container
         this.refs.container.appendChild(this.renderer.domElement);
 
+        // onCreate handler
+        if (this.props.onCreate) this.props.onCreate(this);
+
         // start updating
         this.update();
+        this.handleResize();
     },
 
     componentDidMount: function () {
@@ -89,6 +93,7 @@ var ThreeScene = React.createClass({
         this.animate(delta);
         this.renderer.clear();
         this.composer.render(delta);
+        if (this.props.onUpdate) this.props.onUpdate(this, delta);
         this.renderTimer = window.requestAnimationFrame(this.update);
     },
 
