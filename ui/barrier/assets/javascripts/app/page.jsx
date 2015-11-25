@@ -1,6 +1,7 @@
 import ThreeScene from 'lib/three-scene';
-import Background from 'app/background';
 import Logo from 'app/logo';
+import Plate from 'app/plate';
+import Background from 'app/background';
 
 var Page = React.createClass({
     mixins: [
@@ -9,6 +10,7 @@ var Page = React.createClass({
     render: function () {
         return <ThreeScene onCreate={this.handleCreate}>
             <Background />
+            <Plate />
             <Logo />
         </ThreeScene>;
     },

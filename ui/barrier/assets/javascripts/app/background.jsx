@@ -30,7 +30,9 @@ var Background = React.createClass({
         }
         sparks.drawPoints(points);
 
-        return sparks.build(Graph.projectPlane(1));
+        return sparks.build({
+            transform: Graph.projectPlane(1)
+        });
     }
 });
 

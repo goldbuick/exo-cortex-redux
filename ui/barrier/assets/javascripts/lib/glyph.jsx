@@ -156,12 +156,12 @@ class Glyph {
         while (this.tessellateFills(step));
     }
 
-    build (transform) {
+    build (opts) {
         var group = new THREE.Group();
 
         var positions = [ ];
         for (var i=0; i<this.positions.length; i+=3) {
-            var result = transform(this.positions[i], this.positions[i+1], this.positions[i+2]);
+            var result = opts.transform(this.positions[i], this.positions[i+1], this.positions[i+2]);
             positions.push(result[0], result[1], result[2]);
         }
 
