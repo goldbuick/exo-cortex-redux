@@ -101,8 +101,68 @@ var ThreeScene = React.createClass({
         if (this._object3D === undefined) {
             this._object3D = new THREE.Scene();
         }
-        return <div ref="container" className="container">{children}</div>;
-    }
+        return <div ref="container" className="container"
+            onWheel={this.handleWheel}
+            onTouchStart={this.handleTouchStart}
+            onTouchMove={this.handleTouchMove}
+            onTouchEnd={this.handleTouchEnd}
+            onMouseDown={this.handleMouseDown}
+            onMouseMove={this.handleMouseMove}
+            onMouseUp={this.handleMouseUp}>{children}</div>;
+    },
+
+    handleWheel: function (event) {
+        event.preventDefault();
+        if (!this.props.onWheel) return;
+        this.props.onWheel(event.deltaX, event.deltaY);
+    },
+
+    handlePointer: function (id, pressed, x, y) {
+        if (!this.props.onPointer) return;
+        this.props.onPointer(id, pressed, x, y);
+    },
+
+    handleTouchStart: function (event) {
+        event.preventDefault();
+        for (let i=0; i<event.changedTouches.length; ++i) {
+            let touch = event.changedTouches[i];
+            this.handlePointer(touch.identifier, true, touch.clientX, touch.clientY);
+        }
+    },
+
+    handleTouchMove: function (event) {
+        event.preventDefault();
+        for (let i=0; i<event.changedTouches.length; ++i) {
+            let touch = event.changedTouches[i];
+            this.handlePointer(touch.identifier, true, touch.clientX, touch.clientY);
+        }
+    },
+
+    handleTouchEnd: function (event) {
+        event.preventDefault();
+        for (let i=0; i<event.changedTouches.length; ++i) {
+            let touch = event.changedTouches[i];
+            this.handlePointer(touch.identifier, false, touch.clientX, touch.clientY);
+        }
+    },
+
+    handleMouseDown: function (event) {
+        event.preventDefault();
+        this.mouseDown = true;
+        this.handlePointer(-1, true, event.clientX, event.clientY);
+    },
+
+    handleMouseMove: function (event) {
+        event.preventDefault();
+        if (!this.mouseDown) return;
+        this.handlePointer(-1, true, event.clientX, event.clientY);
+    },
+
+    handleMouseUp: function (event) {
+        event.preventDefault();
+        this.mouseDown = false;
+        this.handlePointer(-1, false, event.clientX, event.clientY);
+    },
 
 });
 

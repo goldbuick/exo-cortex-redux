@@ -8,7 +8,7 @@ var Logo = React.createClass({
 
     animate3D: function (delta, anim, obj) {
         anim.angle = (anim.angle || 0) + delta;
-        obj.position.y = 600 + Math.sin(anim.angle) * 4;
+        obj.position.y = 550 + Math.sin(anim.angle) * 4;
         obj.rotation.x = Math.sin(anim.angle) * 0.01;
     },
 
