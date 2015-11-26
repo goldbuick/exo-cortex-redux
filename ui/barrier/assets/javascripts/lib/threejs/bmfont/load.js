@@ -7,9 +7,10 @@ module.exports = function(opt, cb) {
   loadFont(opt.font, function(err, font) {
     if (err)
       throw err
-    THREE.ImageUtils.loadTexture(opt.image, undefined, function(tex) {
+    var loader = new THREE.TextureLoader();
+    loader.load(opt.image, function(tex) {
       cb(font, tex)
-    })  
+    });
   })
 }
 });

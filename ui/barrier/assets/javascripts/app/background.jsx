@@ -1,5 +1,5 @@
-import ThreeRender from 'lib/three-render';
 import Graph from 'lib/graph';
+import ThreeRender from 'lib/three-render';
 
 var Background = React.createClass({
     mixins: [

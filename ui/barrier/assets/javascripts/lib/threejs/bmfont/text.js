@@ -16,7 +16,7 @@ define(function(require, exports, module) {
     var multipage = opt && opt.multipage
     this.layout = null
 
-    this._positions = new THREE.BufferAttribute(null, 2)
+    this._positions = new THREE.BufferAttribute(null, 3)
     this._uvs = new THREE.BufferAttribute(null, 2)
     if (multipage) 
       this._pages = new THREE.BufferAttribute(null, 1)
@@ -168,7 +168,7 @@ define(function(require, exports, module) {
   }
 
   function getQuadPositions(glyphs, layout) {
-    var positions = new Float32Array(glyphs.length * 4 * 2)
+    var positions = new Float32Array(glyphs.length * 4 * 3)
     var i = 0
 
     glyphs.forEach(function(glyph) {
@@ -185,15 +185,19 @@ define(function(require, exports, module) {
       //BL
       positions[i++] = x 
       positions[i++] = y
+      positions[i++] = 0;
       //TL
       positions[i++] = x
       positions[i++] = y + h
+      positions[i++] = 0;
       //TR
       positions[i++] = x + w
       positions[i++] = y + h
+      positions[i++] = 0;
       //BR
       positions[i++] = x + w
       positions[i++] = y
+      positions[i++] = 0;
     })
     return positions
   }

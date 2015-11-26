@@ -1,5 +1,5 @@
-import ThreeRender from 'lib/three-render';
 import Graph from 'lib/graph';
+import ThreeRender from 'lib/three-render';
 
 var Logo = React.createClass({
     mixins: [
@@ -8,12 +8,13 @@ var Logo = React.createClass({
 
     animate3D: function (delta, anim, obj) {
         anim.angle = (anim.angle || 0) + delta;
-        obj.position.y = 550 + Math.sin(anim.angle) * 4;
+        obj.position.y = 600 + Math.sin(anim.angle) * 4;
         obj.rotation.x = Math.sin(anim.angle) * 0.01;
     },
 
     render3D: function () {
         let group = new THREE.Group();
+
         group.add(Graph.genText({
             scale: 3,
             logo: true,
@@ -25,7 +26,7 @@ var Logo = React.createClass({
             scale: 4,
             logo: true,
             text: '---------',
-            pos: [ 0, 0, -64 ],
+            pos: [ 0, 16, -64 ],
             nudge: [ 8, 0, 0 ]
         }));
 

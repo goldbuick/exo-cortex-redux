@@ -18877,7 +18877,7 @@ THREE.Mesh.prototype.raycast = ( function () {
 		var geometry = this.geometry;
 		var material = this.material;
 
-		if ( material === undefined ) return;
+		if ( material === undefined) return;
 
 		// Checking boundingSphere distance to ray
 
@@ -18938,7 +18938,6 @@ THREE.Mesh.prototype.raycast = ( function () {
 				}
 
 			} else {
-
 
 				for ( var i = 0, l = positions.length; i < l; i += 9 ) {
 

@@ -1,5 +1,5 @@
-import ThreeRender from 'lib/three-render';
 import Graph from 'lib/graph';
+import ThreeRender from 'lib/three-render';
 
 var Plate = React.createClass({
     mixins: [
@@ -8,7 +8,7 @@ var Plate = React.createClass({
 
     animate3D: function (delta, anim, obj) {
         anim.angle = (anim.angle || Math.PI) + delta;
-        obj.position.y = 300 + Math.sin(anim.angle) * 4;
+        obj.position.y = 100 + Math.sin(anim.angle) * 4;
         obj.rotation.x = Math.sin(anim.angle) * 0.01;
     },
 
@@ -16,7 +16,7 @@ var Plate = React.createClass({
         let r = alea('barrier-plate'),
             plate = new Graph();
 
-        let center = 600,
+        let center = 700,
             width = 16,
             edge = 128,
             step = 8,

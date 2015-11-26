@@ -25,6 +25,7 @@ BmFontLoad({
     font: '/media/lib/LOGO.fnt',
     image: '/media/lib/LOGO.png'
 }, (font, texture) => {
+    fontColor = css.getStyleRuleValue('.fg-color', 'color');
     logoFontConfig = font;
     logoFontTexture = texture;
     logoFontTexture.needsUpdate = true;
@@ -49,28 +50,26 @@ class Graph {
     }
 
     drawPoints (points) {
-        var self = this,
-            offset = self.glyph.count;
+        var offset = this.glyph.count;
 
         points.forEach(vert => {
-            self.glyph.addVert(vert.x, vert.y, vert.z);
+            this.glyph.addVert(vert.x, vert.y, vert.z);
         });
 
         for (var i=0; i < points.length; ++i) {
-            self.glyph.addPoint(offset + i);
+            this.glyph.addPoint(offset + i);
         }
     }
 
     drawLine (points) {
-        var self = this,
-            offset = self.glyph.count;
+        var offset = this.glyph.count;
 
         points.forEach(vert => {
-            self.glyph.addVert(vert.x, vert.y, vert.z);
+            this.glyph.addVert(vert.x, vert.y, vert.z);
         });
 
         for (var i=0; i < points.length-1; ++i) {
-            self.glyph.addLine(offset + i, offset + i + 1);
+            this.glyph.addLine(offset + i, offset + i + 1);
         }
     }
 
@@ -147,15 +146,14 @@ class Graph {
     }
 
     drawSwipe (x, y, z, sides, radius, width, front, back, drift) {
-        var self = this,
-            offset = this.glyph.count,
+        var offset = this.glyph.count,
             innerRadius = radius,
             outerRadius = radius + width,
             ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift),
             opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift);
 
-        ipoints.forEach(vert => { self.glyph.addVert(vert.x , vert.y, vert.z); });
-        opoints.forEach(vert => { self.glyph.addVert(vert.x , vert.y, vert.z); });
+        ipoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
+        opoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
 
         var base, len = ipoints.length;
         for (var i=0; i<len-1; ++i) {
@@ -166,8 +164,7 @@ class Graph {
     }
 
     drawSwipeLine (x, y, z, sides, radius, width, front, back, drift) {
-        var self = this,
-            innerRadius = radius,
+        var innerRadius = radius,
             outerRadius = radius + width,
             ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift),
             opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift);
@@ -259,77 +256,24 @@ Graph.genArc = function (x, y, z, sides, radius, front, back, drift) {
     return points;
 };
 
-// Graph.genText = function (pos, text, scale, flip) {
-//     if (!fontConfig) return;
-//     flip = flip ? -1 : 1;
-//     var geometry = BmFontText({
-//             text: text,
-//             font: fontConfig
-//         }),
-//         material = new THREE.ShaderMaterial(BmFontShader({
-//             map: fontTexture,
-//             smooth: 1 / 16,
-//             transparent: true,
-//             side: THREE.DoubleSide,
-//             color: fontColor,
-//             scramble: 0
-//         })),
-//         mesh = new THREE.Mesh(geometry, material);
-
-//     var _width = geometry.layout.width * (scale * 0.5 * flip),
-//         _height = geometry.layout.height * (scale * 0.25);
-
-//     mesh.scale.multiplyScalar(scale);
-//     mesh.scale.x *= flip;
-//     mesh.position.set(pos[0], pos[1] - _height, pos[2] - _width);
-//     mesh.rotation.y = Math.PI * 0.5;
-//     mesh.rotation.z = Math.PI;
-//     return mesh;
-// };
-
-// Graph.genTextFlat = function (pos, text, scale) {
-//     if (!fontConfig) return;
-//     var geometry = BmFontText({
-//             text: text,
-//             font: fontConfig
-//         }),
-//         material = new THREE.ShaderMaterial(BmFontShader({
-//             map: fontTexture,
-//             smooth: 1 / 16,
-//             transparent: true,
-//             side: THREE.DoubleSide,
-//             color: fontColor,
-//             scramble: 0
-//         })),
-//         mesh = new THREE.Mesh(geometry, material);
-
-//     var _height = geometry.layout.height * (scale * 0.25);
-
-//     mesh.scale.multiplyScalar(scale);
-//     mesh.scale.x *= -1;
-//     mesh.position.set(pos[0], pos[1] - _height, pos[2]);
-//     mesh.rotation.z = Math.PI;
-//     return mesh;
-// };
-
-function genTextRetry (temp, opts) {
+function genTextRetry (temp, opts, callback) {
     let _opts = JSON.parse(JSON.stringify(opts));
     return function() {
-        let text = Graph.genText(_opts);
-        temp.parent.add(text);
-        temp.parent.remove(temp);
+        let text = Graph.genText(_opts, undefined, true);
+        temp.add(text);
+        if (callback) callback(text);
     };
 }
 
-Graph.genText = function (opts) {
+Graph.genText = function (opts, callback, flat) {
     if (!opts.logo && !fontConfig) {
         let temp = new THREE.Object3D();
-        fontQueue.push(genTextRetry(temp, opts));
+        fontQueue.push(genTextRetry(temp, opts, callback));
         return temp;
     }
     if (opts.logo && !logoFontConfig) {
         let temp = new THREE.Object3D();
-        logoFontQueue.push(genTextRetry(temp, opts));
+        logoFontQueue.push(genTextRetry(temp, opts, callback));
         return temp;
     }
     
@@ -348,8 +292,9 @@ Graph.genText = function (opts) {
             side: THREE.DoubleSide,
             color: fontColor,
             scramble: 0
-        })),
-        mesh = new THREE.Mesh(geometry, material);
+        }));
+
+    var mesh = new THREE.Mesh(geometry, material);
 
     opts.scale = opts.scale || 1;
     var _width = geometry.layout.width * opts.scale,
@@ -370,7 +315,11 @@ Graph.genText = function (opts) {
     mesh.position.set(opts.pos[0], opts.pos[1], opts.pos[2]);
     mesh.rotation.z = Math.PI;
 
-    return mesh;
+    if (flat) return mesh;
+
+    let temp = new THREE.Object3D();
+    temp.add(mesh);
+    return temp;
 };
 
 export default Graph;

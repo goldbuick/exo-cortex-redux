@@ -24,7 +24,7 @@ var ThreeScene = React.createClass({
     },
 
     create: function () {
-        var size = this.containerSize();
+        let size = this.containerSize();
 
         // core rendering objects
         this.renderer = new THREE.WebGLRenderer({
@@ -40,27 +40,31 @@ var ThreeScene = React.createClass({
         window.maxAni = this.renderer.getMaxAnisotropy();
 
         this.composer = new THREE.EffectComposer(this.renderer);
-        var renderPass = new THREE.RenderPass(this._object3D, this.camera);
-        var effectBloom = new THREE.BloomPass(2);
-        var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
-        var effectFilm = new THREE.FilmPass(2.0, 0.5, size.height * 2, false);
-        var effectGlitch = new THREE.GlitchPass(64);
+        let renderPass = new THREE.RenderPass(this._object3D, this.camera);
+        let effectBloom = new THREE.BloomPass(2);
+        let effectCopy = new THREE.ShaderPass(THREE.CopyShader);
+        let effectFilm = new THREE.FilmPass(2.0, 0.5, size.height * 2, false);
+        let effectGlitch = new THREE.GlitchPass(64);
 
-        var passes = [
+        let passes = [
             renderPass,
             effectBloom,
             effectCopy,
             effectFilm,
             // effectGlitch,
         ];
-        for (var i=0; i<passes.length; ++i) {
+        for (let i=0; i<passes.length; ++i) {
             this.composer.addPass(passes[i]);
         }
-        var lastPass = passes.pop();
+        let lastPass = passes.pop();
         lastPass.renderToScreen = true;
 
         // add canvas to container
         this.refs.container.appendChild(this.renderer.domElement);
+
+        // add picker 
+        this.ray = new THREE.Raycaster();
+        this.rayCoords = new THREE.Vector2();
 
         // onCreate handler
         if (this.props.onCreate) this.props.onCreate(this);
@@ -81,7 +85,7 @@ var ThreeScene = React.createClass({
     },
 
     handleResize: function () {
-        var size = this.containerSize();
+        let size = this.containerSize();
         this.renderer.setSize(size.width, size.height);
         this.camera.aspect = size.width / size.height;
         this.camera.updateProjectionMatrix();
@@ -89,7 +93,7 @@ var ThreeScene = React.createClass({
     },
 
     update: function () {
-        var delta = (1.0 / 60.0);
+        let delta = (1.0 / 60.0);
         this.animate(delta);
         this.renderer.clear();
         this.composer.render(delta);
@@ -100,6 +104,7 @@ var ThreeScene = React.createClass({
     render3D: function (children) {
         if (this._object3D === undefined) {
             this._object3D = new THREE.Scene();
+            this._object3D.name = 'ThreeScene';
         }
         return <div ref="container" className="container"
             onWheel={this.handleWheel}
@@ -118,8 +123,13 @@ var ThreeScene = React.createClass({
     },
 
     handlePointer: function (id, pressed, x, y) {
-        if (!this.props.onPointer) return;
-        this.props.onPointer(id, pressed, x, y);
+        if (!this.props.onPointer || !this._object3D) return;
+        let size = this.containerSize();
+        this.rayCoords.x = (x / size.width) * 2 - 1;
+        this.rayCoords.y = -(y / size.height) * 2 + 1;
+        this.ray.setFromCamera(this.rayCoords, this.camera);
+        let intersects = this.ray.intersectObjects(this._object3D.children, true);
+        this.props.onPointer(id, pressed, x, y, intersects);
     },
 
     handleTouchStart: function (event) {
