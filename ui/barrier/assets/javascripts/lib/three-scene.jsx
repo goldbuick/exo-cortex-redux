@@ -94,6 +94,7 @@ var ThreeScene = React.createClass({
 
     update: function () {
         let delta = (1.0 / 60.0);
+        TWEEN.update();
         this.animate(delta);
         this.renderer.clear();
         this.composer.render(delta);
@@ -106,6 +107,7 @@ var ThreeScene = React.createClass({
             this._object3D = new THREE.Scene();
             this._object3D.name = 'ThreeScene';
         }
+
         return <div ref="container" className="container"
             onWheel={this.handleWheel}
             onTouchStart={this.handleTouchStart}

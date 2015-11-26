@@ -24,6 +24,7 @@ export default {
 
     clear3D: function () {
         if (!this._object3D || !this._object3D.parent) return;
+        // console.log('clear3D', this._object3D);
         this._object3D.parent.remove(this._object3D);
         this._object3D = undefined;
     },
@@ -56,6 +57,7 @@ export default {
 
     render: function () {
         let out = null;
+        this.clear3D();
         
         if (this.render3D) {
             out = this.render3D(this.children3D());
@@ -82,7 +84,6 @@ export default {
     },
 
     componentWillUnmount: function () {
-        // tear down scene graph
         this.clear3D();
     }
 

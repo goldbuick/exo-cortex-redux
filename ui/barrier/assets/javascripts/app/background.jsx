@@ -14,18 +14,19 @@ var Background = React.createClass({
     },
 
     render3D: function () {
-        let sparks = new Graph(),
-            points = [ ];
+        let r = alea('barrier-background'),
+            points = [ ],
+            sparks = new Graph();
 
         for (let i=0; i<10000; ++i) {
             let range = 3000,
-                y = (Math.random()-0.5) * range,
+                y = (r()-0.5) * range,
                 a = Math.abs(y) / 1000,
                 w = Math.cos(a) * range;
             points.push({
-                x: (Math.random()-0.5) * w,
+                x: (r()-0.5) * w,
                 y: y,
-                z: (Math.random()-0.5) * w
+                z: (r()-0.5) * w
             });
         }
         sparks.drawPoints(points);

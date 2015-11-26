@@ -18,7 +18,12 @@ var TypeRing = React.createClass({
 
         return <ThreeGroup position-y={this.props.offset}>{chars.map((chr, i) => {
             offset += step;
-            return <TypeChar key={'char-' + i} offset={offset} chr={chr}/>;
+            return <TypeChar
+                key={'char-' + i}
+                row={this.props.row}
+                col={i}
+                chr={chr}
+                position-x={offset} />;
         })}</ThreeGroup>;
     }
 });

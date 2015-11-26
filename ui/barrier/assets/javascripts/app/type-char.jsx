@@ -14,19 +14,17 @@ var TypeChar = React.createClass({
     },
 
     render3D: function () {
-        let chr = Graph.genText({
-            scale: 6,
-            logo: true,
+        return Graph.genText({
+            scale: 3,
             text: this.props.chr,
             pos: [ 0, 0, 0 ],
-            nudge: [ 8, 0, 0 ]
-        }, obj => {
-            chr.text = obj;
-            chr.text.name = this.props.chr;
+            nudge: [ 0, 0, 0 ]
+        }, (obj, text) => {
+            obj.text = text;
+            obj.text.userData.chr = this.props.chr;
+            obj.text.userData.row = this.props.row;
+            obj.text.userData.col = this.props.col;
         });
-        chr.name = this.props.chr;
-        chr.position.x = this.props.offset;
-        return chr;
     }
 });
 

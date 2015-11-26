@@ -73,13 +73,13 @@ class Graph {
         }
     }
 
-    drawLoop (x, y, z, sides, radius, front, back, drift) {
-        this.drawLine(Graph.genArc(x, y, z, sides, radius, front, back, drift));
+    drawLoop (x, y, z, sides, radius, front, back, drift, bump) {
+        this.drawLine(Graph.genArc(x, y, z, sides, radius, front, back, drift, bump));
     }
 
-    drawLoopDash (x, y, z, sides, radius, skip, front, back, drift) {
+    drawLoopDash (x, y, z, sides, radius, skip, front, back, drift, bump) {
         var points = [ ],
-            source = Graph.genArc(x, y, z, sides, radius, front, back, drift);
+            source = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
         skip = skip || 1;
         while (source.length) {
@@ -95,9 +95,9 @@ class Graph {
         }
     }
 
-    drawLoopR (x, y, z, sides, radius, r, threshold, front, back, drift) {
+    drawLoopR (x, y, z, sides, radius, r, threshold, front, back, drift, bump) {
         var points = [ ],
-            source = Graph.genArc(x, y, z, sides, radius, front, back, drift);
+            source = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
         while (source.length) {
             points.push(source.shift());
@@ -128,9 +128,9 @@ class Graph {
         this.glyph.addFill(offset + 2, offset + 1, offset + 3);
     }
 
-    drawCircle (x, y, z, sides, radius, front, back, drift) {
+    drawCircle (x, y, z, sides, radius, front, back, drift, bump) {
         var offset = this.glyph.count,
-            points = Graph.genArc(x, y, z, sides, radius, front, back, drift);
+            points = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
         var center = offset,
             base = center + 1;
@@ -145,12 +145,12 @@ class Graph {
         }
     }
 
-    drawSwipe (x, y, z, sides, radius, width, front, back, drift) {
+    drawSwipe (x, y, z, sides, radius, width, front, back, drift, bump) {
         var offset = this.glyph.count,
             innerRadius = radius,
             outerRadius = radius + width,
-            ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift),
-            opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift);
+            ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift, bump),
+            opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift, bump);
 
         ipoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
         opoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
@@ -163,11 +163,11 @@ class Graph {
         }
     }
 
-    drawSwipeLine (x, y, z, sides, radius, width, front, back, drift) {
+    drawSwipeLine (x, y, z, sides, radius, width, front, back, drift, bump) {
         var innerRadius = radius,
             outerRadius = radius + width,
-            ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift),
-            opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift);
+            ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift, bump),
+            opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift, bump);
 
         this.drawLine(ipoints);
         this.drawLine(opoints);
@@ -232,17 +232,18 @@ Graph.projectSphere = function (radius, scale) {
     };
 };
 
-Graph.genArc = function (x, y, z, sides, radius, front, back, drift) {
+Graph.genArc = function (x, y, z, sides, radius, front, back, drift, bump) {
     var points = [ ],
         step = (Math.PI * 2) / sides;
 
     front = front || 0;
     back = back || 0;
     drift = drift || 0;
+    bump = bump || 0;
 
     sides -= front + back;
 
-    var angle = front * step;
+    var angle = (front * step) + bump;
     for (var i=0; i <= sides; ++i) {
         points.push({
             x: x + Math.cos(angle) * radius,
@@ -259,9 +260,9 @@ Graph.genArc = function (x, y, z, sides, radius, front, back, drift) {
 function genTextRetry (temp, opts, callback) {
     let _opts = JSON.parse(JSON.stringify(opts));
     return function() {
-        let text = Graph.genText(_opts, undefined, true);
+        let text = Graph.genText(_opts, callback, true);
         temp.add(text);
-        if (callback) callback(text);
+        if (callback) callback(temp, text);
     };
 }
 
@@ -319,6 +320,7 @@ Graph.genText = function (opts, callback, flat) {
 
     let temp = new THREE.Object3D();
     temp.add(mesh);
+    if (callback) callback(temp, mesh);
     return temp;
 };
 
