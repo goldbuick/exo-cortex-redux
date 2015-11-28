@@ -12,13 +12,12 @@ class DidactLocal extends DidactRun {
         return 'didact-local';
     }
 
-    boot (vorpal, callback) {
+    boot (callback) {
         callback();
     }
 
-    running (vorpal, callback) {
-        vorpal.log('active neuros', Object.keys(this.neuros));
-        callback();
+    running (callback) {
+        callback(Object.keys(this.neuros));
     }
 
     start (vorpal, name, codepath, params, callback) {
@@ -28,17 +27,19 @@ class DidactLocal extends DidactRun {
         }
 
         params.unshift(this.prefix + codepath);
-        vorpal.log('starting', params);
+        vorpal.log('starting', name, params.join(', '));
         let child = spawn('babel-node', params);
         this.neuros[name] = child;
 
         child.stdout.on('data', data => {
-            vorpal.log(name, data.toString('utf8'));
+            this.log(name, data.toString('utf8'));
         });
         child.stderr.on('data', data => {
+            this.log(name, 'ERROR', data.toString('utf8'));
             vorpal.log(name, 'ERROR', data.toString('utf8'));
         });
         child.on('exit', exitCode => {
+            this.log(name, 'has exited with code', exitCode);
             vorpal.log(name, 'has exited with code', exitCode);
             delete this.neuros[name];
         });
