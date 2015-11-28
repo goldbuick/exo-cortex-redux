@@ -3,7 +3,7 @@ import makeMessage from './message';
 import Server from 'socket.io';
 import Client from 'socket.io-client';
 
-function _sub(channel, type) {
+function _sub (channel, type) {
     return [channel, type].join('/');
 }
 

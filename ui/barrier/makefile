@@ -3,6 +3,10 @@ build = mimosa build
 
 .PHONY : start startd build build-opt buildo clean pack package
 
+watch:
+	@echo "[x] Cleaning compiled directory and starting watch server..."
+	@$(watch) -d
+
 start:
 	@echo "[x] Building assets and starting development server..."
 	@$(watch) -s
