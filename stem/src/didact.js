@@ -23,7 +23,7 @@ didact.boot(() => {
     vorpal.command('lib')
     .description('show list of built-in neuros')
     .action(function(args, callback) {
-        this.log('neuro-lib', didact.lib());
+        this.log('neuro-lib', didact.lib().join(', '));
         callback();
     });
 
@@ -36,7 +36,7 @@ didact.boot(() => {
         });
     });
 
-    vorpal.command('start <name> [codepath]')
+    vorpal.command('start <name>')
     .description('install a neuro')
     .autocompletion(function(text, iteration, callback) {
         let list = didact.lib();
@@ -48,8 +48,7 @@ didact.boot(() => {
         return callback(void 0, void 0);
     })    
     .action(function(args, callback) {
-        let params = [ ];
-        didact.start(vorpal, args.name, args.codepath || args.name, params, callback);
+        didact.start(vorpal, args.name, callback);
     });
 
     vorpal.command('gaze <name>')

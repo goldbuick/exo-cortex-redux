@@ -17,9 +17,9 @@ import { Strategy } from 'passport-local';
 
 // CODEX-CONFIG
 
+import { argv } from 'yargs';
 import log from './_lib/log';
 import apiCodex from './_api/codex';
-import CONFIG from './_lib/config';
 
 // CODEX-API
 
@@ -82,11 +82,13 @@ passport.deserializeUser(function(id, cb) {
 
 // UI-SERVER
 
+// expected args --path
+
 // setup views and port
-let compiledDir = __dirname + '/../../ui/barrier';
+let compiledDir = argv.path;
 app.set('views', compiledDir + '/views');
 app.set('view engine', 'html');
-app.set('port', CONFIG.PORTS.BARRIER);
+app.set('port', argv.port);
 app.engine('html', engines['ejs']);
 
 // passport integration
@@ -130,8 +132,9 @@ app.use(errorHandler());
 // load interface
 app.get('/', function(req, res) {
     res.render('index', {
-        optimize: false,
-        cachebust: '?b=' + (new Date()).getTime()
+        optimize: true
+        // optimize: false,
+        // cachebust: '?b=' + (new Date()).getTime()
     });
 });
 
@@ -141,6 +144,6 @@ app.post('/',
     function(req, res) { res.redirect('/'); });    
 
 // start it up
-app.listen(CONFIG.PORTS.BARRIER, function() {
-    log.server('barrier', 'started on', CONFIG.PORTS.BARRIER);
+app.listen(argv.port, function() {
+    log.server('barrier', 'started on', argv.port);
 });

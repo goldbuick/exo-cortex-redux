@@ -27,12 +27,14 @@ class DidactRun {
 
     lib () {
         return [
-            'barrier',
             'codex',
             'facade',
             'tableu',
             'terrace',
-            'vault'
+            'vault',
+            // indicates path & port args required
+            'ui-barrier',
+            'ui-sensorium'
         ];
     }
 
@@ -42,7 +44,7 @@ class DidactRun {
 
     setup (vorpal) {
         let self = this,
-            list = [ 'terrace', 'codex', 'barrier' ];
+            list = [ 'terrace', 'codex', 'ui-barrier' ];
 
         let _list = list.join(', ');
         function next() {
@@ -51,7 +53,7 @@ class DidactRun {
                 return;
             }
             let name = list.pop();
-            self.start(vorpal, name, name, [ ], next);
+            self.start(vorpal, name, next);
         }
 
         next();
@@ -65,7 +67,7 @@ class DidactRun {
         callback([]);
     }
 
-    start (vorpal, name, codepath, params, callback) {
+    start (vorpal, name, callback) {
         callback();
     }
 
