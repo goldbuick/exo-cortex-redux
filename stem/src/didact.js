@@ -1,3 +1,4 @@
+
 import app from 'vorpal';
 import { argv } from 'yargs';
 import DidactLocal from './_lib/didact-local';
@@ -94,6 +95,13 @@ didact.boot(() => {
         }
         callback();
     });
+
+    /*
+    additional commands needed to list and modify barrier routes
+    because the idea is first run didact is CLI
+    but once you setup the data in codex.. you can reboot it in
+    webmode
+    */
 
     didact.setup(vorpal);
 });

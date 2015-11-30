@@ -24,7 +24,6 @@ app.use(compression());
 app.use(favicon(argv.path + '/favicon.ico'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(express.static(argv.path + '/public'));
 app.use(errorHandler());
 

@@ -53,15 +53,15 @@ class DidactLocal extends DidactRun {
 
         switch (config[0]) {
             case 'ui':
-                name = config[1];
-                let sourcePath = path.join( __dirname, '/../../../ui/', name);
-                if (name === 'barrier') {
+                let codePath = config[1],
+                    sourcePath = path.join( __dirname, '/../../../ui/', codePath);
+                if (codePath === 'barrier') {
                     port = 8888;
                 } else {
-                    name = 'tableau';
+                    codePath = 'tableau';
                     port = this.findPort();
                 }
-                params = [ '--', this.prefix + name, '--port', port, '--path', sourcePath ];
+                params = [ '--', this.prefix + codePath, '--port', port, '--path', sourcePath ];
                 break;
 
             default:

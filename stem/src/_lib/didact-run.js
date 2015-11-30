@@ -1,3 +1,16 @@
+class NeuroContext {
+
+    constructor() {
+        // find a port
+    }
+
+    /*
+    a ui mode context manages putting entries
+    into barrier reverse proxy
+    */
+
+}
+
 class DidactRun {
 
     constructor () {
@@ -27,6 +40,7 @@ class DidactRun {
 
     lib () {
         return [
+            // core set of neuros
             'codex',
             'facade',
             'tableu',
