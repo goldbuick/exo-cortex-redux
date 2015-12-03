@@ -28,30 +28,23 @@ class Neuro {
     constructor (name) {     
         let config = name.split('-');
         if (config[0] === 'ui' && config.length > 1) {
+            this.ui = true;
             this.port = this.findPort(config[1]);
-            this.image = this.sourceImage(true, config[1]);
+            this.image = config[1];
         } else {
-            this.image = this.sourceImage(true, name);
+            this.ui = false;
+            this.image = name;
         }
-        console.log(this);
     }
 
-    findPort (name) {
+    findPort (image) {
         if (image === 'barrier') return 8888;
         return portManager.find();
     }
-}
 
-class NeuroLocal extends Neuro {
-    sourceImage (ui, name) {
-        if (ui === false || image === 'barrier') return name;
-        return 'tableau';
+    freePort () {
+        portManager.find(this.port);
     }
 }
 
-class NeuroDocker extends Neuro {
-    sourceImage (ui, name) {
-        if (ui) return 'neuro-ui' + name;
-        return 'neuro-' + name;
-    }
-}
+export default Neuro;

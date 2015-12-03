@@ -1,27 +1,11 @@
-class NeuroContext {
-
-    constructor() {
-        // find a port
-    }
-
-    /*
-    a ui mode context manages putting entries
-    into barrier reverse proxy
-    */
-
-}
-
-class DidactRun {
-
+class Stem {
     constructor () {
         this.logs = { };
+        this.neuros = { };
         this.prefix = 'src/';
     }
 
-    log () {
-        let args = Array.prototype.slice.call(arguments),
-            name = args.shift();
-
+    _log (name, args) {
         if (this.logs[name] === undefined) {
             this.logs[name] = [ ];
         }
@@ -32,9 +16,15 @@ class DidactRun {
         }
     }
 
+    log () {
+        let args = Array.prototype.slice.call(arguments),
+            name = args.shift();
+        this._log(name, args);
+    }
+
     gaze (vorpal, name, callback) {
         var list = this.logs[name] || [ ];
-        list.forEach(line => vorpal.log(line));
+        vorpal.log(list);
         callback();
     }
 
@@ -56,14 +46,14 @@ class DidactRun {
         return 'undefined';
     }
 
-    setup (vorpal) {
+    boot (vorpal, callback) {
         let self = this,
             list = [ 'terrace', 'codex', 'ui-barrier' ];
 
         let _list = list.join(', ');
         function next() {
             if (list.length === 0) {
-                vorpal.log('finished setup of', _list);
+                callback(_list);
                 return;
             }
             let name = list.pop();
@@ -73,26 +63,25 @@ class DidactRun {
         next();
     }
 
-    boot (callback) {
-        callback();
+    running (callback) {
+        callback(Object.keys(this.neuros));
     }
 
-    running (callback) {
-        callback([]);
+    sourceImage (neuro) {
+        return neuro.image;
     }
 
     start (vorpal, name, callback) {
         callback();
     }
 
-    kill (vorpal, name, callback) {
+    kill (name, callback) {
         callback();
     }
 
-    check (vorpal, name) {
+    check (name) {
 
-    }
-
+    }    
 }
 
-export default DidactRun;
+export default Stem;

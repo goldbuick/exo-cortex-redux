@@ -1,24 +1,25 @@
 
 import app from 'vorpal';
 import { argv } from 'yargs';
-import DidactLocal from './_lib/didact-local';
-import DidactDocker from './_lib/didact-docker';
+import StemLocal from './_lib/stem-local';
+import StemDocker from './_lib/stem-docker';
 
 let didact;
 if (argv.docker === undefined) {
-    didact = new DidactLocal();
+    didact = new StemLocal();
 } else {
-    didact = new DidactDocker();
+    didact = new StemDocker();
 }
 
-didact.boot(() => {
-    let vorpal = app();
+let vorpal = app();
+vorpal.delimiter('exo-didact$') .show()
 
-    vorpal.delimiter('exo-didact$')
-    .show()
-    .log('-------------------------------------')
+didact.boot(vorpal, started => {
+
+    vorpal.log('-------------------------------------')
     .log('welcome to', didact.kind())
     .log('-------------------------------------')
+    .log('started: ' + started)
     .parse(process.argv);
 
     vorpal.command('lib')
@@ -94,14 +95,5 @@ didact.boot(() => {
             this.log('prefix updated to', didact.prefix);
         }
         callback();
-    });
-
-    /*
-    additional commands needed to list and modify barrier routes
-    because the idea is first run didact is CLI
-    but once you setup the data in codex.. you can reboot it in
-    webmode
-    */
-
-    didact.setup(vorpal);
+    });    
 });
