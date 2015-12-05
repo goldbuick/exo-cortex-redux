@@ -1,8 +1,26 @@
+import CodexApi from './_api/codex-api';
+
 class Stem {
     constructor () {
         this.logs = { };
         this.neuros = { };
         this.prefix = 'src/';
+        this.barrier = CodexApi('barrier');
+    }
+
+    get proxy() {
+        return {
+            pub: this.barrier.get('pub'),
+            auth: this.barrier.get('auth')
+        };
+    }
+
+    get password () {
+        return this.barrier.get('password');
+    }
+
+    set password (password) {
+        this.barrier.set('password', password).commit();
     }
 
     _log (name, args) {

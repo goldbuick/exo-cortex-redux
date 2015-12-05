@@ -25,7 +25,8 @@ class PortManager {
 let portManager = new PortManager();
 
 class Neuro {
-    constructor (name) {     
+    constructor (name) {
+        this.name = name;
         let config = name.split('-');
         if (config[0] === 'ui' && config.length > 1) {
             this.ui = true;

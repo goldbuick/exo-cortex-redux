@@ -10,6 +10,10 @@ class StemDocker extends Stem {
         if (neuro.ui) return 'neuro-ui-' + neuro.name;
         return 'neuro-' + neuro.name;
     }
+
+    sourceProxy (neuro) {
+        
+    }
 }
 
 export default StemDocker;

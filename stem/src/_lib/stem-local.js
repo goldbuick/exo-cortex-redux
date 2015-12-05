@@ -55,6 +55,10 @@ class StemLocal extends Stem {
             delete this.neuros[name];
         });
 
+        // set proxy data for this neuro assume barrier is 8888
+        this.barrier.set('auth', name, 'localhost:' + neuro.port).commit();
+
+        // finished        
         callback();
     }
 
@@ -63,6 +67,8 @@ class StemLocal extends Stem {
             vorpal.log(name, 'is not running');
             return callback();
         }
+        // remove proxy data & kill child process
+        this.barrier.remove('auth', name).commit();
         this.neuros[name].child.kill();
         callback();
     }

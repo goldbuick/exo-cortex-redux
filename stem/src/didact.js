@@ -2,7 +2,6 @@
 import app from 'vorpal';
 import { argv } from 'yargs';
 import log from './_lib/log';
-import CodexApi from './_api/codex-api';
 import StemLocal from './_lib/stem-local';
 import StemDocker from './_lib/stem-docker';
 
@@ -17,8 +16,6 @@ if (argv.docker === undefined) {
 } else {
     didact = new StemDocker();
 }
-
-let barrier = CodexApi('barrier');
 
 vorpal.delimiter('exo-didact$').show();
 didact.boot(vorpal, started => {
@@ -92,37 +89,26 @@ didact.boot(vorpal, started => {
         didact.kill(vorpal, args.name, callback);
     });
 
-    // vorpal.command('prefix [name]')
-    // .description('show / set codepath prefix to find neuro files')
-    // .action(function(args, callback) {
-    //     if (args.name === undefined) {
-    //         this.log('current prefix', didact.prefix);
-    //     } else {
-    //         didact.prefix = args.name;
-    //         this.log('prefix updated to', didact.prefix);
-    //     }
-    //     callback();
-    // });    
-
     vorpal.command('access')
     .description('show current access to web didact')
     .action(function(args, callback) {
-        this.log('current password', barrier.value.password);
-        this.log('current auth proxy', barrier.value.auth);
+        this.log('current password', didact.password);
+        this.log('current proxy', didact.proxy);
+        this.log('current auth proxy', didact.proxy);
         callback();
     });
 
     vorpal.command('password <password>')
     .description('set password for barrier')
     .action(function(args, callback) {
-        barrier.update('password', args.password);
+        didact.password = args.password;
         callback();
     });
 
-    vorpal.command('proxy <source> <into>')
-    .description('set proxy info for ui-didact')
-    .action(function(args, callback) {
-        barrier.update('auth', args.source, args.into);
-        callback();
-    });
+    // vorpal.command('auth <source> <into>')
+    // .description('set proxy info for ui-didact')
+    // .action(function(args, callback) {
+    //     barrier.set('auth', args.source, args.into).commit();
+    //     callback();
+    // });
 });

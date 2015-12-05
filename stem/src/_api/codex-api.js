@@ -18,9 +18,77 @@ class CodexAPI {
         });
     }
 
-    update (key, json) {
-        this.value[key] = json;
-        this.api.emit('codex', 'set', { key: this.key, value: this.value });
+    fetch (keys) {
+        let prevObj,
+            lastKey,
+            currentObj = this.value;
+
+        while (keys.length && currentObj) {
+            lastKey = keys.shift();
+            prevObj = currentObj;
+            if (currentObj[lastKey] === undefined) {
+                currentObj[lastKey] = { };
+            }
+            currentObj = currentObj[lastKey];
+        }
+
+        return {
+            get: function () {
+                return prevObj[lastKey];
+            },
+            set: function (value) {
+                prevObj[lastKey] = value;
+                return prevObj[lastKey];
+            },
+            push: function (value) {
+                prevObj[lastKey].push(value);
+                return prevObj[lastKey];
+            },
+            remove: function () {
+                if (!Array.isArray(prevObj)) {
+                    delete prevObj[lastKey];
+                } else {
+                    prevObj.slice(lastKey, lastKey);
+                }
+            }
+        };
+    }
+
+    get () {
+        let keys = Array.isArray(arguments[0])
+            ? arguments[0] : Array.prototype.slice.call(arguments);
+        let cursor = this.fetch(keys);
+        return cursor.get();
+    }
+
+    set () {
+        let keys = Array.isArray(arguments[0])
+            ? arguments[0] : Array.prototype.slice.call(arguments),
+            value = keys.pop();
+        let cursor = this.fetch(keys);
+        cursor.set(value);
+        return this;
+    }
+
+    push () {
+        let keys = Array.isArray(arguments[0])
+            ? arguments[0] : Array.prototype.slice.call(arguments),
+            value = keys.pop();
+        let cursor = this.fetch(keys);
+        cursor.push(value);
+        return this;
+    }
+
+    remove () {
+        let keys = Array.isArray(arguments[0])
+            ? arguments[0] : Array.prototype.slice.call(arguments);
+        let cursor = this.fetch(keys);
+        cursor.remove();
+        return this;
+    }
+
+    commit () {
+        this.api.emit('codex', 'set', { key: this.key, value: this.value });        
     }
     
 }
