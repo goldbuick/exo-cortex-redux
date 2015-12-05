@@ -19,12 +19,14 @@ import { Strategy } from 'passport-local';
 
 import { argv } from 'yargs';
 import log from './_lib/log';
-import apiCodex from './_api/codex';
+import CodexClient from './_api/codex-client';
 
 // CODEX-API
 
-let gproxy = { pub: { }, auth: { } },
-    store = apiCodex('barrier');
+let gproxy = {},
+    store = CodexClient('barrier');
+
+// 'D@klWJcpL'
 
 store.value('', (type, value) => {
     if (value.pub === undefined) {
@@ -33,13 +35,21 @@ store.value('', (type, value) => {
     if (value.auth === undefined) {
         value.auth = [ ];
     }
+    if (value.password === undefined) {
+        value.password = 'D@k1WJcpL';
+    }
 }, value => {
-    gproxy = { pub: { }, auth: { } };
+    console.log('updated', value);
+    gproxy.pub = { };
+    gproxy.auth = { };
     if (value.pub && value.pub.forEach) {
         value.pub.forEach(pair => { gproxy.pub[pair.host] = pair.target; });
     }
     if (value.auth && value.auth.forEach) {
         value.auth.forEach(pair => { gproxy.auth[pair.host] = pair.target; });
+    }
+    if (value.password) {
+        gproxy.password = value.password;
     }
 });
 
@@ -64,8 +74,12 @@ let app = express(),
 // PASSPORT
 
 passport.use(new Strategy(function (username, password, cb) {
-    log.msg('passport', 'username, password', username, password);
-    cb(null, sysUser);
+    if (password === gproxy.password) {
+        log.msg('password accepted', password);
+        return cb(null, sysUser);
+    }
+    log.msg('password rejected', password, '!==', gproxy.password);
+    cb('invalid password');
 }));
 
 passport.serializeUser(function(user, cb) {
@@ -92,18 +106,22 @@ app.set('port', argv.port);
 app.engine('html', engines['ejs']);
 
 // passport integration
-app.use(session({ secret: '_exo_cortex_barrier_', resave: true, saveUninitialized: false }));
+app.use(session({
+    resave: true,
+    // cookie: { domain: '' },
+    saveUninitialized: false,
+    secret: '_exo_cortex_barrier_'
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
 // authenticated proxy
 app.use(function(req, res, next) {
-    let host = req.get('host');
-    log.msg('passport', 'request', host);
+    log.msg('request', req.hostname, req.url);
 
     // public domains
     if (gproxy.pub !== undefined) {
-        let target = gproxy.pub[host];
+        let target = gproxy.pub[req.hostname];
         if (target !== undefined) {
             return proxy.web(req, res, { target: target });
         }
@@ -111,10 +129,14 @@ app.use(function(req, res, next) {
 
     // authenticated domains
     if (req.isAuthenticated() && gproxy.auth !== undefined) {
-        let target = gproxy.auth[host];
+        let target = gproxy.auth[req.hostname];
         if (target !== undefined) {
             return proxy.web(req, res, { target: target });
         }
+    }
+
+    if (req.isAuthenticated()) {
+        res.end('{ "access": true }', 'utf8');
     }
 
     next();

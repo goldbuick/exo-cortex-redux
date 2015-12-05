@@ -48,7 +48,8 @@ class Stem {
 
     boot (vorpal, callback) {
         let self = this,
-            list = [ 'terrace', 'codex', 'ui-barrier' ];
+            // list = [ 'terrace', 'codex', 'ui-barrier' ];
+            list = [ 'terrace', 'codex' ];
 
         let _list = list.join(', ');
         function next() {

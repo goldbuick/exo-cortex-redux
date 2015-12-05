@@ -2,25 +2,25 @@ import log from '../_lib/log';
 import CONFIG from '../_lib/config';
 import { listen } from '../_lib/gateway';
 
-class CodexAPI {
+class CodexClient {
+
     constructor (key) {
-        var self = this;
-        self.key = key;
-        self.rules = { };
-        self.before = { };
-        self.triggers = { };
-        self.api = listen(CONFIG.PORTS.TERRACE, () => {
-            log.event('codex', 'request', self.key);
-            self.api.emit('codex', 'get', { key: self.key });            
+        this.key = key;
+        this.rules = { };
+        this.before = { };
+        this.triggers = { };
+        this.api = listen(CONFIG.PORTS.TERRACE, () => {
+            log.event('codex', 'request', this.key);
+            this.api.emit('codex', 'get', { key: this.key });            
         });
-        self.api.message('codex/value', message => {
+        this.api.message('codex/value', message => {
             if (message.meta.key !== key) return;
 
-            log.event('codex', 'received', self.key);
+            log.event('codex', 'received', this.key);
             var json = JSON.parse(JSON.stringify(message.meta.value)),
-                changed = self.checkJson(json);
+                changed = this.checkJson(json);
 
-            if (changed) self.api.emit('codex', 'set', { key: key, value: json });
+            if (changed) this.api.emit('codex', 'set', { key: key, value: json });
         });
     }
 
@@ -41,8 +41,7 @@ class CodexAPI {
     }
 
     flatten (result, parent, key, path, cursor) {
-        var self = this,
-            type = this.typeOf(cursor);
+        var type = this.typeOf(cursor);
 
         result[path] = {
             parent: parent,
@@ -51,13 +50,13 @@ class CodexAPI {
         };
 
         if (type === 'array') {
-            cursor.forEach(function (value, index) {
-                self.flatten(result, cursor, index, path + '/' + index, value);
+            cursor.forEach((value, index) => {
+                this.flatten(result, cursor, index, path + '/' + index, value);
             });
 
         } else if (type === 'object') {
-            Object.keys(cursor).forEach(function (key) {
-                self.flatten(result, cursor, key, path + '/' + key, cursor[key]);
+            Object.keys(cursor).forEach(key => {
+                this.flatten(result, cursor, key, path + '/' + key, cursor[key]);
             });
         }
     }
@@ -65,8 +64,8 @@ class CodexAPI {
     checkPatterns (lookup, fn) {
         var patterns = Object.keys(this.rules);
 
-        Object.keys(lookup).forEach(function (path) {
-            patterns.forEach(function (pattern) {
+        Object.keys(lookup).forEach(path => {
+            patterns.forEach(pattern => {
                 var result = path.match(pattern);
                 if (result && result[0].length === path.length) {
                     fn(path, pattern);
@@ -103,14 +102,13 @@ class CodexAPI {
     }
 
     checkJson (json) {
-        var self = this,
-            changed = false;
+        var changed = false;
 
         var lookup = [];
-        self.flatten(lookup, undefined, '', '', json);
-        self.checkPatterns(lookup, function (path, pattern) {
+        this.flatten(lookup, undefined, '', '', json);
+        this.checkPatterns(lookup, (path, pattern) => {
             try {
-                if (self.checkMatch(lookup[path], self.rules[pattern])) {
+                if (this.checkMatch(lookup[path], this.rules[pattern])) {
                     changed = true;
                 }
 
@@ -120,17 +118,17 @@ class CodexAPI {
         });
 
         lookup = [];
-        self.flatten(lookup, undefined, '', '', json);
-        self.checkPatterns(lookup, function (path, pattern) {
+        this.flatten(lookup, undefined, '', '', json);
+        this.checkPatterns(lookup, (path, pattern) => {
             var before;
 
-            if (self.triggers[pattern] !== undefined) {
+            if (this.triggers[pattern] !== undefined) {
                 try {
-                    if (self.before[path] === undefined) {
-                        self.triggers[pattern](lookup[path].value, undefined);
+                    if (this.before[path] === undefined) {
+                        this.triggers[pattern](lookup[path].value, undefined);
 
-                    } else if (self.before[path] !== JSON.stringify(lookup[path].value)) {
-                        self.triggers[pattern](lookup[path].value, JSON.parse(self.before[path]));
+                    } else if (this.before[path] !== JSON.stringify(lookup[path].value)) {
+                        this.triggers[pattern](lookup[path].value, JSON.parse(this.before[path]));
 
                     }
 
@@ -140,9 +138,9 @@ class CodexAPI {
             }
         });
 
-        self.before = { };
-        Object.keys(lookup).forEach(function (path) {
-            self.before[path] = JSON.stringify(lookup[path].value);
+        this.before = { };
+        Object.keys(lookup).forEach(path => {
+            this.before[path] = JSON.stringify(lookup[path].value);
         });
 
         return changed;
@@ -150,6 +148,6 @@ class CodexAPI {
 
 }
 
-export default function (name) {
-    return new CodexAPI(name);
+export default function (key) {
+    return new CodexClient(key);
 }

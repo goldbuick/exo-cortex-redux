@@ -1,8 +1,15 @@
 
 import app from 'vorpal';
 import { argv } from 'yargs';
+import log from './_lib/log';
+import CodexApi from './_api/codex-api';
 import StemLocal from './_lib/stem-local';
 import StemDocker from './_lib/stem-docker';
+
+let vorpal = app();
+log.output(function () {
+    vorpal.log.apply(vorpal, arguments);
+});
 
 let didact;
 if (argv.docker === undefined) {
@@ -11,9 +18,11 @@ if (argv.docker === undefined) {
     didact = new StemDocker();
 }
 
-let vorpal = app();
-vorpal.delimiter('exo-didact$') .show()
+let barrier = CodexApi('barrier', value => {
+    vorpal.log('current password', value.password);    
+});
 
+vorpal.delimiter('exo-didact$').show();
 didact.boot(vorpal, started => {
 
     vorpal.log('-------------------------------------')
@@ -93,6 +102,17 @@ didact.boot(vorpal, started => {
         } else {
             didact.prefix = args.name;
             this.log('prefix updated to', didact.prefix);
+        }
+        callback();
+    });    
+
+    vorpal.command('access [password]')
+    .description('show / set password for barrier')
+    .action(function(args, callback) {
+        if (args.password === undefined) {
+            this.log('current password', barrier.value.password);
+        } else {
+            barrier.update('password', args.password);
         }
         callback();
     });    

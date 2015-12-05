@@ -19,6 +19,7 @@ class StemLocal extends Stem {
             vorpal.log('restarting', name);
             this.neuros[name].child.kill();
         } else {
+            vorpal.log('creating', name);
             this.neuros[name] = new Neuro(name);
         }
 
@@ -60,11 +61,9 @@ class StemLocal extends Stem {
     kill (vorpal, name, callback) {
         if (this.neuros[name] === undefined) {
             vorpal.log(name, 'is not running');
-            return;
+            return callback();
         }
-        this.neuros[name].freePort();
         this.neuros[name].child.kill();
-        delete this.neuros[name];
         callback();
     }
 
