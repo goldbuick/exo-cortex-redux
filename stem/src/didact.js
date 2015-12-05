@@ -18,9 +18,7 @@ if (argv.docker === undefined) {
     didact = new StemDocker();
 }
 
-let barrier = CodexApi('barrier', value => {
-    vorpal.log('current password', value.password);    
-});
+let barrier = CodexApi('barrier');
 
 vorpal.delimiter('exo-didact$').show();
 didact.boot(vorpal, started => {
@@ -94,26 +92,37 @@ didact.boot(vorpal, started => {
         didact.kill(vorpal, args.name, callback);
     });
 
-    vorpal.command('prefix [name]')
-    .description('show / set codepath prefix to find neuro files')
-    .action(function(args, callback) {
-        if (args.name === undefined) {
-            this.log('current prefix', didact.prefix);
-        } else {
-            didact.prefix = args.name;
-            this.log('prefix updated to', didact.prefix);
-        }
-        callback();
-    });    
+    // vorpal.command('prefix [name]')
+    // .description('show / set codepath prefix to find neuro files')
+    // .action(function(args, callback) {
+    //     if (args.name === undefined) {
+    //         this.log('current prefix', didact.prefix);
+    //     } else {
+    //         didact.prefix = args.name;
+    //         this.log('prefix updated to', didact.prefix);
+    //     }
+    //     callback();
+    // });    
 
-    vorpal.command('access [password]')
-    .description('show / set password for barrier')
+    vorpal.command('access')
+    .description('show current access to web didact')
     .action(function(args, callback) {
-        if (args.password === undefined) {
-            this.log('current password', barrier.value.password);
-        } else {
-            barrier.update('password', args.password);
-        }
+        this.log('current password', barrier.value.password);
+        this.log('current auth proxy', barrier.value.auth);
         callback();
-    });    
+    });
+
+    vorpal.command('password <password>')
+    .description('set password for barrier')
+    .action(function(args, callback) {
+        barrier.update('password', args.password);
+        callback();
+    });
+
+    vorpal.command('proxy <source> <into>')
+    .description('set proxy info for ui-didact')
+    .action(function(args, callback) {
+        barrier.update('auth', args.source, args.into);
+        callback();
+    });
 });

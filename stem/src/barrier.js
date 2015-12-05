@@ -43,10 +43,10 @@ store.value('', (type, value) => {
     gproxy.pub = { };
     gproxy.auth = { };
     if (value.pub && value.pub.forEach) {
-        value.pub.forEach(pair => { gproxy.pub[pair.host] = pair.target; });
+        value.pub.forEach(pair => { gproxy.pub[pair.source] = pair.target; });
     }
     if (value.auth && value.auth.forEach) {
-        value.auth.forEach(pair => { gproxy.auth[pair.host] = pair.target; });
+        value.auth.forEach(pair => { gproxy.auth[pair.source] = pair.target; });
     }
     if (value.password) {
         gproxy.password = value.password;
@@ -55,13 +55,13 @@ store.value('', (type, value) => {
 
 store.value('/pub/[0-9]+', (type, value) => {
     if (type !== 'object') {
-        return { host: '', target: '' };
+        return { source: '', target: '' };
     }
 });
 
 store.value('/auth/[0-9]+', (type, value) => {
     if (type !== 'object') {
-        return { host: '', target: '' };
+        return { source: '', target: '' };
     }
 });
 
