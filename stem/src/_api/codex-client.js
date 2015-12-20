@@ -1,26 +1,36 @@
 import log from '../_lib/log';
 import CONFIG from '../_lib/config';
+import ObjMod from '../_lib/obj-mod';
 import { listen } from '../_lib/gateway';
 
 class CodexClient {
 
     constructor (key) {
         this.key = key;
+        this.store = { };
         this.rules = { };
         this.before = { };
         this.triggers = { };
         this.api = listen(CONFIG.PORTS.TERRACE, () => {
-            log.event('codex', 'request', this.key);
-            this.api.emit('codex', 'get', { key: this.key });            
+            this.api.emit('codex', 'get', { keys: [ this.key ] });            
         });
         this.api.message('codex/value', message => {
-            if (message.meta.key !== key) return;
+            let keys = message.meta.keys,
+                value = message.meta.value;
+            if (keys === undefined || value === undefined ||
+                keys[0] !== this.key) return;
 
-            log.event('codex', 'received', this.key);
-            var json = JSON.parse(JSON.stringify(message.meta.value)),
+            // write update
+            ObjMod.set(this.store, keys, value);
+
+            // run rules
+            let json = JSON.parse(JSON.stringify(this.store[this.key])),
                 changed = this.checkJson(json);
 
-            if (changed) this.api.emit('codex', 'set', { key: key, value: json });
+            // signal update value
+            if (changed) {
+                this.api.emit('codex', 'set', { keys: [ this.key ], value: json });
+            }
         });
     }
 

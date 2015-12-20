@@ -30,10 +30,10 @@ let gproxy = {},
 
 store.value('', (type, value) => {
     if (value.pub === undefined) {
-        value.pub = [ ];
+        value.pub = { };
     }
     if (value.auth === undefined) {
-        value.auth = [ ];
+        value.auth = { };
     }
     if (value.password === undefined) {
         value.password = 'D@k1WJcpL';
@@ -119,21 +119,25 @@ app.use(passport.session());
 app.use(function(req, res, next) {
     log.msg('request', req.hostname, req.url);
 
-    // public domains
-    if (gproxy.pub !== undefined) {
-        let target = gproxy.pub[req.hostname];
-        if (target !== undefined) {
-            return proxy.web(req, res, { target: target });
-        }
+    function checkMatch(url, forward) {
+        let match = Object.keys()
     }
 
-    // authenticated domains
-    if (req.isAuthenticated() && gproxy.auth !== undefined) {
-        let target = gproxy.auth[req.hostname];
-        if (target !== undefined) {
-            return proxy.web(req, res, { target: target });
-        }
-    }
+    // // public domains
+    // if (gproxy.pub !== undefined) {
+    //     let target = gproxy.pub[req.hostname];
+    //     if (target !== undefined) {
+    //         return proxy.web(req, res, { target: target });
+    //     }
+    // }
+
+    // // authenticated domains
+    // if (req.isAuthenticated() && gproxy.auth !== undefined) {
+    //     let target = gproxy.auth[req.hostname];
+    //     if (target !== undefined) {
+    //         return proxy.web(req, res, { target: target });
+    //     }
+    // }
 
     if (req.isAuthenticated()) {
         res.end('{ "access": true }', 'utf8');

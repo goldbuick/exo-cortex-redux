@@ -1,98 +1,64 @@
 import log from '../_lib/log';
 import CONFIG from '../_lib/config';
+import ObjMod from '../_lib/obj-mod';
 import { listen } from '../_lib/gateway';
 
 class CodexAPI {
 
-    constructor (key, handler) {
+    constructor (key, onValue) {
         this.key = key;
-        this.value = { };
-        this.handler = handler;
+        this.store = { };
         this.api = listen(CONFIG.PORTS.TERRACE, () => {
-            this.api.emit('codex', 'get', { key: this.key });            
+            this.api.emit('codex', 'get', { keys: [ this.key ] });
         });
         this.api.message('codex/value', message => {
-            if (message.meta.key !== key) return;
-            this.value = message.meta.value;
-            if (this.handler) this.handler(this.value);
+            let keys = message.meta.keys,
+                value = message.meta.value;
+            if (keys === undefined || value === undefined ||
+                keys[0] !== this.key) return;
+
+            // write update
+            ObjMod.set(this.store, keys, value);
+
+            // callback for updated value
+            if (onValue) {
+                onValue(this.store[this.key]);
+            }
+
+            // waiting for the next updated value
+            if (this.onCheck) {
+                let _check = this.onCheck;
+                delete this.onCheck;
+                _check(this.store[this.key]);
+            }
         });
     }
 
-    fetch (keys) {
-        let prevObj,
-            lastKey,
-            currentObj = this.value;
+    check (onCheck) {
+        this.onCheck = onCheck;
+        this.api.emit('codex', 'get', { keys: [ this.key ] });
+    }
 
-        while (keys.length && currentObj) {
-            lastKey = keys.shift();
-            prevObj = currentObj;
-            if (currentObj[lastKey] === undefined) {
-                currentObj[lastKey] = { };
-            }
-            currentObj = currentObj[lastKey];
+    get (keys, onCheck) {
+        let _keys = [ this.key ].concat(keys);
+        if (onCheck) {
+            this.onCheck = onCheck;
+            this.api.emit('codex', 'get', { keys: _keys });
         }
-
-        return {
-            get: function () {
-                return prevObj[lastKey];
-            },
-            set: function (value) {
-                prevObj[lastKey] = value;
-                return prevObj[lastKey];
-            },
-            push: function (value) {
-                prevObj[lastKey].push(value);
-                return prevObj[lastKey];
-            },
-            remove: function () {
-                if (!Array.isArray(prevObj)) {
-                    delete prevObj[lastKey];
-                } else {
-                    prevObj.slice(lastKey, lastKey);
-                }
-            }
-        };
+        return ObjMod.get(this.store, _keys);
     }
 
-    get () {
-        let keys = Array.isArray(arguments[0])
-            ? arguments[0] : Array.prototype.slice.call(arguments);
-        let cursor = this.fetch(keys);
-        return cursor.get();
+    set (keys, value, onCheck) {
+        let _keys = [ this.key ].concat(keys);
+        ObjMod.set(this.store, _keys, value);
+        if (onCheck) {
+            this.onCheck = onCheck;
+        }
+        this.api.emit('codex', 'set', { keys: _keys, value: value });
     }
 
-    set () {
-        let keys = Array.isArray(arguments[0])
-            ? arguments[0] : Array.prototype.slice.call(arguments),
-            value = keys.pop();
-        let cursor = this.fetch(keys);
-        cursor.set(value);
-        return this;
-    }
-
-    push () {
-        let keys = Array.isArray(arguments[0])
-            ? arguments[0] : Array.prototype.slice.call(arguments),
-            value = keys.pop();
-        let cursor = this.fetch(keys);
-        cursor.push(value);
-        return this;
-    }
-
-    remove () {
-        let keys = Array.isArray(arguments[0])
-            ? arguments[0] : Array.prototype.slice.call(arguments);
-        let cursor = this.fetch(keys);
-        cursor.remove();
-        return this;
-    }
-
-    commit () {
-        this.api.emit('codex', 'set', { key: this.key, value: this.value });        
-    }
-    
 }
 
-export default function (key, handler) {
-    return new CodexAPI(key, handler);
+export default function (key, onValue) {
+    return new CodexAPI(key, onValue);
 }

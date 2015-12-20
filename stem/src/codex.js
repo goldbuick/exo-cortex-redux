@@ -1,10 +1,13 @@
 import log from './_lib/log';
 import CONFIG from './_lib/config';
+import ObjMod from './_lib/obj-mod';
+import debounce from './_lib/debounce';
 import { client } from './_lib/gateway';
-import Rethinkdb from './_lib/rethinkdb';
+import RethinkDB from './_lib/rethinkdb';
 
 let gstore = { },
-    db = new Rethinkdb('codex'),
+    gchanged = { },
+    db = new RethinkDB('codex'),
     codex = client('codex', CONFIG.PORTS.TERRACE);
 
 // STORAGE
@@ -19,7 +22,7 @@ db.ready(function () {
             if (record.value === undefined) return;
 
             gstore[record.id] = record.value;
-            log.msg('codex', 'read', record.id);
+            log.msg('codex', 'read', record.id, JSON.stringify(record.value));
 
         }, function () {
             log.msg('codex', 'finished reading');
@@ -35,7 +38,6 @@ function writeValue (key) {
         value: gstore[key]
     };
 
-    // clean json, I don't know what I am doing!?
     json = JSON.parse(JSON.stringify(json));
 
     // insert value
@@ -46,29 +48,33 @@ function writeValue (key) {
         if (db.check(err)) return;
         log.msg('codex', 'wrote', JSON.stringify(json));
     });
-
-    signalValue(key);
 }
 
-function signalValue (key) {
-    codex.emit('value', { key: key, value: gstore[key] });
-}
+let writeChangedValues = debounce(() => {
+    Object.keys(gchanged).forEach(writeValue);
+    gchanged = { };
+}, 1000);
 
 // MESSAGE HANDLERS
 
 codex.message('get', message => {
     log.msg('codex', 'get', message);
-    let key = message.meta.key;
-    if (gstore[key] === undefined) gstore[key] = { };
-    signalValue(key);
+    let keys = message.meta.keys;
+    if (keys === undefined) return;
+
+    let value = ObjMod.get(gstore, keys);
+    codex.emit('value', { keys: keys, value: value });
 });
 
 codex.message('set', message => {
     log.msg('codex', 'set', message);
-    let key = message.meta.key,
+    let keys = message.meta.keys,
         value = message.meta.value;
-    if (key === undefined || value === undefined) return;
+    if (keys === undefined || value === undefined) return;
 
-    gstore[key] = value;
-    writeValue(key);
+    ObjMod.set(gstore, keys, value);
+    codex.emit('value', { key: keys, value: value });
+
+    gchanged[keys[0]] = true;
+    writeChangedValues();
 });

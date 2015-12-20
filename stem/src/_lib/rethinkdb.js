@@ -31,6 +31,20 @@ class RethinkDB {
         return check(err);
     }
 
+    testConnect (host, port, success, failure) {
+        r.connect({
+            host: host,
+            port: port,
+            db: this.db            
+        }, (err, conn) => {
+            if (check(err)) {
+                failure();
+            } else {
+                success();
+            }
+        });
+    }
+
     connect (host, port) {
         var self = this;
         this.conn = undefined;
@@ -52,16 +66,17 @@ class RethinkDB {
             host: host,
             port: port,
             db: self.db            
-        }, function (err, conn) {
+        }, (err, conn) => {
             if (check(err)) return;
 
             self.conn = conn;
-            createdb(function () {
-                createtable(function () {
+            createdb(() => {
+                createtable(() => {
                     log.msg('rethinkdb', 'connected', self.db, self.table);
                     if (self.onReady) self.onReady();
                 });
             });
+
         });
     }
 }

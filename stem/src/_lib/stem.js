@@ -1,32 +1,24 @@
-import CodexApi from './_api/codex-api';
 
 class Stem {
+
     constructor () {
         this.logs = { };
         this.neuros = { };
-        this.prefix = 'src/';
-        this.barrier = CodexApi('barrier');
     }
 
-    get proxy() {
-        return {
-            pub: this.barrier.get('pub'),
-            auth: this.barrier.get('auth')
-        };
+    sourceImage (neuro) {
+        return neuro.image;
     }
 
-    get password () {
-        return this.barrier.get('password');
-    }
+    log () {
+        let args = Array.prototype.slice.call(arguments),
+            name = args.shift();
 
-    set password (password) {
-        this.barrier.set('password', password).commit();
-    }
-
-    _log (name, args) {
         if (this.logs[name] === undefined) {
             this.logs[name] = [ ];
         }
+
+        console.log('----', name, args.join(' '));
 
         this.logs[name].unshift(args.join(' '));
         if (this.logs[name].length > 100) {
@@ -34,63 +26,7 @@ class Stem {
         }
     }
 
-    log () {
-        let args = Array.prototype.slice.call(arguments),
-            name = args.shift();
-        this._log(name, args);
-    }
-
-    gaze (vorpal, name, callback) {
-        var list = this.logs[name] || [ ];
-        vorpal.log(list);
-        callback();
-    }
-
-    lib () {
-        return [
-            // core set of neuros
-            'codex',
-            'facade',
-            'tableu',
-            'terrace',
-            'vault',
-            // indicates path & port args required
-            'ui-barrier',
-            'ui-sensorium'
-        ];
-    }
-
-    kind () {
-        return 'undefined';
-    }
-
-    boot (vorpal, callback) {
-        let self = this,
-            // list = [ 'terrace', 'codex', 'ui-barrier' ];
-            list = [ 'terrace', 'codex' ];
-
-        let _list = list.join(', ');
-        function next() {
-            if (list.length === 0) {
-                callback(_list);
-                return;
-            }
-            let name = list.pop();
-            self.start(vorpal, name, next);
-        }
-
-        next();
-    }
-
-    running (callback) {
-        callback(Object.keys(this.neuros));
-    }
-
-    sourceImage (neuro) {
-        return neuro.image;
-    }
-
-    start (vorpal, name, callback) {
+    start (name, callback) {
         callback();
     }
 
@@ -98,9 +34,21 @@ class Stem {
         callback();
     }
 
-    check (name) {
+    running (callback) {
+        callback(Object.keys(this.neuros));
+    }
 
-    }    
+    gaze (name, callback) {
+        var list = this.logs[name] || [ ];
+        callback(list);
+    }
+
+    neuroPort (name) {
+        if (this.neuros[name]) {
+            return this.neuros[name].port;
+        }
+    }
+    
 }
 
 export default Stem;

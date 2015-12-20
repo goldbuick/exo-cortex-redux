@@ -1,4 +1,4 @@
-import log from './lib/log';
+import log from './_lib/log';
 
 /*
 

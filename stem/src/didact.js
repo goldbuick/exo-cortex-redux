@@ -1,114 +1,78 @@
-
-import app from 'vorpal';
 import { argv } from 'yargs';
 import log from './_lib/log';
+import CONFIG from './_lib/config';
+import { client } from './_lib/gateway';
 import StemLocal from './_lib/stem-local';
 import StemDocker from './_lib/stem-docker';
+import PreFlightLocal from './_lib/preflight-local';
+import PreFlightDocker from './_lib/preflight-docker';
 
-let vorpal = app();
-log.output(function () {
-    vorpal.log.apply(vorpal, arguments);
-});
+let isLocal = (argv.docker === undefined);
 
-let didact;
-if (argv.docker === undefined) {
-    didact = new StemLocal();
+let stem;
+if (isLocal) {
+    stem = new StemLocal();
 } else {
-    didact = new StemDocker();
+    stem = new StemDocker();
 }
 
-vorpal.delimiter('exo-didact$').show();
-didact.boot(vorpal, started => {
+let preflight;
+if (isLocal) {
+    preflight = new PreFlightLocal();
+} else {
+    preflight = new PreFlightDocker();
+}
 
-    vorpal.log('-------------------------------------')
-    .log('welcome to', didact.kind())
-    .log('-------------------------------------')
-    .log('started: ' + started)
-    .parse(process.argv);
+preflight.ready(stem, () => {
+    let didact = client('didact', CONFIG.PORTS.TERRACE);
 
-    vorpal.command('lib')
-    .description('show list of built-in neuros')
-    .action(function(args, callback) {
-        this.log('neuro-lib', didact.lib().join(', '));
-        callback();
+    didact.message('lib', message => {
+        didact.emit('lib', {
+            neuros: [
+                // core set of neuros
+                'codex',
+                'facade',
+                'terrace',
+                'vault',
+                // indicates path & port args required
+                'ui-didact',
+                'ui-barrier',
+                'ui-paracord',
+                'ui-sensorium'
+            ]
+        });  
     });
 
-    vorpal.command('running')
-    .description('show list of running neuros')
-    .action(function(args, callback) {
-        didact.running(list => {
-            vorpal.log('active neuros', list.join(', '));
-            callback();
+    didact.message('running', message => {
+        stem.running(list => {
+            didact.emit('running', { neuros: list });  
         });
     });
 
-    vorpal.command('start <name>')
-    .description('install a neuro')
-    .autocompletion(function(text, iteration, callback) {
-        let list = didact.lib();
-        if (iteration > 1) return callback(void 0, list);
-
-        var match = this.match(text, list);
-        if (match) return callback(void 0, 'start ' + match);
-
-        return callback(void 0, void 0);
-    })    
-    .action(function(args, callback) {
-        didact.start(vorpal, args.name, callback);
-    });
-
-    vorpal.command('gaze <name>')
-    .description('show logs from a neuro')
-    .autocompletion(function(text, iteration, callback) {
-        didact.running(list => {
-            if (iteration > 1) return callback(void 0, list);
-
-            var match = this.match(text, list);
-            if (match) return callback(void 0, 'gaze ' + match);
-
-            return callback(void 0, void 0);
+    didact.message('start', message => {
+        let name = message.meta.name;
+        if (name === undefined) return;
+        stem.start(name, result => {
+            didact.emit('started', result);
         });
-    })    
-    .action(function(args, callback) {
-        didact.gaze(vorpal, args.name, callback);
     });
 
-    vorpal.command('kill <name>')
-    .description('uninstall a neuro')
-    .autocompletion(function(text, iteration, callback) {
-        didact.running(list => {
-            if (iteration > 1) return callback(void 0, list);
-
-            var match = this.match(text, list);
-            if (match) return callback(void 0, 'kill ' + match);
-
-            return callback(void 0, void 0);
+    didact.message('kill', message => {
+        let name = message.meta.name;
+        if (name === undefined) return;
+        stem.kill(name, result => {
+            didact.emit('started', result);
         });
-    })    
-    .action(function(args, callback) {
-        didact.kill(vorpal, args.name, callback);
     });
 
-    vorpal.command('access')
-    .description('show current access to web didact')
-    .action(function(args, callback) {
-        this.log('current password', didact.password);
-        this.log('current proxy', didact.proxy);
-        this.log('current auth proxy', didact.proxy);
-        callback();
+    didact.message('gaze', message => {
+        let name = message.meta.name;
+        if (name === undefined) return;
+        stem.gaze(name, result => {
+            didact.emit('gaze', {
+                neuro: name,
+                logs: result
+            });
+        });
     });
-
-    vorpal.command('password <password>')
-    .description('set password for barrier')
-    .action(function(args, callback) {
-        didact.password = args.password;
-        callback();
-    });
-
-    // vorpal.command('auth <source> <into>')
-    // .description('set proxy info for ui-didact')
-    // .action(function(args, callback) {
-    //     barrier.set('auth', args.source, args.into).commit();
-    //     callback();
-    // });
 });
