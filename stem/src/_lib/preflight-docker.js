@@ -8,17 +8,15 @@ class PreFlightDocker extends PreFlight {
             this.runNeuro('terrace'),
             this.runNeuro('codex'),
             this.runNeuro('facade'),
-            this.runNeuro('ui-barrier'),
-            this.runNeuro('ui-didact'),
             this.checkDomain.bind(this),
-            this.checkPassword.bind(this)
+            this.runNeuro('ui-barrier'),
+            this.checkBarrier.bind(this),
+            this.checkPassword.bind(this),
+            this.runNeuro('ui-didact'),
         ];
     }
 
     checkDataVolume (next) {
-    }
-
-    checkDomain (next) {
     }
 }
 

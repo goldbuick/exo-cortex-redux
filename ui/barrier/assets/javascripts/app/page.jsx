@@ -105,11 +105,14 @@ var Page = React.createClass({
 
         if (complete) {
             let ajax = new Ajax();
-            ajax.post('/', {
+            ajax.post('/barrier-auth', {
                 username: 'foundation', password: passcode
             })
             .done(response => {
-                console.log('success', response);
+                // console.log('success', response);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
             })
             .error(response => {
                 console.log('error', response);

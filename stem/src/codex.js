@@ -73,7 +73,7 @@ codex.message('set', message => {
     if (keys === undefined || value === undefined) return;
 
     ObjMod.set(gstore, keys, value);
-    codex.emit('value', { key: keys, value: value });
+    codex.emit('value', { keys: keys, value: value });
 
     gchanged[keys[0]] = true;
     writeChangedValues();

@@ -10,19 +10,6 @@ class PreFlight {
         this.steps = this.checklist();
     }
 
-    runNeuro (name) {
-        let self = this;
-        return function (next) {
-            self.stem.start(name, result => {
-                if (name !== 'ui-barrier' && name.indexOf('ui-') === 0) {
-                    self.proxyNeuro(name, next);
-                } else {
-                    next(name + ' started');
-                }
-            });
-        };
-    }
-
     invoke (op) {
         op(result => {
             log.msg('preflight', result);
@@ -46,10 +33,33 @@ class PreFlight {
         this.next();
     }
 
+    runNeuro (name) {
+        let self = this;
+        return function (next) {
+            self.stem.start(name, result => {
+                if (name !== 'ui-barrier' && name.indexOf('ui-') === 0) {
+                    self.proxyNeuro(name, next);
+                } else {
+                    next(name + ' started');
+                }
+            });
+        };
+    }
+
+    proxyNeuro (name, next) {
+        let barrier = this.barrier,
+            neuro = this.stem.neuro(name),
+            barrierUrl = neuro.image + '.' + barrier.get(['domain']),
+            neuroUrl = 'localhost:' + neuro.port;
+
+        barrier.set(['auth', barrierUrl], neuroUrl, () => {
+            next(name + ' started & proxied');
+        });
+    }
+
     checkRethinkDb (next) {
         let db = new RethinkDB();
-
-        function tryToConnect() {
+        function validate() {
             db.testConnect(CONFIG.HOSTS.VAULT, CONFIG.PORTS.VAULT, () => {
                 next('connected to RethinkDB');
             }, () => {
@@ -58,12 +68,11 @@ class PreFlight {
                     name: 'ready',
                     message: 'have you started RethinkDB?'
                 }], () => {
-                    tryToConnect();
+                    validate();
                 });
             });
         }
-
-        tryToConnect();
+        validate();
     }
 
     checkBarrier (next) {
@@ -73,6 +82,7 @@ class PreFlight {
     }
 
     checkPassword (next) {
+        let self = this;
         function validate (value) {
             let password = value.password;
             if (password && password.length) {
@@ -83,11 +93,30 @@ class PreFlight {
                     name: 'password',
                     message: 'please set the barrier password'
                 }], answers => {
-                    this.barrier.set(['password'], answers.password, validate);
+                    self.barrier.set(['password'], answers.password, validate);
                 });
             }
         }
         this.barrier.get(['password'], validate);
+    }
+
+    checkDomain (next) {
+        let self = this;
+        function validate (value) {
+            let domain = value.domain;
+            if (domain && domain.length) {
+                next('domain is setup ' + domain);
+            } else {
+                inquirer.prompt([{
+                    type: 'input',
+                    name: 'domain',
+                    message: 'please set the barrier domain'
+                }], answers => {
+                    self.barrier.set(['domain'], answers.domain, validate);
+                });
+            }
+        }
+        this.barrier.get(['domain'], validate);
     }
 }
 

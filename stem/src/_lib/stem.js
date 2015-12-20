@@ -18,7 +18,7 @@ class Stem {
             this.logs[name] = [ ];
         }
 
-        console.log('----', name, args.join(' '));
+        // console.log('----', name, args.join(' '));
 
         this.logs[name].unshift(args.join(' '));
         if (this.logs[name].length > 100) {
@@ -43,9 +43,9 @@ class Stem {
         callback(list);
     }
 
-    neuroPort (name) {
+    neuro (name) {
         if (this.neuros[name]) {
-            return this.neuros[name].port;
+            return this.neuros[name];
         }
     }
     

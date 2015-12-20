@@ -8,23 +8,13 @@ class PreFlightLocal extends PreFlight {
             this.runNeuro('terrace'),
             this.runNeuro('codex'),
             this.runNeuro('facade'),
+            this.checkDomain.bind(this),
             this.runNeuro('ui-barrier'),
-            this.runNeuro('ui-didact'),
             this.checkBarrier.bind(this),
-            this.checkPassword.bind(this)
+            this.checkPassword.bind(this),
+            this.runNeuro('ui-didact'),
+            this.runNeuro('ui-sensorium'),
         ];
-    }
-
-    proxyNeuro (name, next) {
-        let barrier = this.barrier,
-            barrierPort = this.stem.neuroPort('ui-barrier'),
-            barrierUrl = 'localhost:' + barrierPort + '/' + name,
-            neuroPort = this.stem.neuroPort(name),
-            neuroUrl = 'localhost:' + neuroPort;
-
-        barrier.set(['auth', barrierUrl], neuroUrl, () => {
-            next(name + ' started & proxied');
-        });
     }
 }
 
