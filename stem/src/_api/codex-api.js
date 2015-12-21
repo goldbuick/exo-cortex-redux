@@ -1,14 +1,14 @@
 import log from '../_lib/log';
 import CONFIG from '../_lib/config';
 import ObjMod from '../_lib/obj-mod';
-import { listen } from '../_lib/gateway';
+import { GatewayListen } from '../_lib/gateway';
 
 class CodexAPI {
 
     constructor (key, onValue) {
         this.key = key;
         this.store = { };
-        this.api = listen(CONFIG.PORTS.TERRACE, () => {
+        this.api = GatewayListen(CONFIG.PORTS.TERRACE, () => {
             this.api.emit('codex', 'get', { keys: [ this.key ] });
         });
         this.api.message('codex/value', message => {

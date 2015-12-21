@@ -2,13 +2,13 @@ import log from './_lib/log';
 import CONFIG from './_lib/config';
 import ObjMod from './_lib/obj-mod';
 import debounce from './_lib/debounce';
-import { client } from './_lib/gateway';
 import RethinkDB from './_lib/rethinkdb';
+import { GatewayClient } from './_lib/gateway';
 
 let gstore = { },
     gchanged = { },
     db = new RethinkDB('codex'),
-    codex = client('codex', CONFIG.PORTS.TERRACE);
+    codex = GatewayClient('codex', CONFIG.PORTS.TERRACE);
 
 // STORAGE
 

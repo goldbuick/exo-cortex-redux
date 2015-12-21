@@ -18,7 +18,7 @@ class Stem {
             this.logs[name] = [ ];
         }
 
-        // console.log('----', name, args.join(' '));
+        console.log('----', name, args.join(' '));
 
         this.logs[name].unshift(args.join(' '));
         if (this.logs[name].length > 100) {

@@ -7,7 +7,7 @@ function _sub (channel, type) {
     return [channel, type].join('/');
 }
 
-export function server (name, port) {
+export function GatewayServer (name, port) {
     let io = new Server(port),
         services = { };
 
@@ -62,7 +62,7 @@ export function server (name, port) {
     log.server(name, 'started on', port);
 };
 
-class GatewayClient {
+class _GatewayClient {
     constructor (channel, port) {
         let self = this;
         self.types = { };
@@ -87,11 +87,11 @@ class GatewayClient {
     }
 }
 
-export function client (channel, port) {
-    return new GatewayClient(channel, port);
+export function GatewayClient (channel, port) {
+    return new _GatewayClient(channel, port);
 };
 
-class GatewayListen {
+class _GatewayListen {
     constructor (port, handler) {
         let self = this;
         self.socket = Client('http://localhost:' + port);
@@ -113,7 +113,7 @@ class GatewayListen {
     }
 }
 
-export function listen (port, handler) {
-    return new GatewayListen(port, handler);
+export function GatewayListen (port, handler) {
+    return new _GatewayListen(port, handler);
 };
 

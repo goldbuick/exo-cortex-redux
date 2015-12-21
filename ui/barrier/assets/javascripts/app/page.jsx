@@ -72,6 +72,17 @@ var Page = React.createClass({
         render.camera.position.z = 1440;
     },
 
+    handleResult: function (response) {
+        if (response.access) {
+            // signal user success ?
+        } else {
+
+        }
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+    },
+
     handlePointer: function (id, pressed, x, y, intersects) {
         if (pressed !== true ||
             intersects.length === 0 ||
@@ -105,18 +116,9 @@ var Page = React.createClass({
 
         if (complete) {
             let ajax = new Ajax();
-            ajax.post('/barrier-auth', {
-                username: 'foundation', password: passcode
-            })
-            .done(response => {
-                // console.log('success', response);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
-            })
-            .error(response => {
-                console.log('error', response);
-            });
+            ajax.post('/barrier-auth', { username: 'barrier-auth', password: passcode })
+            .done(this.handleResult)
+            .error(this.handleResult)
         }
     }
 

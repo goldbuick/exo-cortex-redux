@@ -75,6 +75,25 @@ class PreFlight {
         validate();
     }
 
+    checkDomain (next) {
+        let self = this;
+        function validate (value) {
+            let domain = value.domain;
+            if (domain && domain.length) {
+                next('domain is setup ' + domain);
+            } else {
+                inquirer.prompt([{
+                    type: 'input',
+                    name: 'domain',
+                    message: 'please set the barrier domain'
+                }], answers => {
+                    self.barrier.set(['domain'], answers.domain, validate);
+                });
+            }
+        }
+        this.barrier.get(['domain'], validate);
+    }
+
     checkBarrier (next) {
         this.barrier.check((value) => {
             next('barrier config active: ' + JSON.stringify(value));
@@ -100,24 +119,6 @@ class PreFlight {
         this.barrier.get(['password'], validate);
     }
 
-    checkDomain (next) {
-        let self = this;
-        function validate (value) {
-            let domain = value.domain;
-            if (domain && domain.length) {
-                next('domain is setup ' + domain);
-            } else {
-                inquirer.prompt([{
-                    type: 'input',
-                    name: 'domain',
-                    message: 'please set the barrier domain'
-                }], answers => {
-                    self.barrier.set(['domain'], answers.domain, validate);
-                });
-            }
-        }
-        this.barrier.get(['domain'], validate);
-    }
 }
 
 export default PreFlight;

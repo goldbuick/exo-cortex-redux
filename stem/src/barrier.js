@@ -27,8 +27,6 @@ let gproxy = {},
     gdomain = '',
     store = CodexClient('barrier');
 
-// 'D@klWJcpL'
-
 store.value('', (type, value) => {
     if (value.pub === undefined) {
         value.pub = { };
@@ -85,7 +83,7 @@ function startBarrier() {
             return cb(null, sysUser);
         }
         log.msg('password rejected', password, '!==', gproxy.password);
-        cb('invalid password');
+        cb('{ "access": false }');
     }));
 
     passport.serializeUser((user, cb) => {
@@ -96,7 +94,7 @@ function startBarrier() {
         if (id === sysUser.id) {
             cb(null, sysUser);
         } else {
-            cb('invalid user');
+            cb('{ "access": false }');
         }
     });    
 

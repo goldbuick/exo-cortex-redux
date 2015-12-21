@@ -1,9 +1,10 @@
 import { argv } from 'yargs';
 import log from './_lib/log';
 import CONFIG from './_lib/config';
-import { client } from './_lib/gateway';
+import { GatewayClient } from './_lib/gateway';
 import StemLocal from './_lib/stem-local';
 import StemDocker from './_lib/stem-docker';
+import CodexClient from './_api/codex-client';
 import PreFlightLocal from './_lib/preflight-local';
 import PreFlightDocker from './_lib/preflight-docker';
 
@@ -24,7 +25,16 @@ if (isLocal) {
 }
 
 preflight.ready(stem, () => {
-    let didact = client('didact', CONFIG.PORTS.TERRACE);
+    let store = CodexClient('didact'),
+        didact = GatewayClient('didact', CONFIG.PORTS.TERRACE);
+
+    store.value('', (type, value) => {
+        if (value.neuros === undefined) {
+            value.neuros = [ ];
+        }
+    }, value => {
+        console.log('didact config', value);
+    });
 
     didact.message('lib', message => {
         didact.emit('lib', {
@@ -34,11 +44,8 @@ preflight.ready(stem, () => {
                 'facade',
                 'terrace',
                 'vault',
-                // indicates path & port args required
                 'ui-didact',
                 'ui-barrier',
-                'ui-paracord',
-                'ui-sensorium'
             ]
         });  
     });

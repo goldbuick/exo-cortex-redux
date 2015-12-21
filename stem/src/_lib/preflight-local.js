@@ -1,5 +1,4 @@
 import PreFlight from './preflight';
-import ObjMod from '../_lib/obj-mod';
 
 class PreFlightLocal extends PreFlight {
     checklist () {
@@ -13,7 +12,6 @@ class PreFlightLocal extends PreFlight {
             this.checkBarrier.bind(this),
             this.checkPassword.bind(this),
             this.runNeuro('ui-didact'),
-            this.runNeuro('ui-sensorium'),
         ];
     }
 }
