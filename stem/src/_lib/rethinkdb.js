@@ -1,5 +1,5 @@
-import log from './log';
 import r from 'rethinkdb';
+import log from './_util/log';
 
 function check (err) {
     if (!err) return false;

@@ -1,7 +1,7 @@
-import log from './log';
-import makeMessage from './message';
+import log from './_util/log';
 import Server from 'socket.io';
 import Client from 'socket.io-client';
+import makeMessage from './_util/message';
 
 function _sub (channel, type) {
     return [channel, type].join('/');
@@ -62,12 +62,20 @@ export function GatewayServer (name, port) {
     log.server(name, 'started on', port);
 };
 
+let gsockets = { };
+function getSocket (port) {
+    if (gsockets[port] === undefined) {
+        gsockets[port] = Client('http://localhost:' + port);
+    }
+    return gsockets[port];
+}
+
 class _GatewayClient {
     constructor (channel, port) {
         let self = this;
         self.types = { };
         self.channel = channel;
-        self.socket = Client('http://localhost:' + port);
+        self.socket = getSocket(port);
         self.socket.on('connect', () => {
             self.socket.emit('register', {
                 [self.channel]: Object.keys(self.types)
@@ -92,13 +100,14 @@ export function GatewayClient (channel, port) {
 };
 
 class _GatewayListen {
-    constructor (port, handler) {
+    constructor (port) {
         let self = this;
-        self.socket = Client('http://localhost:' + port);
-        self.socket.on('connect', () => {
-            log.client('listen', 'connected');
-            handler();
-        });
+        self.socket = getSocket(port);
+        self.socket.on('connect', () => log.client('listen', 'connected'));
+    }
+
+    connect (handler) {
+        self.socket.on('connect', handler);
     }
 
     message (channel, handler) {

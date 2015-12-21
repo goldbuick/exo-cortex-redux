@@ -1,4 +1,4 @@
-import log from './lib/log';
+import log from './lib/_util/log';
 
 /*
 not sure what to do here ? is this just pass-log ?

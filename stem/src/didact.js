@@ -1,12 +1,11 @@
 import { argv } from 'yargs';
-import log from './_lib/log';
-import CONFIG from './_lib/config';
-import { GatewayClient } from './_lib/gateway';
-import StemLocal from './_lib/stem-local';
-import StemDocker from './_lib/stem-docker';
+import log from './_lib/_util/log';
 import CodexClient from './_api/codex-client';
-import PreFlightLocal from './_lib/preflight-local';
-import PreFlightDocker from './_lib/preflight-docker';
+import StemLocal from './_lib/_didact/stem-local';
+import StemDocker from './_lib/_didact/stem-docker';
+import { TerraceClient } from './_api/terrace-client';
+import PreFlightLocal from './_lib/_didact/preflight-local';
+import PreFlightDocker from './_lib/_didact/preflight-docker';
 
 let isLocal = (argv.docker === undefined);
 
@@ -26,7 +25,7 @@ if (isLocal) {
 
 preflight.ready(stem, () => {
     let store = CodexClient('didact'),
-        didact = GatewayClient('didact', CONFIG.PORTS.TERRACE);
+        didact = TerraceClient('didact');
 
     store.value('', (type, value) => {
         if (value.neuros === undefined) {

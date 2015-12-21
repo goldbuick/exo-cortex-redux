@@ -1,7 +1,7 @@
 // express server
+import log from './_lib/_util/log';
 
 import { argv } from 'yargs';
-import log from './_lib/log';
 import express from 'express';
 import engines from 'consolidate';
 import favicon from 'serve-favicon';
@@ -20,7 +20,7 @@ app.set('port', argv.port);
 app.engine('html', engines['ejs']);
 
 // log requests
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
     let path = req.get('host') + req.url;
     log.msg('request', path);
     next();
@@ -35,15 +35,11 @@ app.use(express.static(argv.path + '/public'));
 app.use(errorHandler());
 
 // load interface
-app.get('/', function(req, res) {
-    res.render('index', {
-        optimize: true
-        // optimize: false,
-        // cachebust: '?b=' + (new Date()).getTime()
-    });
+app.get('/', (req, res) => {
+    res.render('index', { optimize: true });
 });
 
 // start it up
-app.listen(argv.port, function() {
+app.listen(argv.port, () => {
     log.server(argv.path, 'started on', argv.port);
 });

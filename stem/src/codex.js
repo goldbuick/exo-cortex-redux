@@ -1,14 +1,13 @@
-import log from './_lib/log';
-import CONFIG from './_lib/config';
-import ObjMod from './_lib/obj-mod';
-import debounce from './_lib/debounce';
+import log from './_lib/_util/log';
 import RethinkDB from './_lib/rethinkdb';
-import { GatewayClient } from './_lib/gateway';
+import ObjMod from './_lib/_util/obj-mod';
+import debounce from './_lib/_util/debounce';
+import { TerraceClient } from './_api/terrace-client';
 
 let gstore = { },
     gchanged = { },
     db = new RethinkDB('codex'),
-    codex = GatewayClient('codex', CONFIG.PORTS.TERRACE);
+    codex = TerraceClient('codex');
 
 // STORAGE
 

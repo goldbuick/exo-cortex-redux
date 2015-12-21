@@ -18,7 +18,7 @@ import { Strategy } from 'passport-local';
 // CODEX-CONFIG
 
 import { argv } from 'yargs';
-import log from './_lib/log';
+import log from './_lib/_util/log';
 import CodexClient from './_api/codex-client';
 
 // CODEX-API
