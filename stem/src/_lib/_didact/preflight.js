@@ -1,8 +1,8 @@
 import log from '../_util/log';
 import inquirer from 'inquirer';
-import CONFIG from '../_api/_config';
 import RethinkDB from '../rethinkdb';
-import CodexApi from '../_api/codex-api';
+import CONFIG from '../../_api/_config';
+import CodexApi from '../../_api/codex-api';
 
 class PreFlight {
     constructor () {

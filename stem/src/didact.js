@@ -3,7 +3,7 @@ import log from './_lib/_util/log';
 import CodexClient from './_api/codex-client';
 import StemLocal from './_lib/_didact/stem-local';
 import StemDocker from './_lib/_didact/stem-docker';
-import { TerraceClient } from './_api/terrace-client';
+import TerraceClient from './_api/terrace-client';
 import PreFlightLocal from './_lib/_didact/preflight-local';
 import PreFlightDocker from './_lib/_didact/preflight-docker';
 

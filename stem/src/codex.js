@@ -1,8 +1,9 @@
 import log from './_lib/_util/log';
+import CONFIG from './_api/_config';
 import RethinkDB from './_lib/rethinkdb';
 import ObjMod from './_lib/_util/obj-mod';
 import debounce from './_lib/_util/debounce';
-import { TerraceClient } from './_api/terrace-client';
+import TerraceClient from './_api/terrace-client';
 
 let gstore = { },
     gchanged = { },

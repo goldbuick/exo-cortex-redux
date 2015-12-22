@@ -80,7 +80,6 @@ class _GatewayClient {
             self.socket.emit('register', {
                 [self.channel]: Object.keys(self.types)
             });
-            log.client('gateway', 'connected');
         });
     }
 
@@ -107,18 +106,18 @@ class _GatewayListen {
     }
 
     connect (handler) {
-        self.socket.on('connect', handler);
+        this.socket.on('connect', handler);
     }
 
     message (channel, handler) {
         this.socket.on(channel, handler);
-        log.client('listen', 'to', channel);
+        // log.client('listen', 'to', channel);
     }
     
     emit (channel, type, data) {
         let message = makeMessage(channel, type, data);
         this.socket.emit('message', message);
-        log.client('listen', 'sent', message);
+        // log.client('listen', 'sent', message);
     }
 }
 

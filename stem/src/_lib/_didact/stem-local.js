@@ -24,7 +24,7 @@ class StemLocal extends Stem {
 
         if (neuro.ui) {
             let codePath = this.sourceImage(neuro),
-                sourcePath = path.join(__dirname, '/../../../ui/', neuro.image);
+                sourcePath = path.join(__dirname, '/../../../../ui/', neuro.image);
             params = [ 'src/' + codePath, '--port', neuro.port, '--path', sourcePath ];
 
         } else {
