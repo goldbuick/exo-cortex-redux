@@ -1,13 +1,19 @@
+import CONFIG from '../../_api/_config';
+
 class PortManager {
     constructor () {
         this.ports = { };
-        for (let p=7000; p<8000; ++p) {
+        let begin = CONFIG.PORTS.BASE_NEURO,
+            end = begin + 1000;
+        for (let p=begin; p<end; ++p) {
             this.ports[p] = false;
         }
     }
 
     find () {
-        for (let p=7200; p<8000; ++p) {
+        let begin = CONFIG.PORTS.BASE_NEURO,
+            end = begin + 1000;
+        for (let p=begin; p<end; ++p) {
             if (this.ports[p] === false) {
                 this.ports[p] = true;
                 return p;
@@ -30,16 +36,20 @@ class Neuro {
         let config = name.split('-');
         if (config[0] === 'ui' && config.length > 1) {
             this.ui = true;
-            this.port = this.findPort(config[1]);
             this.image = config[1];
         } else {
             this.ui = false;
             this.image = name;
         }
+        this.port = this.findPort(this.image);
     }
 
     findPort (image) {
-        if (image === 'barrier') return 8888;
+        switch (image) {
+            case 'facade': return CONFIG.PORTS.FACADE;
+            case 'barrier': return CONFIG.PORTS.BARRIER;
+            case 'terrace': return CONFIG.PORTS.TERRACE;
+        }
         return portManager.find();
     }
 

@@ -8,7 +8,7 @@ function _sub (channel, type) {
 }
 
 export function GatewayServer (name, port) {
-    let io = new Server(port),
+    let io = Server(port),
         services = { };
 
     io.on('connection', socket => {
@@ -102,7 +102,7 @@ class _GatewayListen {
     constructor (port) {
         let self = this;
         self.socket = getSocket(port);
-        self.socket.on('connect', () => log.client('listen', 'connected'));
+        // self.socket.on('connect', () => log.client('listen', 'connected'));
     }
 
     connect (handler) {

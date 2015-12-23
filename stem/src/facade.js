@@ -1,10 +1,21 @@
+import Server from 'socket.io';
 import log from './_lib/_util/log';
+import CONFIG from './_api/_config';
+import HttpJSON from './_lib/httpjson';
+import { GatewayListen } from './_lib/gateway';
 
-/*
+// http interface (for webhooks)
+let http = HttpJSON((req, json, finish) => {
+    finish();
+});
 
-Through this server front-end UIs can communicate with
-exo-cortex services.
+// start server
+http.listen(CONFIG.PORTS.FACADE, () => {
+    log.server('facade', 'started');
 
-handles http GET/POST as well as socket io connections
+    // socket.io interface
+    let io = Server(http);
+    io.on('connection', function(socket) {
+    });
+});
 
-*/

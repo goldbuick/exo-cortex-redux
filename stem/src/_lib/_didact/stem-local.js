@@ -49,8 +49,11 @@ class StemLocal extends Stem {
             delete this.neuros[name];
         });
 
-        // finished        
-        callback({ neuro: name });
+        // finished
+        setTimeout(() => {
+            // let babel-node get started
+            callback({ neuro: name });
+        }, 10000);
     }
 
     kill (name, callback) {

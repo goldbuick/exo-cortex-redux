@@ -37,7 +37,8 @@ class PreFlight {
         let self = this;
         return function (next) {
             self.stem.start(name, result => {
-                if (name !== 'ui-barrier' && name.indexOf('ui-') === 0) {
+                if ((name === 'facade') ||
+                    (name !== 'ui-barrier' && name.indexOf('ui-') === 0)) {
                     self.proxyNeuro(name, next);
                 } else {
                     next(name + ' started');
@@ -52,6 +53,7 @@ class PreFlight {
             barrierUrl = neuro.image + '.' + barrier.get(['domain']),
             neuroUrl = 'localhost:' + neuro.port;
 
+        log.msg('preflight', barrierUrl, neuroUrl);
         barrier.set(['auth', barrierUrl], neuroUrl, () => {
             next(name + ' started & proxied');
         });

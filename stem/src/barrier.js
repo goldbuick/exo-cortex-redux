@@ -147,6 +147,7 @@ function startBarrier() {
         if (gproxy.auth !== undefined) {
             let target = gproxy.auth[req.hostname];
             if (target && req.isAuthenticated()) {
+                console.log('proxy', req.hostname, '=>', target, '=>', req.url);
                 target = 'http://' + target;
                 return proxy.web(req, res, { target: target });
             }

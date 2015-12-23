@@ -10,5 +10,6 @@ export default {
         BARRIER: 8888,
         VAULT: 28015,
         VAULT_UI: 8080,
+        BASE_NEURO: 7200
     }
 };
