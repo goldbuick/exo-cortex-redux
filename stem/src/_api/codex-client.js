@@ -1,37 +1,68 @@
 import log from '../_lib/_util/log';
+import makeMessage from './_util/message';
 import ObjMod from '../_lib/_util/obj-mod';
 import TerraceListen from './terrace-listen';
 
+function _sub (channel, type) {
+    return [channel, type].join('/');
+}
+
 class CodexClient {
 
-    constructor (key) {
-        this.key = key;
+    constructor (channel) {
+        this.channel = channel;
         this.store = { };
         this.rules = { };
         this.before = { };
         this.triggers = { };
         this.api = TerraceListen();
         this.api.connect(() => {
-            this.api.emit('codex', 'get', { keys: [ this.key ] });
+            this.api.emit('codex', 'get', { keys: [ this.channel ] });
         });
         this.api.message('codex/value', message => {
             let keys = message.meta.keys,
                 value = message.meta.value;
             if (keys === undefined || value === undefined ||
-                keys[0] !== this.key) return;
+                keys[0] !== this.channel) return;
 
             // write update
             ObjMod.set(this.store, keys, value);
 
             // run rules
-            let json = JSON.parse(JSON.stringify(this.store[this.key])),
+            let json = JSON.parse(JSON.stringify(this.store[this.channel])),
                 changed = this.checkJson(json);
 
             // signal update value
             if (changed) {
-                this.api.emit('codex', 'set', { keys: [ this.key ], value: json });
+                this.api.emit('codex', 'set', { keys: [ this.channel ], value: json });
+            }
+
+            // update upstream target 
+            if (typeof json.upstream === 'string') {
+                this.target = json.upstream;
             }
         });
+        this.api.message(_sub('upstream', this.channel), message => {
+            if (this.target) {
+                let _message = message;
+                if (this.onUpstream) _message = this.onUpstream(message) || message;
+                _message.upstream = this.target;
+                this.api.upstream(_message);
+            }
+        });
+
+    }
+
+    upstream (handler) {
+        this.onUpstream = handler;
+    }
+
+    emit (type, data) {
+        if (this.target) {
+            let _message = makeMessage(this.channel, type, data);
+            _message.upstream = this.target;
+            this.api.upstream(_message);
+        }
     }
 
     value (pathRegex, rule, trigger) {
@@ -158,6 +189,6 @@ class CodexClient {
 
 }
 
-export default function (key) {
-    return new CodexClient(key);
+export default function (channel) {
+    return new CodexClient(channel);
 }
