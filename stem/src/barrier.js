@@ -75,6 +75,11 @@ function startBarrier() {
         proxy = new httpProxy.createProxyServer(),
         sysUser = { id: '18290341234-1234123948710829347--2sdfds-aqwer' };
 
+    // PROXY
+    proxy.on('error', () => {
+        // prevent proxy errors from crashing barrier
+    });
+
     // PASSPORT
 
     passport.use(new Strategy((username, password, cb) => {
@@ -112,10 +117,7 @@ function startBarrier() {
     app.use(session({
         resave: true,
         saveUninitialized: false,
-        cookie: {
-            domain: gdomain,
-            maxAge: 86400
-        },
+        cookie: { domain: gdomain },
         secret: '_exo_cortex_barrier_'
     }));
     app.use(passport.initialize());
@@ -139,7 +141,7 @@ function startBarrier() {
             let target = gproxy.pub[req.hostname];
             if (target) {
                 target = 'http://' + target;
-                return proxy.web(req, res, { target: target });
+                return proxy.web(req, res, { target: target, changeOrigin: true });
             }
         }
 
@@ -147,9 +149,8 @@ function startBarrier() {
         if (gproxy.auth !== undefined) {
             let target = gproxy.auth[req.hostname];
             if (target && req.isAuthenticated()) {
-                console.log('proxy', req.hostname, '=>', target, '=>', req.url);
                 target = 'http://' + target;
-                return proxy.web(req, res, { target: target });
+                return proxy.web(req, res, { target: target, changeOrigin: true });
             }
         }
 

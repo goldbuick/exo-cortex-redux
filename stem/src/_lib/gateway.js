@@ -113,6 +113,10 @@ class _GatewayListen {
         this.socket.on(channel, handler);
         // log.client('listen', 'to', channel);
     }
+
+    list () {
+        this.socket.emit('list');
+    }
     
     emit (channel, type, data) {
         let message = makeMessage(channel, type, data);

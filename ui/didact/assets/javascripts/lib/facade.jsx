@@ -4,7 +4,10 @@ let domain = window.location.hostname.split('.').slice(-2).join('.'),
 console.log('facade url', url);
 require([ url + '/socket.io/socket.io.js'], function (io) {
     let socket = io(url);
-    socket.on('connection', () => {
-        console.log('connected to FACADE!!!!');
+    socket.on('connect', () => {
+        console.log('--==[ connected to FACADE ]==--');
+    });
+    socket.on('connect_error', () => {
+        console.log('--==[ lost connection to FACADE ]==--');
     });
 });
