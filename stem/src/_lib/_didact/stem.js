@@ -18,7 +18,10 @@ class Stem {
             this.logs[name] = [ ];
         }
 
-        console.log('----', name, args.join(' '));
+        // if (name === 'terrace') {
+            // console.log('--==[', name, ']==--');
+            // console.log.apply(console, args);
+        // }
 
         this.logs[name].unshift(args.join(' '));
         if (this.logs[name].length > 100) {

@@ -12,10 +12,10 @@ class StemLocal extends Stem {
 
     start (name, callback) {
         if (this.neuros[name]) {
-            this.log(name, 'restarting');
+            // this.log(name, 'restarting');
             this.neuros[name].child.kill();
         } else {
-            this.log(name, 'creating');
+            // this.log(name, 'creating');
             this.neuros[name] = new Neuro(name);
         }
 
@@ -33,27 +33,36 @@ class StemLocal extends Stem {
         }
 
         // start server
-        this.log(name, 'spawning', params.join(' '));
+        // this.log(name, 'spawning', params.join(' '));
         neuro.child = spawn('babel-node', params);
+
+        // signal start
+        function start(data) {
+            if (callback && data.trim().length) {
+                let _callback = callback;
+                setTimeout(() => {
+                    _callback({ neuro: name });
+                }, 500);
+                callback = undefined;
+            }
+        }
 
         // monitor child
         neuro.child.stdout.on('data', data => {
-            this.log(name, data.toString('utf8'));
+            let _data = data.toString('utf8');
+            this.log(name, _data);
+            start(_data);
         });
         neuro.child.stderr.on('data', data => {
-            this.log(name, 'ERROR', data.toString('utf8'));
+            let _data = data.toString('utf8');
+            this.log(name, 'ERROR', _data);
+            start(_data);
         });
         neuro.child.on('exit', exitCode => {
             this.log(name, 'has exited with code', exitCode);
             this.neuros[name].freePort();
             delete this.neuros[name];
         });
-
-        // finished
-        setTimeout(() => {
-            // let babel-node get started
-            callback({ neuro: name });
-        }, 10000);
     }
 
     kill (name, callback) {

@@ -10,4 +10,7 @@ require([ url + '/socket.io/socket.io.js'], function (io) {
     socket.on('connect_error', () => {
         console.log('--==[ lost connection to FACADE ]==--');
     });
+    socket.on('api', data => {
+        console.log('--==', data, '==--');
+    });
 });

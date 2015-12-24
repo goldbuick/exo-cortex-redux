@@ -8,31 +8,42 @@ function _sub (channel, type) {
 }
 
 class _GatewayServer {
+    
     constructor (name, port) {
         this.io = Server(port);
+        this.nodes = { };
         this.services = { };
         this.io.on('connection', socket => {
-            let messages = { };
+            let _nodes = { },
+                _services = { };
 
-            socket.on('list', data => {
+            socket.on('nodes', data => {
                 // list the supported paths
-                socket.emit('list', Object.keys(this.services));
+                socket.emit('nodes', Object.keys(this.nodes));
+            });
+
+            socket.on('watch', data => {
+                _nodes[data.channel] = true;
+                this.nodes[data.channel] = true;
+            });
+
+            socket.on('api', data => {
+                // list the supported paths
+                socket.emit('api', Object.keys(this.services));
             });
 
             socket.on('register', data => {
                 if (data.channel === undefined ||
                     data.types === undefined) return;
 
-                socket.join(_sub('upstream', data.channel));
                 data.types.forEach(type => {
                     let path = _sub(data.channel, type);
-                    messages[path] = true;                    
+                    _services[path] = true;                    
                     this.services[path] = true;
-                    log.server(name, 'adding', path);
                 });
 
                 // list the supported paths
-                socket.emit('list', Object.keys(this.services));
+                socket.emit('api', Object.keys(this.services));
             });
 
             socket.on('message', data => {
@@ -56,16 +67,20 @@ class _GatewayServer {
             });
 
             socket.on('disconnect', () => {
+                // unregister watch
+                Object.keys(_nodes).forEach(path => {
+                    delete this.nodes[path];
+                });
                 // unregister api
-                Object.keys(messages).forEach(path => {
+                Object.keys(_services).forEach(path => {
                     delete this.services[path];
-                    log.server(name, 'dropping', path);
                 });
             });
 
         });
         log.server(name, 'started on', port);        
     }
+
 }
 
 export function GatewayServer (name, port) {
@@ -80,12 +95,60 @@ function getSocket (port) {
     return gsockets[port];
 }
 
-class _GatewayClient {
+class _GatewayListen {
+
+    constructor (port) {
+        this.socket = getSocket(port);
+    }
+
+    connect (handler) {
+        if (this.socket.id) {
+            setTimeout(handler, 0);
+        } else {
+            this.socket.on('connect', handler);
+        }
+    }
+
+    message (channel, handler) {
+        this.socket.on(channel, handler);
+    }
+
+    watch (channel, handler) {
+        this.socket.emit('watch', { channel });
+        this.socket.on(_sub('upstream', channel), handler);
+    }
+
+    api () {
+        this.socket.emit('api');
+    }
+
+    nodes () {
+        this.socket.emit('nodes');
+    }
+    
+    emit (channel, type, data) {
+        let message = makeMessage(channel, type, data);
+        this.socket.emit('message', message);
+    }
+
+    upstream (message) {
+        this.socket.emit('upstream', message);
+    }
+
+}
+
+export function GatewayListen (port, handler) {
+    return new _GatewayListen(port, handler);
+};
+
+class _GatewayClient extends _GatewayListen {
+
     constructor (channel, port) {
+        super(port);
         this.types = { };
         this.channel = channel;
-        this.socket = getSocket(port);
-        this.socket.on('connect', () => {
+        this.connect(() => {
+            log.msg('REGISTER', this.channel, this.types);
             this.socket.emit('register', {
                 channel: this.channel,
                 types: Object.keys(this.types)
@@ -97,50 +160,15 @@ class _GatewayClient {
         this.types[type] = true;
         this.socket.on(_sub(this.channel, type), handler);
     }
-
+    
     emit (type, data) {
         let message = makeMessage(this.channel, type, data);
         this.socket.emit('message', message);
     }
 
-    upstream (message) {
-        this.socket.emit('upstream', message);
-    }
 }
 
 export function GatewayClient (channel, port) {
     return new _GatewayClient(channel, port);
-};
-
-class _GatewayListen {
-    constructor (port) {
-        let self = this;
-        self.socket = getSocket(port);
-    }
-
-    connect (handler) {
-        this.socket.on('connect', handler);
-    }
-
-    message (channel, handler) {
-        this.socket.on(channel, handler);
-    }
-
-    list () {
-        this.socket.emit('list');
-    }
-    
-    emit (channel, type, data) {
-        let message = makeMessage(channel, type, data);
-        this.socket.emit('message', message);
-    }
-
-    upstream (message) {
-        this.socket.emit('upstream', message);
-    }
-}
-
-export function GatewayListen (port, handler) {
-    return new _GatewayListen(port, handler);
 };
 

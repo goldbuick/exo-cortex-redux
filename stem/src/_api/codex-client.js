@@ -1,7 +1,7 @@
 import log from '../_lib/_util/log';
-import makeMessage from './_util/message';
 import ObjMod from '../_lib/_util/obj-mod';
 import TerraceListen from './terrace-listen';
+import makeMessage from '../_lib/_util/message';
 
 function _sub (channel, type) {
     return [channel, type].join('/');
@@ -42,7 +42,7 @@ class CodexClient {
                 this.target = json.upstream;
             }
         });
-        this.api.message(_sub('upstream', this.channel), message => {
+        this.api.watch(this.channel, message => {
             if (this.target) {
                 let _message = message;
                 if (this.onUpstream) _message = this.onUpstream(message) || message;
@@ -50,7 +50,6 @@ class CodexClient {
                 this.api.upstream(_message);
             }
         });
-
     }
 
     upstream (handler) {

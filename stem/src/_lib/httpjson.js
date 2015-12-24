@@ -62,7 +62,7 @@ export default function (fn) {
     function getHandler(req, res) {
         try {
             // invoke callback
-            writeResponse(req, res, undefined);
+            writeResponse(req, res, { });
 
         } catch (e) {
             writeError(res, 400, e);

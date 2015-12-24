@@ -16,25 +16,30 @@ log.msg = function () {
     output.apply(undefined, args);
 };
 
-log.server = function() {
+log.server = function () {
     var args = Array.prototype.slice.call(arguments);
     args[0] = args[0] + ': =>';
     args.unshift('SRV');
     output.apply(undefined, args);
 };
 
-log.client = function() {
+log.client = function () {
     var args = Array.prototype.slice.call(arguments);
     args[0] = args[0] + ': =>';
     args.unshift('CLI');
     output.apply(undefined, args);
 };
 
-log.event = function() {
+log.event = function () {
     var args = Array.prototype.slice.call(arguments);
     args[0] = args[0] + ': =>';
     args.unshift('EVT');
     output.apply(undefined, args);
+};
+
+log.blank = function (lines) {
+    for (let i=0; i<lines; ++i)
+        output.apply(undefined, [ '' ]);
 };
 
 export default log;

@@ -6,13 +6,23 @@ import CodexApi from '../../_api/codex-api';
 
 class PreFlight {
     constructor () {
+        this.index = 1;
         this.barrier = new CodexApi('barrier');
-        this.steps = this.checklist();
+        this.steps = [ ];
+        let _steps = this.checklist();
+        for (let i=0; i<_steps.length; i+=2) {
+            this.steps.push({
+                text: _steps[i],
+                op: _steps[i+1]
+            });
+        }
     }
 
-    invoke (op) {
-        op(result => {
-            log.msg('preflight', result);
+    invoke (step) {
+        log.msg('preflight', ((this.index++) + '.'), step.text);
+        step.op(result => {
+            log.msg('preflight', '  ', result);
+            log.blank(1);
             this.steps.shift();
             this.next();
         });
@@ -53,7 +63,7 @@ class PreFlight {
             barrierUrl = neuro.image + '.' + barrier.get(['domain']),
             neuroUrl = 'localhost:' + neuro.port;
 
-        log.msg('preflight', barrierUrl, neuroUrl);
+        // log.msg('preflight', barrierUrl, neuroUrl);
         barrier.set(['auth', barrierUrl], neuroUrl, () => {
             next(name + ' started & proxied');
         });
@@ -98,7 +108,7 @@ class PreFlight {
 
     checkBarrier (next) {
         this.barrier.check((value) => {
-            next('barrier config active: ' + JSON.stringify(value));
+            next('barrier config is ' + JSON.stringify(value));
         });
     }
 
