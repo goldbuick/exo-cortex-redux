@@ -4,22 +4,31 @@ import CONFIG from './_api/_config';
 import HttpJSON from './_lib/httpjson';
 import TerraceListen from './_api/terrace-listen';
 
-// connect to messaging net
-let terrace = TerraceListen();
+let nodes = { },
+    listen = { },
+    ready = false,
+    terrace = TerraceListen();
+
 terrace.connect(() => log.server('facade', 'connected to terrace'));
-terrace.message('api', message => {
-    io.emit('api', message);
+
+terrace.message('api', e => {
+    io.emit('api', e);
 });
-terrace.message('nodes', message => {
-    io.emit('nodes', message);
+
+terrace.message('nodes', e => {
+    e.forEach(node => { nodes[node] = true; });
+    io.emit('nodes', e);
+    ready = true;
 });
-terrace.watch('facade', message => {
-    // upstream messages go out into client side
-    if (message.channel) io.emit(message.channel, message);
+
+// upstream messages go out into client side
+terrace.watch('facade', e => {
+    if (e.channel) io.emit(e.channel, e);
 });
 
 // http interface (for webhooks)
 let http = HttpJSON((req, json, finish) => {
+    // will need to check an API key here yeah?
     // include request url in json always
     json.url = req.url;
     // turn a get or a post into a message
@@ -37,10 +46,20 @@ io.on('connection', function(socket) {
     terrace.nodes();
     // listen for messages to send into messaging net
     socket.on('message', e => {
-        if (e.channel &&
-            e.type &&
-            e.data) {
-            terrace.emit(e.channel, e.type, e.data);
+        if (ready) {
+            if (e.channel &&
+                e.type &&
+                e.data) {
+                terrace.emit(e.channel, e.type, e.data);
+                if (!listen[e.channel] && !nodes[e.channel]) {
+                    listen[e.channel] = true;
+                    terrace.message(e.channel, message => io.emit(e.channel, message));
+                }
+            } else {
+                socket.emit('error', 'message requires channel, type, data props');
+            }
+        } else {
+            socket.emit('error', 'wait for nodes event before sending messages');
         }
     });
 });

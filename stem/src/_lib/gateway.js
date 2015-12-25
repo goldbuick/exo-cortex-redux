@@ -18,13 +18,8 @@ class _GatewayServer {
                 _services = { };
 
             socket.on('nodes', data => {
-                // list the supported paths
+                // list the nodes to arrange
                 socket.emit('nodes', Object.keys(this.nodes));
-            });
-
-            socket.on('watch', data => {
-                _nodes[data.channel] = true;
-                this.nodes[data.channel] = true;
             });
 
             socket.on('api', data => {
@@ -33,17 +28,24 @@ class _GatewayServer {
             });
 
             socket.on('register', data => {
-                if (data.channel === undefined ||
-                    data.types === undefined) return;
+                if (data.node) {
+                    _nodes[data.node] = true;
+                    this.nodes[data.node] = true;
+                    // list the nodes to arrange
+                    socket.emit('nodes', Object.keys(this.nodes));
+                }
 
-                data.types.forEach(type => {
-                    let path = _sub(data.channel, type);
-                    _services[path] = true;                    
-                    this.services[path] = true;
-                });
+                if (data.channel &&
+                    data.types) {
+                    data.types.forEach(type => {
+                        let path = _sub(data.channel, type);
+                        _services[path] = true;                    
+                        this.services[path] = true;
+                    });
 
-                // list the supported paths
-                socket.emit('api', Object.keys(this.services));
+                    // list the supported paths
+                    socket.emit('api', Object.keys(this.services));
+                }
             });
 
             socket.on('message', data => {
@@ -114,7 +116,6 @@ class _GatewayListen {
     }
 
     watch (channel, handler) {
-        this.socket.emit('watch', { channel });
         this.socket.on(_sub('upstream', channel), handler);
     }
 
@@ -148,7 +149,6 @@ class _GatewayClient extends _GatewayListen {
         this.types = { };
         this.channel = channel;
         this.connect(() => {
-            log.msg('REGISTER', this.channel, this.types);
             this.socket.emit('register', {
                 channel: this.channel,
                 types: Object.keys(this.types)

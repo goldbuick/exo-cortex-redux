@@ -34,34 +34,15 @@ class CodexClient {
 
             // signal update value
             if (changed) {
+                if (this.onChanged) this.onChanged(json);
                 this.api.emit('codex', 'set', { keys: [ this.channel ], value: json });
             }
 
-            // update upstream target 
-            if (typeof json.upstream === 'string') {
-                this.target = json.upstream;
-            }
-        });
-        this.api.watch(this.channel, message => {
-            if (this.target) {
-                let _message = message;
-                if (this.onUpstream) _message = this.onUpstream(message) || message;
-                _message.upstream = this.target;
-                this.api.upstream(_message);
-            }
         });
     }
 
-    upstream (handler) {
-        this.onUpstream = handler;
-    }
-
-    emit (type, data) {
-        if (this.target) {
-            let _message = makeMessage(this.channel, type, data);
-            _message.upstream = this.target;
-            this.api.upstream(_message);
-        }
+    changed (handler) {
+        this.onChanged = handler;
     }
 
     value (pathRegex, rule, trigger) {
