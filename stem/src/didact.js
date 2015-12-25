@@ -32,7 +32,7 @@ preflight.ready(stem, () => {
             value.neuros = [ ];
         }
     }, value => {
-        console.log('didact config', value);
+        log.server('didact', 'config', value);
     });
 
     didact.message('running', message => {

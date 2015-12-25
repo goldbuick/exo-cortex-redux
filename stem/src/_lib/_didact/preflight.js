@@ -9,7 +9,17 @@ class PreFlight {
         this.index = 1;
         this.barrier = new CodexApi('barrier');
         this.steps = [ ];
-        let _steps = this.checklist();
+        let _steps = this.checklist().concat([
+            'check rethinkdb connection', this.checkRethinkDb.bind(this),
+            'start terrace', this.runNeuro('terrace'),
+            'start codex', this.runNeuro('codex'),
+            'check barrier proxy domain', this.checkDomain.bind(this),
+            'start facade', this.runNeuro('facade'),
+            'start barrier', this.runNeuro('ui-barrier'),
+            'display barrier config', this.checkBarrier.bind(this),
+            'check barrier password', this.checkPassword.bind(this),
+            'start didact ui', this.runNeuro('ui-didact'),
+        ]);
         for (let i=0; i<_steps.length; i+=2) {
             this.steps.push({
                 text: _steps[i],
@@ -30,7 +40,8 @@ class PreFlight {
 
     next () {
         if (this.steps.length === 0) {
-            log.msg('preflight', 'CHECKLIST COMPLETE');
+            log.msg('preflight', '   CHECKLIST COMPLETE');
+            log.blank(1);
             if (this.onReady) this.onReady();
         } else {
             this.invoke(this.steps[0]);
