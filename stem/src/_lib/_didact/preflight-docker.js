@@ -3,16 +3,16 @@ import PreFlight from './preflight';
 class PreFlightDocker extends PreFlight {
     checklist () {
         return [
-            this.checkDataVolume.bind(this),
-            this.checkRethinkDb.bind(this),
-            this.runNeuro('terrace'),
-            this.runNeuro('codex'),
-            this.checkDomain.bind(this),
-            this.runNeuro('facade'),
-            this.runNeuro('ui-barrier'),
-            this.checkBarrier.bind(this),
-            this.checkPassword.bind(this),
-            this.runNeuro('ui-didact'),
+            'check data volume arg', this.checkDataVolume.bind(this),
+            'check RethinkDb connection', this.checkRethinkDb.bind(this),
+            'start terrace', this.runNeuro('terrace'),
+            'start codex', this.runNeuro('codex'),
+            'check barrier proxy domain', this.checkDomain.bind(this),
+            'start facade', this.runNeuro('facade'),
+            'start barrier', this.runNeuro('ui-barrier'),
+            'display barrier config', this.checkBarrier.bind(this),
+            'check barrier password', this.checkPassword.bind(this),
+            'start didact ui', this.runNeuro('ui-didact'),
         ];
     }
 

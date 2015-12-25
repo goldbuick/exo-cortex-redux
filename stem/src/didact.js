@@ -35,20 +35,6 @@ preflight.ready(stem, () => {
         console.log('didact config', value);
     });
 
-    // didact.message('lib', message => {
-    //     didact.emit('lib', {
-    //         neuros: [
-    //             // core set of neuros
-    //             'codex',
-    //             'facade',
-    //             'terrace',
-    //             'vault',
-    //             'ui-didact',
-    //             'ui-barrier',
-    //         ]
-    //     });  
-    // });
-
     didact.message('running', message => {
         stem.running(list => {
             didact.emit('running', { neuros: list });  

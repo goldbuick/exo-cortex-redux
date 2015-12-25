@@ -16,9 +16,10 @@ terrace.message('api', e => {
 });
 
 terrace.message('nodes', e => {
-    e.forEach(node => { nodes[node] = true; });
-    io.emit('nodes', e);
     ready = true;
+    e.push('facade');
+    io.emit('nodes', e);
+    e.forEach(node => { nodes[node] = true; });
 });
 
 // upstream messages go out into client side
@@ -51,6 +52,8 @@ io.on('connection', function(socket) {
                 e.type &&
                 e.data) {
                 terrace.emit(e.channel, e.type, e.data);
+                // dynamically listen for api responses
+                // nodes only have upstream path responses 
                 if (!listen[e.channel] && !nodes[e.channel]) {
                     listen[e.channel] = true;
                     terrace.message(e.channel, message => io.emit(e.channel, message));

@@ -20,11 +20,11 @@ app.set('port', argv.port);
 app.engine('html', engines['ejs']);
 
 // log requests
-app.use((req, res, next) => {
-    let path = req.get('host') + req.url;
-    log.msg('request', path);
-    next();
-});
+// app.use((req, res, next) => {
+//     let path = req.get('host') + req.url;
+//     log.msg('request', path);
+//     next();
+// });
 
 // interface content
 app.use(compression());

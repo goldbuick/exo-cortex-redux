@@ -11,7 +11,7 @@ class PreFlightLocal extends PreFlight {
             'start barrier', this.runNeuro('ui-barrier'),
             'display barrier config', this.checkBarrier.bind(this),
             'check barrier password', this.checkPassword.bind(this),
-            'start didact', this.runNeuro('ui-didact'),
+            'start didact ui', this.runNeuro('ui-didact'),
         ];
     }
 }
