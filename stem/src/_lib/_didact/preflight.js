@@ -40,7 +40,7 @@ class PreFlight {
 
     next () {
         if (this.steps.length === 0) {
-            log.msg('preflight', '   CHECKLIST COMPLETE');
+            log.msg('preflight', '!. CHECKLIST COMPLETE');
             log.blank(1);
             if (this.onReady) this.onReady();
         } else {
