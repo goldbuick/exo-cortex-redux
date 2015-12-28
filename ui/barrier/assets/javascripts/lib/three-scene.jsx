@@ -32,6 +32,7 @@ var ThreeScene = React.createClass({
             preserveDrawingBuffer: true
         });
         this.camera = new THREE.PerspectiveCamera(60, 4 / 3, 0.1, 10000);
+        // this.renderer.setPixelRatio(window.devicePixelRatio ? window.devicePixelRatio : 1);
         
         // default scene setup
         this._object3D.add(this.camera);

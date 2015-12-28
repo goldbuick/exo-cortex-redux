@@ -4,7 +4,7 @@ import Gems from 'app/gems';
 import Plate from 'app/plate';
 import Feather from 'app/feather';
 import TypeRing from 'app/type-ring';
-import Background from 'app/background';
+import Background from 'lib/background';
 import ThreeScene from 'lib/three-scene';
 
 function repAt(str, index, chr) {
