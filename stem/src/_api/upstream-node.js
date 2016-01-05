@@ -1,6 +1,10 @@
 import log from '../_lib/_util/log';
 import CodexClient from './codex-client';
 
+// TODO: include a way to formalized upstream path deps
+// because otherwise users have no idea what they need in order to run
+// certain setups
+
 class UpstreamNode extends CodexClient {
 
     constructor (channel) {
