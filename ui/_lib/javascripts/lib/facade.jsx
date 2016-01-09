@@ -20,7 +20,7 @@ require([ url + '/socket.io/socket.io.js'], function (io) {
             type: 'neuros'
         });
     });
-    socket.on('didact/running', data => {
-        console.log('--== didact/running', data, '==--');
+    socket.on('didact', data => {
+        console.log('--== didact', data, '==--');
     });
 });

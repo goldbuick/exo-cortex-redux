@@ -4,10 +4,6 @@ import CONFIG from './_api/_config';
 import HttpJSON from './_lib/httpjson';
 import TerraceListen from './_api/terrace-listen';
 
-function _sub (channel, type) {
-    return [channel, type].join('/');
-}
-
 let nodes = { },
     listen = { },
     terrace = TerraceListen();
@@ -49,16 +45,12 @@ io.on('connection', function(socket) {
     socket.on('message', e => {
         if (e.channel && e.type) {
             terrace.emit(e.channel, e.type, e.data);
-            // dynamically listen for api responses
-            // nodes only have upstream path responses 
-            [ e.channel, _sub(e.channel, e.type) ].forEach(channel => {
-                if (!listen[channel] && !nodes[channel]) {
-                    listen[channel] = true;
-                    terrace.message(channel, message => {
-                        io.emit(channel, message);
-                    });
-                }
-            });
+            if (!listen[e.channel] && !nodes[e.channel]) {
+                listen[e.channel] = true;
+                terrace.message(e.channel, message => {
+                    io.emit(e.channel, message);
+                });
+            }
         } else {
             log.error('facade', 'message requires channel & type data props');
         }
