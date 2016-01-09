@@ -132,6 +132,13 @@ var ThreeScene = React.createClass({
         this.rayCoords.y = -(y / size.height) * 2 + 1;
         this.ray.setFromCamera(this.rayCoords, this.camera);
         let intersects = this.ray.intersectObjects(this._object3D.children, true);
+        for (let i=0; i<intersects.length; ++i) {
+            let obj = intersects[i];
+            if (obj && obj.userData && obj.userData.onPointer) {
+                obj.userData.onPointer(id, pressed, x, y);
+                break;
+            }
+        }
         this.props.onPointer(id, pressed, x, y, intersects);
     },
 

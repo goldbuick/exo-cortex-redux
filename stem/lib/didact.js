@@ -60,7 +60,7 @@ preflight.ready(stem, function () {
         _log2.default.server('didact', 'config', value);
     });
 
-    didact.message('running', function (message) {
+    didact.message('neuros', function (message) {
         stem.running(function (list) {
             didact.emit('running', { neuros: list });
         });
@@ -78,7 +78,7 @@ preflight.ready(stem, function () {
         var name = message.meta.name;
         if (name === undefined) return;
         stem.kill(name, function (result) {
-            didact.emit('started', result);
+            didact.emit('killed', result);
         });
     });
 
@@ -86,7 +86,7 @@ preflight.ready(stem, function () {
         var name = message.meta.name;
         if (name === undefined) return;
         stem.gaze(name, function (result) {
-            didact.emit('gaze', {
+            didact.emit('logs', {
                 neuro: name,
                 logs: result
             });

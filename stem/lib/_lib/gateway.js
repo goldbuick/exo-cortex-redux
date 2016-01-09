@@ -37,81 +37,89 @@ function _sub(channel, type) {
     return [channel, type].join('/');
 }
 
-var _GatewayServer = function _GatewayServer(name, port) {
-    var _this = this;
+var _GatewayServer = (function () {
+    _createClass(_GatewayServer, [{
+        key: 'registry',
+        value: function registry(socket) {
+            socket.emit('nodes', Object.keys(this.nodes));
+            socket.emit('api', Object.keys(this.services));
+        }
+    }]);
 
-    _classCallCheck(this, _GatewayServer);
+    function _GatewayServer(name, port) {
+        var _this = this;
 
-    this.io = (0, _socket2.default)(port);
-    this.nodes = {};
-    this.services = {};
-    this.io.on('connection', function (socket) {
-        var _nodes = {},
-            _services = {};
+        _classCallCheck(this, _GatewayServer);
 
-        socket.on('nodes', function (data) {
+        this.io = (0, _socket2.default)(port);
+        this.nodes = {};
+        this.services = {};
+        this.io.on('connection', function (socket) {
+            var _nodes = {},
+                _services = {};
+
+            _this.registry(socket);
+
             // list the nodes to arrange
-            socket.emit('nodes', Object.keys(_this.nodes));
-        });
-
-        socket.on('api', function (data) {
-            // list the supported paths
-            socket.emit('api', Object.keys(_this.services));
-        });
-
-        socket.on('register', function (data) {
-            if (data.node) {
-                _nodes[data.node] = true;
-                _this.nodes[data.node] = true;
-                // list the nodes to arrange
+            socket.on('nodes', function (data) {
                 socket.emit('nodes', Object.keys(_this.nodes));
-            }
+            });
 
-            if (data.channel && data.types) {
-                data.types.forEach(function (type) {
-                    var path = _sub(data.channel, type);
-                    _services[path] = true;
-                    _this.services[path] = true;
-                });
-
-                // list the supported paths
+            // list the supported paths
+            socket.on('api', function (data) {
                 socket.emit('api', Object.keys(_this.services));
-            }
-        });
+            });
 
-        socket.on('message', function (data) {
-            _log2.default.msg(name, 'message', data);
-            if (data && data.channel) {
-                // emit message to given channel
-                _this.io.emit(data.channel, data);
-                if (data.type) {
-                    // emit message to given channel/type
-                    _this.io.emit(_sub(data.channel, data.type), data);
+            socket.on('register', function (data) {
+                if (data.node) {
+                    _nodes[data.node] = true;
+                    _this.nodes[data.node] = true;
                 }
-            }
-        });
 
-        socket.on('upstream', function (data) {
-            _log2.default.msg(name, 'upstream', data);
-            if (data && data.upstream) {
-                // emit message to given upstream
-                _this.io.emit(_sub('upstream', data.upstream), data);
-            }
-        });
+                if (data.channel && data.types) {
+                    data.types.forEach(function (type) {
+                        var path = _sub(data.channel, type);
+                        _services[path] = true;
+                        _this.services[path] = true;
+                    });
+                }
 
-        socket.on('disconnect', function () {
-            // unregister watch
-            Object.keys(_nodes).forEach(function (path) {
-                delete _this.nodes[path];
+                _this.registry(socket);
             });
-            // unregister api
-            Object.keys(_services).forEach(function (path) {
-                delete _this.services[path];
+
+            socket.on('message', function (data) {
+                _log2.default.msg(name, 'message', data);
+                if (data && data.channel) {
+                    _this.io.emit(data.channel, data);
+                    if (data.type) {
+                        _this.io.emit(_sub(data.channel, data.type), data);
+                    }
+                }
+            });
+
+            socket.on('upstream', function (data) {
+                _log2.default.msg(name, 'upstream', data);
+                if (data && data.upstream) {
+                    _this.io.emit(_sub('upstream', data.upstream), data);
+                }
+            });
+
+            socket.on('disconnect', function () {
+                // unregister watch
+                Object.keys(_nodes).forEach(function (path) {
+                    delete _this.nodes[path];
+                });
+                // unregister api
+                Object.keys(_services).forEach(function (path) {
+                    delete _this.services[path];
+                });
             });
         });
-    });
-    _log2.default.server(name, 'started on', port);
-};
+        _log2.default.server(name, 'started on', port);
+    }
+
+    return _GatewayServer;
+})();
 
 function GatewayServer(name, port) {
     return new _GatewayServer(name, port);

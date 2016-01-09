@@ -23,7 +23,8 @@ class Stem {
             this.logs[name].pop();
         }
 
-        // args.unshift('--------' + name); console.log.apply(console, args);
+        // args.unshift('--------' + name);
+        // console.log.apply(console, args);
     }
 
     start (name, callback) {

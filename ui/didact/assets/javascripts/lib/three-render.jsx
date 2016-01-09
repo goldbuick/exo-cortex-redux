@@ -70,14 +70,18 @@ export default {
                 out = React.cloneElement(out, { parent: this });
             }
         }
-
-        if (this._object3D &&
-            this.props.parent &&
-            this.props.parent._object3D) {
-            this._object3D.name = this.constructor.displayName;
-            this.props.parent._object3D.add(this._object3D);
-            this.props.parent.shouldAnimate(this);
-            this.applyProps3D('position-x', 'position-y', 'position-z');
+        
+        if (this._object3D) {
+            if (this.props.parent &&
+                this.props.parent._object3D) {
+                this._object3D.name = this.constructor.displayName;
+                this.props.parent._object3D.add(this._object3D);
+                this.props.parent.shouldAnimate(this);
+                this.applyProps3D('position-x', 'position-y', 'position-z');
+            }
+            if (this.handlePointer) {
+                this._object3D.userData.onPointer = this.handlePointer;
+            }
         }
 
         return out;

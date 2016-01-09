@@ -4,9 +4,12 @@ import CONFIG from './_api/_config';
 import HttpJSON from './_lib/httpjson';
 import TerraceListen from './_api/terrace-listen';
 
+function _sub (channel, type) {
+    return [channel, type].join('/');
+}
+
 let nodes = { },
     listen = { },
-    ready = false,
     terrace = TerraceListen();
 
 terrace.connect(() => log.server('facade', 'connected to terrace'));
@@ -16,7 +19,6 @@ terrace.message('api', e => {
 });
 
 terrace.message('nodes', e => {
-    ready = true;
     e.push('facade');
     io.emit('nodes', e);
     e.forEach(node => { nodes[node] = true; });
@@ -41,28 +43,24 @@ let http = HttpJSON((req, json, finish) => {
 // socket.io interface
 let io = Server(http);
 io.on('connection', function(socket) {
-    // generate api list event
     terrace.api();
-    // generate node list event
     terrace.nodes();
-    // listen for messages to send into messaging net
+    socket.on('error', e => log.error('facade', e));
     socket.on('message', e => {
-        if (ready) {
-            if (e.channel &&
-                e.type &&
-                e.data) {
-                terrace.emit(e.channel, e.type, e.data);
-                // dynamically listen for api responses
-                // nodes only have upstream path responses 
-                if (!listen[e.channel] && !nodes[e.channel]) {
-                    listen[e.channel] = true;
-                    terrace.message(e.channel, message => io.emit(e.channel, message));
+        if (e.channel && e.type) {
+            terrace.emit(e.channel, e.type, e.data);
+            // dynamically listen for api responses
+            // nodes only have upstream path responses 
+            [ e.channel, _sub(e.channel, e.type) ].forEach(channel => {
+                if (!listen[channel] && !nodes[channel]) {
+                    listen[channel] = true;
+                    terrace.message(channel, message => {
+                        io.emit(channel, message);
+                    });
                 }
-            } else {
-                socket.emit('error', 'message requires channel, type, data props');
-            }
+            });
         } else {
-            socket.emit('error', 'wait for nodes event before sending messages');
+            log.error('facade', 'message requires channel & type data props');
         }
     });
 });

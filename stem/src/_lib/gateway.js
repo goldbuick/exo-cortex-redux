@@ -8,6 +8,11 @@ function _sub (channel, type) {
 }
 
 class _GatewayServer {
+
+    registry (socket) {
+        socket.emit('nodes', Object.keys(this.nodes));
+        socket.emit('api', Object.keys(this.services));
+    }
     
     constructor (name, port) {
         this.io = Server(port);
@@ -17,13 +22,15 @@ class _GatewayServer {
             let _nodes = { },
                 _services = { };
 
+            this.registry(socket);
+
+            // list the nodes to arrange
             socket.on('nodes', data => {
-                // list the nodes to arrange
                 socket.emit('nodes', Object.keys(this.nodes));
             });
 
+            // list the supported paths
             socket.on('api', data => {
-                // list the supported paths
                 socket.emit('api', Object.keys(this.services));
             });
 
@@ -31,8 +38,6 @@ class _GatewayServer {
                 if (data.node) {
                     _nodes[data.node] = true;
                     this.nodes[data.node] = true;
-                    // list the nodes to arrange
-                    socket.emit('nodes', Object.keys(this.nodes));
                 }
 
                 if (data.channel &&
@@ -42,19 +47,16 @@ class _GatewayServer {
                         _services[path] = true;                    
                         this.services[path] = true;
                     });
-
-                    // list the supported paths
-                    socket.emit('api', Object.keys(this.services));
                 }
+
+                this.registry(socket);
             });
 
             socket.on('message', data => {
                 log.msg(name, 'message', data);
                 if (data && data.channel) {
-                    // emit message to given channel
                     this.io.emit(data.channel, data);
                     if (data.type) {
-                        // emit message to given channel/type
                         this.io.emit(_sub(data.channel, data.type), data);
                     }
                 }
@@ -63,7 +65,6 @@ class _GatewayServer {
             socket.on('upstream', data => {
                 log.msg(name, 'upstream', data);
                 if (data && data.upstream) {
-                    // emit message to given upstream
                     this.io.emit(_sub('upstream', data.upstream), data);
                 }
             });

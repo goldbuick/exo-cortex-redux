@@ -21,6 +21,13 @@ log.msg = function () {
     output.apply(undefined, args);
 };
 
+log.error = function () {
+    var args = Array.prototype.slice.call(arguments);
+    args[0] = args[0] + ': =>';
+    args.unshift('ERR');
+    output.apply(undefined, args);
+};
+
 log.server = function () {
     var args = Array.prototype.slice.call(arguments);
     args[0] = args[0] + ': =>';

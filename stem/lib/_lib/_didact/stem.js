@@ -36,7 +36,8 @@ var Stem = (function () {
                 this.logs[name].pop();
             }
 
-            // args.unshift('--------' + name); console.log.apply(console, args);
+            // args.unshift('--------' + name);
+            // console.log.apply(console, args);
         }
     }, {
         key: 'start',

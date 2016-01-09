@@ -35,7 +35,7 @@ preflight.ready(stem, () => {
         log.server('didact', 'config', value);
     });
 
-    didact.message('running', message => {
+    didact.message('neuros', message => {
         stem.running(list => {
             didact.emit('running', { neuros: list });  
         });
@@ -53,7 +53,7 @@ preflight.ready(stem, () => {
         let name = message.meta.name;
         if (name === undefined) return;
         stem.kill(name, result => {
-            didact.emit('started', result);
+            didact.emit('killed', result);
         });
     });
 
@@ -61,7 +61,7 @@ preflight.ready(stem, () => {
         let name = message.meta.name;
         if (name === undefined) return;
         stem.gaze(name, result => {
-            didact.emit('gaze', {
+            didact.emit('logs', {
                 neuro: name,
                 logs: result
             });
