@@ -1,6 +1,22 @@
-import Facade from 'lib/facade';
+import FacadeActions from 'lib/facade-actions';
 import Background from 'lib/background';
 import ThreeScene from 'lib/three-scene';
+
+/*
+what do I need from web-didact
+generic config editor
+start / stop neuros
+edit upstream path
+*/
+
+FacadeActions.connect.listen(() => {
+    console.log('connect!');
+    FacadeActions.emit('didact', 'running');
+});
+
+FacadeActions.message.listen(message => {
+    console.log(message);
+});
 
 var Page = React.createClass({
     mixins: [
@@ -12,7 +28,7 @@ var Page = React.createClass({
     
     render: function () {
         return <ThreeScene onCreate={this.handleCreate} onPointer={this.handlePointer}>
-            <Background />
+            <Background seed="something-else-yeah"/>
         </ThreeScene>;
     },
 

@@ -126,7 +126,7 @@ var ThreeScene = React.createClass({
     },
 
     handlePointer: function (id, pressed, x, y) {
-        if (!this.props.onPointer || !this._object3D) return;
+        if (!this._object3D) return;
         let size = this.containerSize();
         this.rayCoords.x = (x / size.width) * 2 - 1;
         this.rayCoords.y = -(y / size.height) * 2 + 1;
@@ -139,7 +139,9 @@ var ThreeScene = React.createClass({
                 break;
             }
         }
-        this.props.onPointer(id, pressed, x, y, intersects);
+        if (this.props.onPointer) {
+            this.props.onPointer(id, pressed, x, y, intersects);
+        }
     },
 
     handleTouchStart: function (event) {

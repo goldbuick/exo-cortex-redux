@@ -20,11 +20,11 @@ var _terraceListen = require('./_api/terrace-listen');
 
 var _terraceListen2 = _interopRequireDefault(_terraceListen);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _makeMessage = require('./_lib/_util/makeMessage');
 
-function _sub(channel, type) {
-    return [channel, type].join('/');
-}
+var _makeMessage2 = _interopRequireDefault(_makeMessage);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var nodes = {},
     listen = {},
@@ -63,7 +63,13 @@ var http = (0, _httpjson2.default)(function (req, json, finish) {
 });
 
 // socket.io interface
-var io = (0, _socket2.default)(http);
+var io = (0, _socket2.default)(http),
+    emit = function emit(channel) {
+    return function (message) {
+        return io.emit(channel, message);
+    };
+};
+
 io.on('connection', function (socket) {
     terrace.api();
     terrace.nodes();
@@ -73,16 +79,13 @@ io.on('connection', function (socket) {
     socket.on('message', function (e) {
         if (e.channel && e.type) {
             terrace.emit(e.channel, e.type, e.data);
-            // dynamically listen for api responses
-            // nodes only have upstream path responses
-            [e.channel, _sub(e.channel, e.type)].forEach(function (channel) {
-                if (!listen[channel] && !nodes[channel]) {
-                    listen[channel] = true;
-                    terrace.message(channel, function (message) {
-                        io.emit(channel, message);
-                    });
-                }
-            });
+            if (!nodes[e.channel] && !listen[e.channel]) {
+                listen[e.channel] = true;
+                terrace.message(e.channel, function (m) {
+                    io.emit(m.channel, m);
+                    io.emit(_makeMessage2.default.sub(m.channel, m.type), m);
+                });
+            }
         } else {
             _log2.default.error('facade', 'message requires channel & type data props');
         }

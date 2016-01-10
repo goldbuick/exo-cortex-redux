@@ -21,9 +21,9 @@ var _socket3 = require('socket.io-client');
 
 var _socket4 = _interopRequireDefault(_socket3);
 
-var _message = require('./_util/message');
+var _makeMessage = require('./_util/makeMessage');
 
-var _message2 = _interopRequireDefault(_message);
+var _makeMessage2 = _interopRequireDefault(_makeMessage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32,10 +32,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _sub(channel, type) {
-    return [channel, type].join('/');
-}
 
 var _GatewayServer = (function () {
     _createClass(_GatewayServer, [{
@@ -78,7 +74,7 @@ var _GatewayServer = (function () {
 
                 if (data.channel && data.types) {
                     data.types.forEach(function (type) {
-                        var path = _sub(data.channel, type);
+                        var path = _makeMessage2.default.sub(data.channel, type);
                         _services[path] = true;
                         _this.services[path] = true;
                     });
@@ -92,7 +88,7 @@ var _GatewayServer = (function () {
                 if (data && data.channel) {
                     _this.io.emit(data.channel, data);
                     if (data.type) {
-                        _this.io.emit(_sub(data.channel, data.type), data);
+                        _this.io.emit(_makeMessage2.default.sub(data.channel, data.type), data);
                     }
                 }
             });
@@ -100,7 +96,7 @@ var _GatewayServer = (function () {
             socket.on('upstream', function (data) {
                 _log2.default.msg(name, 'upstream', data);
                 if (data && data.upstream) {
-                    _this.io.emit(_sub('upstream', data.upstream), data);
+                    _this.io.emit(_makeMessage2.default.sub('upstream', data.upstream), data);
                 }
             });
 
@@ -157,7 +153,7 @@ var _GatewayListen = (function () {
     }, {
         key: 'watch',
         value: function watch(channel, handler) {
-            this.socket.on(_sub('upstream', channel), handler);
+            this.socket.on(_makeMessage2.default.sub('upstream', channel), handler);
         }
     }, {
         key: 'api',
@@ -172,7 +168,7 @@ var _GatewayListen = (function () {
     }, {
         key: 'emit',
         value: function emit(channel, type, data) {
-            var message = (0, _message2.default)(channel, type, data);
+            var message = (0, _makeMessage2.default)(channel, type, data);
             this.socket.emit('message', message);
         }
     }, {
@@ -212,12 +208,19 @@ var _GatewayClient = (function (_GatewayListen2) {
         key: 'message',
         value: function message(type, handler) {
             this.types[type] = true;
-            this.socket.on(_sub(this.channel, type), handler);
+            this.socket.on(_makeMessage2.default.sub(this.channel, type), handler);
         }
     }, {
         key: 'emit',
         value: function emit(type, data) {
-            var message = (0, _message2.default)(this.channel, type, data);
+            var message = (0, _makeMessage2.default)(this.channel, type, data);
+            this.socket.emit('message', message);
+        }
+    }, {
+        key: 'reply',
+        value: function reply(incoming, type, data) {
+            data.originId = incoming.id;
+            var message = (0, _makeMessage2.default)(this.channel, type + '-reply', data);
             this.socket.emit('message', message);
         }
     }]);

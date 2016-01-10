@@ -1,11 +1,7 @@
 import log from '../_lib/_util/log';
 import ObjMod from '../_lib/_util/obj-mod';
 import TerraceListen from './terrace-listen';
-import makeMessage from '../_lib/_util/message';
-
-function _sub (channel, type) {
-    return [channel, type].join('/');
-}
+import makeMessage from '../_lib/_util/makeMessage';
 
 class CodexClient {
 

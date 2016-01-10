@@ -48,6 +48,10 @@ if (isLocal) {
     preflight = new _preflightDocker2.default();
 }
 
+/*
+still need a way to have a neuro health check??
+*/
+
 preflight.ready(stem, function () {
     var store = (0, _codexClient2.default)('didact'),
         didact = (0, _terraceClient2.default)('didact');
@@ -62,7 +66,7 @@ preflight.ready(stem, function () {
 
     didact.message('neuros', function (message) {
         stem.running(function (list) {
-            didact.emit('running', { neuros: list });
+            didact.reply('neuros', { neuros: list });
         });
     });
 
@@ -70,7 +74,7 @@ preflight.ready(stem, function () {
         var name = message.meta.name;
         if (name === undefined) return;
         stem.start(name, function (result) {
-            didact.emit('started', result);
+            didact.reply('start', result);
         });
     });
 
@@ -78,7 +82,7 @@ preflight.ready(stem, function () {
         var name = message.meta.name;
         if (name === undefined) return;
         stem.kill(name, function (result) {
-            didact.emit('killed', result);
+            didact.reply('kill', result);
         });
     });
 
@@ -86,7 +90,7 @@ preflight.ready(stem, function () {
         var name = message.meta.name;
         if (name === undefined) return;
         stem.gaze(name, function (result) {
-            didact.emit('logs', {
+            didact.reply('gaze', {
                 neuro: name,
                 logs: result
             });

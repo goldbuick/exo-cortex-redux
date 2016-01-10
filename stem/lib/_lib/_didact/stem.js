@@ -6,7 +6,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _yargs = require('yargs');
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var isDebug = _yargs.argv.debug !== undefined;
 
 var Stem = (function () {
     function Stem() {
@@ -36,8 +40,10 @@ var Stem = (function () {
                 this.logs[name].pop();
             }
 
-            // args.unshift('--------' + name);
-            // console.log.apply(console, args);
+            if (isDebug) {
+                args.unshift('--------' + name);
+                console.log.apply(console, args);
+            }
         }
     }, {
         key: 'start',

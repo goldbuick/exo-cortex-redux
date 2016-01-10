@@ -3,6 +3,7 @@ import log from './_lib/_util/log';
 import CONFIG from './_api/_config';
 import HttpJSON from './_lib/httpjson';
 import TerraceListen from './_api/terrace-listen';
+import makeMessage from './_lib/_util/makeMessage';
 
 let nodes = { },
     listen = { },
@@ -21,8 +22,8 @@ terrace.message('nodes', e => {
 });
 
 // upstream messages go out into client side
-terrace.watch('facade', e => {
-    if (e.channel) io.emit(e.channel, e);
+terrace.watch('facade', message => {
+    if (message) io.emit('message', message);
 });
 
 // http interface (for webhooks)
@@ -38,6 +39,7 @@ let http = HttpJSON((req, json, finish) => {
 
 // socket.io interface
 let io = Server(http);
+
 io.on('connection', function(socket) {
     terrace.api();
     terrace.nodes();
@@ -45,10 +47,10 @@ io.on('connection', function(socket) {
     socket.on('message', e => {
         if (e.channel && e.type) {
             terrace.emit(e.channel, e.type, e.data);
-            if (!listen[e.channel] && !nodes[e.channel]) {
+            if (!nodes[e.channel] && !listen[e.channel]) {
                 listen[e.channel] = true;
                 terrace.message(e.channel, message => {
-                    io.emit(e.channel, message);
+                    io.emit('message', message);
                 });
             }
         } else {

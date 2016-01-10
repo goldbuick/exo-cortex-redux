@@ -15,7 +15,7 @@ var Background = React.createClass({
     },
 
     render3D: function () {
-        let r = alea('star-speckle-background'),
+        let r = alea(this.props.seed || 'star-speckle-background'),
             points = [ ],
             sparks = new Graph();
 
@@ -43,7 +43,7 @@ var Background = React.createClass({
                 }
             }
         }
-        for (let i=0; i<3000; ++i) {
+        for (let i=0; i<2000; ++i) {
             points.push({
                 x: (r()-0.5) * range,
                 y: (r()-0.5) * range,
@@ -51,7 +51,6 @@ var Background = React.createClass({
             });
         }
 
-        console.log(points.length);
         sparks.drawPoints(points);
 
         return sparks.build({

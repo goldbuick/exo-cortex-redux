@@ -1,3 +1,5 @@
+import { argv } from 'yargs';
+let isDebug = (argv.debug !== undefined);
 
 class Stem {
 
@@ -23,8 +25,10 @@ class Stem {
             this.logs[name].pop();
         }
 
-        // args.unshift('--------' + name);
-        // console.log.apply(console, args);
+        if (isDebug) {
+            args.unshift('--------' + name);
+            console.log.apply(console, args);
+        }
     }
 
     start (name, callback) {

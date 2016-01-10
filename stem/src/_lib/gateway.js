@@ -1,11 +1,7 @@
 import log from './_util/log';
 import Server from 'socket.io';
 import Client from 'socket.io-client';
-import makeMessage from './_util/message';
-
-function _sub (channel, type) {
-    return [channel, type].join('/');
-}
+import makeMessage from './_util/makeMessage';
 
 class _GatewayServer {
 
@@ -43,7 +39,7 @@ class _GatewayServer {
                 if (data.channel &&
                     data.types) {
                     data.types.forEach(type => {
-                        let path = _sub(data.channel, type);
+                        let path = makeMessage.sub(data.channel, type);
                         _services[path] = true;                    
                         this.services[path] = true;
                     });
@@ -57,7 +53,7 @@ class _GatewayServer {
                 if (data && data.channel) {
                     this.io.emit(data.channel, data);
                     if (data.type) {
-                        this.io.emit(_sub(data.channel, data.type), data);
+                        this.io.emit(makeMessage.sub(data.channel, data.type), data);
                     }
                 }
             });
@@ -65,7 +61,7 @@ class _GatewayServer {
             socket.on('upstream', data => {
                 log.msg(name, 'upstream', data);
                 if (data && data.upstream) {
-                    this.io.emit(_sub('upstream', data.upstream), data);
+                    this.io.emit(makeMessage.sub('upstream', data.upstream), data);
                 }
             });
 
@@ -117,7 +113,7 @@ class _GatewayListen {
     }
 
     watch (channel, handler) {
-        this.socket.on(_sub('upstream', channel), handler);
+        this.socket.on(makeMessage.sub('upstream', channel), handler);
     }
 
     api () {
@@ -159,11 +155,17 @@ class _GatewayClient extends _GatewayListen {
 
     message (type, handler) {
         this.types[type] = true;
-        this.socket.on(_sub(this.channel, type), handler);
+        this.socket.on(makeMessage.sub(this.channel, type), handler);
     }
     
     emit (type, data) {
         let message = makeMessage(this.channel, type, data);
+        this.socket.emit('message', message);
+    }
+
+    reply (incoming, type, data) {
+        data.originId = incoming.id;
+        let message = makeMessage(this.channel, type + '-reply', data);
         this.socket.emit('message', message);
     }
 

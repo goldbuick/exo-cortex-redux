@@ -22,19 +22,15 @@ var _terraceListen = require('./terrace-listen');
 
 var _terraceListen2 = _interopRequireDefault(_terraceListen);
 
-var _message = require('../_lib/_util/message');
+var _makeMessage = require('../_lib/_util/makeMessage');
 
-var _message2 = _interopRequireDefault(_message);
+var _makeMessage2 = _interopRequireDefault(_makeMessage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _sub(channel, type) {
-    return [channel, type].join('/');
-}
 
 var CodexClient = (function () {
     function CodexClient(channel) {
