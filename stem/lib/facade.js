@@ -47,8 +47,8 @@ terrace.message('nodes', function (e) {
 });
 
 // upstream messages go out into client side
-terrace.watch('facade', function (e) {
-    if (e.channel) io.emit(e.channel, e);
+terrace.watch('facade', function (message) {
+    if (message) io.emit('message', message);
 });
 
 // http interface (for webhooks)
@@ -63,12 +63,7 @@ var http = (0, _httpjson2.default)(function (req, json, finish) {
 });
 
 // socket.io interface
-var io = (0, _socket2.default)(http),
-    emit = function emit(channel) {
-    return function (message) {
-        return io.emit(channel, message);
-    };
-};
+var io = (0, _socket2.default)(http);
 
 io.on('connection', function (socket) {
     terrace.api();
@@ -81,9 +76,8 @@ io.on('connection', function (socket) {
             terrace.emit(e.channel, e.type, e.data);
             if (!nodes[e.channel] && !listen[e.channel]) {
                 listen[e.channel] = true;
-                terrace.message(e.channel, function (m) {
-                    io.emit(m.channel, m);
-                    io.emit(_makeMessage2.default.sub(m.channel, m.type), m);
+                terrace.message(e.channel, function (message) {
+                    io.emit('message', message);
                 });
             }
         } else {

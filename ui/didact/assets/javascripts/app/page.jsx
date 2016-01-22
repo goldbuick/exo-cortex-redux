@@ -10,13 +10,12 @@ edit upstream path
 */
 
 FacadeActions.connect.listen(() => {
-    console.log('connect!');
-    FacadeActions.emit('didact', 'running');
+    FacadeActions.emit('didact', 'neuros');
 });
 
-FacadeActions.message.listen(message => {
-    console.log(message);
-});
+FacadeActions.api.listen(api => console.log(api));
+FacadeActions.nodes.listen(nodes => console.log(nodes));
+FacadeActions.message.listen(message => console.log(message));
 
 var Page = React.createClass({
     mixins: [

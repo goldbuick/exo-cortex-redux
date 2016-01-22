@@ -16,17 +16,28 @@ require([ url + '/socket.io/socket.io.js'], io => {
     socket.on('api', e => FacadeActions.api(e));
     socket.on('nodes', e => FacadeActions.nodes(e));
     socket.on('message', e => FacadeActions.message(e));
-    socket.on('connect', e => FacadeActions.connect(e));
+    socket.on('connect', () => {
+        FacadeActions.connect();
+        FacadeActions.connect.listen = (callback => callback());
+    });
     socket.on('connect_error', e => FacadeActions.connectError(e));
 });
 
-FacadeActions.emit.listen((channel, type, data) => {
+FacadeActions.api.listen(list => {
+    if (list === undefined) socket.emit('api');
+});
+
+FacadeActions.nodes.listen(list => {
+    if (list === undefined) socket.emit('nodes');
+});
+
+FacadeActions.emit.listen((channel, type, meta) => {
     socket.emit('message', {
         id: uuid.v4(),
         when: new Date().toISOString(),
         channel: channel,
         type: type,
-        meta: data || { }
+        meta: meta || { }
     });
 });
 

@@ -66,7 +66,7 @@ preflight.ready(stem, function () {
 
     didact.message('neuros', function (message) {
         stem.running(function (list) {
-            didact.reply('neuros', { neuros: list });
+            didact.reply(message, 'neuros', { neuros: list });
         });
     });
 
@@ -74,7 +74,7 @@ preflight.ready(stem, function () {
         var name = message.meta.name;
         if (name === undefined) return;
         stem.start(name, function (result) {
-            didact.reply('start', result);
+            didact.reply(message, 'start', result);
         });
     });
 
@@ -82,7 +82,7 @@ preflight.ready(stem, function () {
         var name = message.meta.name;
         if (name === undefined) return;
         stem.kill(name, function (result) {
-            didact.reply('kill', result);
+            didact.reply(message, 'kill', result);
         });
     });
 
@@ -90,7 +90,7 @@ preflight.ready(stem, function () {
         var name = message.meta.name;
         if (name === undefined) return;
         stem.gaze(name, function (result) {
-            didact.reply('gaze', {
+            didact.reply(message, 'gaze', {
                 neuro: name,
                 logs: result
             });

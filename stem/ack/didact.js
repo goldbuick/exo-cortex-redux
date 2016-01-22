@@ -41,7 +41,7 @@ preflight.ready(stem, () => {
 
     didact.message('neuros', message => {
         stem.running(list => {
-            didact.reply('neuros', { neuros: list });  
+            didact.reply(message, 'neuros', { neuros: list });  
         });
     });
 
@@ -49,7 +49,7 @@ preflight.ready(stem, () => {
         let name = message.meta.name;
         if (name === undefined) return;
         stem.start(name, result => {
-            didact.reply('start', result);
+            didact.reply(message, 'start', result);
         });
     });
 
@@ -57,7 +57,7 @@ preflight.ready(stem, () => {
         let name = message.meta.name;
         if (name === undefined) return;
         stem.kill(name, result => {
-            didact.reply('kill', result);
+            didact.reply(message, 'kill', result);
         });
     });
 
@@ -65,7 +65,7 @@ preflight.ready(stem, () => {
         let name = message.meta.name;
         if (name === undefined) return;
         stem.gaze(name, result => {
-            didact.reply('gaze', {
+            didact.reply(message, 'gaze', {
                 neuro: name,
                 logs: result
             });

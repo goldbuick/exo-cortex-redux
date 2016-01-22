@@ -41,8 +41,8 @@ let http = HttpJSON((req, json, finish) => {
 let io = Server(http);
 
 io.on('connection', function(socket) {
-    terrace.api();
-    terrace.nodes();
+    socket.on('api', () => terrace.api());
+    socket.on('nodes', () => terrace.nodes());
     socket.on('error', e => log.error('facade', e));
     socket.on('message', e => {
         if (e.channel && e.type) {
