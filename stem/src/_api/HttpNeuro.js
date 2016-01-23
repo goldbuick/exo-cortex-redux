@@ -4,6 +4,7 @@ import PostMessage from './_api/PostMessage';
 import HttpService from './_api/HttpService';
 
 // extended service to use codex for configuration
+// --dev or --docker & --didact [host:port] --rethinkdb [host:port] --port [port]
 
 let typeOf = value => {
     let type = typeof value;
@@ -67,8 +68,7 @@ let flatten = (result, parent, key, path, cursor) => {
 class HttpNeuro extends HttpService {
 
     constructor (name) {
-        super.constructor();
-        this.name = name;
+        super.constructor(name);
         this.store = { };
         this.rules = { };
         this.before = { };

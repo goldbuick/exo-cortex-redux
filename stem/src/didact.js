@@ -8,6 +8,21 @@ let gport = 7154,
 // didact --dev    [this will send --didact as localhost:7154]
 // didact --docker [this will send --didact as didact:7154]
 
+// common arg --rethinkdb [host:port] <= this will add the rethinkdb service address
+
+// export default {
+//     HOSTS: {
+//         DIDACT: 'didact'
+//     },
+//     PORTS: {
+//         DIDACT: 7154,
+//         NEUROS: 9000,
+//         BARRIER: 8888,
+//         RETHINKDB: 28015,
+//         RETHINKDB_UI: 8080
+//     }
+// };
+
 /*
 Need to figure out a way to lookup service host & port
 --didact [host:port] --rethinkdb [host:port] --port [port]
