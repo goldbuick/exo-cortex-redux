@@ -10,10 +10,6 @@ var _rethinkdb = require('rethinkdb');
 
 var _rethinkdb2 = _interopRequireDefault(_rethinkdb);
 
-var _log = require('./_util/log');
-
-var _log2 = _interopRequireDefault(_log);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21,7 +17,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _check(err) {
     if (!err) return false;
 
-    _log2.default.msg('rethinkdb', 'error', err);
+    console.log('rethinkdb', 'error', err);
     return true;
 }
 
@@ -87,7 +83,7 @@ var RethinkDB = (function () {
                 });
             }
 
-            _log2.default.msg('rethinkdb', 'connect', host, port, self.db, self.table);
+            console.log('rethinkdb', 'connect', host, port, self.db, self.table);
             _rethinkdb2.default.connect({
                 host: host,
                 port: port,
@@ -98,7 +94,7 @@ var RethinkDB = (function () {
                 self.conn = conn;
                 createdb(function () {
                     createtable(function () {
-                        _log2.default.msg('rethinkdb', 'connected', self.db, self.table);
+                        console.log('rethinkdb', 'connected', self.db, self.table);
                         if (self.onReady) self.onReady();
                     });
                 });

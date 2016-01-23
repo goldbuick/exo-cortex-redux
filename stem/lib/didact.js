@@ -1,99 +1,49 @@
 'use strict';
 
-var _yargs = require('yargs');
+var _CONFIG = require('./_api/CONFIG');
 
-var _log = require('./_lib/_util/log');
+var _CONFIG2 = _interopRequireDefault(_CONFIG);
 
-var _log2 = _interopRequireDefault(_log);
+var _HttpApi = require('./_api/HttpApi');
 
-var _codexClient = require('./_api/codex-client');
-
-var _codexClient2 = _interopRequireDefault(_codexClient);
-
-var _stemLocal = require('./_lib/_didact/stem-local');
-
-var _stemLocal2 = _interopRequireDefault(_stemLocal);
-
-var _stemDocker = require('./_lib/_didact/stem-docker');
-
-var _stemDocker2 = _interopRequireDefault(_stemDocker);
-
-var _terraceClient = require('./_api/terrace-client');
-
-var _terraceClient2 = _interopRequireDefault(_terraceClient);
-
-var _preflightLocal = require('./_lib/_didact/preflight-local');
-
-var _preflightLocal2 = _interopRequireDefault(_preflightLocal);
-
-var _preflightDocker = require('./_lib/_didact/preflight-docker');
-
-var _preflightDocker2 = _interopRequireDefault(_preflightDocker);
+var _HttpApi2 = _interopRequireDefault(_HttpApi);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var isLocal = _yargs.argv.docker === undefined;
-
-var stem = undefined;
-if (isLocal) {
-    stem = new _stemLocal2.default();
-} else {
-    stem = new _stemDocker2.default();
-}
-
-var preflight = undefined;
-if (isLocal) {
-    preflight = new _preflightLocal2.default();
-} else {
-    preflight = new _preflightDocker2.default();
-}
-
 /*
-still need a way to have a neuro health check??
+I want to boil didact down to a simple process manager
+that can collect logs from the processes it runs.
+
+dev mode is without docker
+release mode is with docker containers
+
+in order to be run by didact you have to run a nuero client
+which allows you to dump logs to didact and signal didact you're ready & alive
 */
 
-preflight.ready(stem, function () {
-    var store = (0, _codexClient2.default)('didact'),
-        didact = (0, _terraceClient2.default)('didact');
+var server = new _HttpApi2.default(),
+    channel = server.channel('didact');
 
-    store.value('', function (type, value) {
-        if (value.neuros === undefined) {
-            value.neuros = [];
-        }
-    }, function (value) {
-        _log2.default.server('didact', 'config', value);
-    });
-
-    didact.message('neuros', function (message) {
-        stem.running(function (list) {
-            didact.reply(message, 'neuros', { neuros: list });
-        });
-    });
-
-    didact.message('start', function (message) {
-        var name = message.meta.name;
-        if (name === undefined) return;
-        stem.start(name, function (result) {
-            didact.reply(message, 'start', result);
-        });
-    });
-
-    didact.message('kill', function (message) {
-        var name = message.meta.name;
-        if (name === undefined) return;
-        stem.kill(name, function (result) {
-            didact.reply(message, 'kill', result);
-        });
-    });
-
-    didact.message('gaze', function (message) {
-        var name = message.meta.name;
-        if (name === undefined) return;
-        stem.gaze(name, function (result) {
-            didact.reply(message, 'gaze', {
-                neuro: name,
-                logs: result
-            });
-        });
-    });
+channel.message('list', {}, function (json, finish) {
+    finish();
 });
+
+channel.message('add', {
+    image: 'name of app image to spin up'
+}, function (json, finish) {
+    finish();
+});
+
+channel.message('remove', {
+    image: 'name of app to stop & remove'
+}, function (json, finish) {
+    finish();
+});
+
+channel.message('restart', {
+    image: 'name of app to restart'
+}, function (json, finish) {
+    finish();
+});
+
+server.start(_CONFIG2.default.PORTS.DIDACT);

@@ -9,22 +9,19 @@ class Channel {
         this.messages = { };
     }
 
-    message (type, handler) {
-        this.messages[type] = handler;
+    message (type, spec, handler) {
+        this.messages[type] = { spec, handler };
     }
 
 }
 
 class HttpApi {
 
-    constructor (name) {
-        this.name = name;
+    constructor () {
         this.channels = { };
         this.http = HttpJson((req, json, finish) => {
             let url = req.url;
-            console.log(url, json);
-
-            if (this.onAny) this.onAny(url, json);
+            // console.log(url, json);
 
             let channel,
                 message,
@@ -47,11 +44,11 @@ class HttpApi {
             if (json) {
                 // handler op
                 if (message) {
-                    return message(json, finish);
+                    return message.handler(json, finish);
 
                 } else if (this.onUpstream) {
                     // we don't know what to do with this message
-                    return this.onUpstream(json, finish);
+                    return this.onUpstream(url, json, finish);
                 }
 
             } else {
@@ -66,7 +63,7 @@ class HttpApi {
 
                 } else {
                     // describe handler
-                    return message(undefined, finish);
+                    return finish(message.spec);
 
                 }
             }
@@ -80,17 +77,13 @@ class HttpApi {
         return this.channels[name];
     }
 
-    any (handler) {
-        this.onAny = handler;
-    }
-
     upstream (handler) {
         this.onUpstream = handler;
     }
 
     start (port) {
         this.http.listen(port);
-        console.log('starting', name, 'on port', port);
+        console.log('starting on port', port);
     }
 
 }

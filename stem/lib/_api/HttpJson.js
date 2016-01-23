@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = function (fn) {
 
     function writeError(res, code, error) {
-        console.log('toolkit/httpjson', error);
+        console.log('HttpJson', error);
         res.writeHead(code, error, {
             'Content-Type': 'text/html; charset=utf-8',
             'Access-Control-Allow-Origin': '*',
@@ -64,7 +64,7 @@ exports.default = function (fn) {
     function getHandler(req, res) {
         try {
             // invoke callback
-            writeResponse(req, res, {});
+            writeResponse(req, res, undefined);
         } catch (e) {
             writeError(res, 400, e);
         }
@@ -80,7 +80,15 @@ exports.default = function (fn) {
         }
     }
 
-    return http.createServer(handler);
+    return _http2.default.createServer(handler);
 };
 
-var http = require('http');
+var _http = require('http');
+
+var _http2 = _interopRequireDefault(_http);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+;
+
+// standard helper code to listen for incoming POST with json data
