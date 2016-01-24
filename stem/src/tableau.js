@@ -1,5 +1,5 @@
 // express server
-// expected args --path && --port
+// expected args --service --path --port
 
 import { argv } from 'yargs';
 import express from 'express';
@@ -8,6 +8,7 @@ import favicon from 'serve-favicon';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import errorHandler from 'errorhandler';
+import HttpService from './_api/HttpService';
 
 let app = express();
 
@@ -33,4 +34,9 @@ app.get('/', (req, res) => {
 // start it up
 app.listen(argv.port, () => {
     console.log(argv.path, 'started on', argv.port);
+    let temp = new HttpService(argv.service);
+    temp.ping(() => {
+        return { active: true };
+    });
+    temp.ready();
 });

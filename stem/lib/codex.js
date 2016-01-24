@@ -1,22 +1,38 @@
-import { argv } from 'yargs';
-import ObjMod from './_api/ObjMod';
-import Debounce from './_api/Debounce';
-import RethinkDb from './_api/RethinkDb';
-import HttpService from './_api/HttpService';
+'use strict';
+
+var _yargs = require('yargs');
+
+var _ObjMod = require('./_api/ObjMod');
+
+var _ObjMod2 = _interopRequireDefault(_ObjMod);
+
+var _Debounce = require('./_api/Debounce');
+
+var _Debounce2 = _interopRequireDefault(_Debounce);
+
+var _RethinkDb = require('./_api/RethinkDb');
+
+var _RethinkDb2 = _interopRequireDefault(_RethinkDb);
+
+var _HttpService = require('./_api/HttpService');
+
+var _HttpService2 = _interopRequireDefault(_HttpService);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // simple key / value store api
 
-let server = new HttpService('codex');
-server.find('rethinkdb', rethinkdb => {
-    server.ping(() => {
+var server = new _HttpService2.default('codex');
+server.find('rethinkdb', function (rethinkdb) {
+    server.ping(function () {
         return { active: true };
     });
 
-    let gstore = { },
-        gchanged = { },
-        db = new RethinkDb('codex');
+    var gstore = {},
+        gchanged = {},
+        db = new _RethinkDb2.default('codex');
 
-    let writeValue = key => {
+    var writeValue = function writeValue(key) {
         var json = {
             id: key,
             value: gstore[key]
@@ -25,59 +41,55 @@ server.find('rethinkdb', rethinkdb => {
         json = JSON.parse(JSON.stringify(json));
 
         // insert value
-        db.run(db.q().insert(
-            json,
-            { conflict: 'replace' }
-        ), function (err) {
+        db.run(db.q().insert(json, { conflict: 'replace' }), function (err) {
             if (db.check(err)) return;
             // console.log('codex', 'wrote', JSON.stringify(json));
         });
 
         // signal value change to neuro
-        server.find(key, neuro => {
+        server.find(key, function (neuro) {
             PostMessage(neuro.host, neuro.port, 'codex', 'update', {
-                keys: [ key ],
+                keys: [key],
                 value: gstore[key]
             });
         });
     };
 
-    let writeChangedValues = Debounce(() => {
+    var writeChangedValues = (0, _Debounce2.default)(function () {
         Object.keys(gchanged).forEach(writeValue);
-        gchanged = { };
+        gchanged = {};
     }, 1000);
 
-    db.ready(() => {
+    db.ready(function () {
         // query for config values
-        db.run(db.q(), (err, cursor) => {
+        db.run(db.q(), function (err, cursor) {
             if (db.check(err)) return;
 
-            cursor.each((err, record) => {
+            cursor.each(function (err, record) {
                 if (db.check(err)) return;
                 if (record.value === undefined) return;
 
                 gstore[record.id] = record.value;
                 // console.log('codex', 'read', record.id, JSON.stringify(record.value));
-
-            }, () => {
+            }, function () {
                 // console.log('codex', 'finished reading');
                 server.ready();
             });
-        });  
+        });
     });
 
     db.connect(rethinkdb.host, rethinkdb.port);
 
-    let channel = server.channel('codex');
+    var channel = server.channel('codex');
     channel.message('set', {
         keys: 'key path to fetch',
         value: 'what value to set the key path to'
-    }, (json, finish) => {
-        let keys = json.meta.keys,
+    }, function (json, finish) {
+        var keys = json.meta.keys,
             value = json.meta.value;
         if (keys === undefined || value === undefined) return;
 
-        ObjMod.set(gstore, keys, value);
+        _ObjMod2.default.set(gstore, keys, value);
         finish({ keys: keys, value: value });
 
         gchanged[keys[0]] = true;
@@ -86,11 +98,11 @@ server.find('rethinkdb', rethinkdb => {
 
     channel.message('get', {
         keys: 'key path to fetch'
-    }, (json, finish) => {
-        let keys = json.meta.keys;
+    }, function (json, finish) {
+        var keys = json.meta.keys;
         if (keys === undefined) return finish();
-        let value = ObjMod.get(gstore, keys);
-        finish(value);      
+        var value = _ObjMod2.default.get(gstore, keys);
+        finish(value);
     });
 
     server.start();

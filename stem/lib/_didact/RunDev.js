@@ -1,12 +1,22 @@
 'use strict';
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
+
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
 
 var _Run2 = require('./Run');
 
 var _Run3 = _interopRequireDefault(_Run2);
+
+var _yargs = require('yargs');
+
+var _child_process = require('child_process');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -17,15 +27,105 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var RunDev = (function (_Run) {
-  _inherits(RunDev, _Run);
+    _inherits(RunDev, _Run);
 
-  function RunDev() {
-    _classCallCheck(this, RunDev);
+    function RunDev(host, port) {
+        _classCallCheck(this, RunDev);
 
-    return _possibleConstructorReturn(this, Object.getPrototypeOf(RunDev).apply(this, arguments));
-  }
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(RunDev).call(this));
 
-  return RunDev;
+        _this.didact = host + ':' + port;
+        return _this;
+    }
+
+    _createClass(RunDev, [{
+        key: 'nodeScript',
+        value: function nodeScript(image) {
+            switch (image) {
+                case 'barrier':
+                    return image;
+            }
+            return 'tableau';
+        }
+    }, {
+        key: 'ping',
+        value: function ping(name, data) {
+            if (this.services[name] === undefined || this.services[name].success === undefined) return;
+
+            this.services[name].success(name + ' is ready');
+            delete this.services[name].success;
+        }
+    }, {
+        key: 'add',
+        value: function add(name, success, fail) {
+            var _this2 = this;
+
+            if (this.services[name]) return success();
+
+            var ui = this.ui(name),
+                image = this.image(name),
+                service = { port: this.findPort(image) };
+
+            var params = [];
+            if (this.ui(name)) {
+                params.push('lib/' + this.nodeScript(image));
+                params.push('--service');
+                params.push(name);
+                params.push('--path');
+                params.push(_path2.default.join(__dirname, '/../../../ui/', image));
+            } else {
+                params.push('lib/' + image);
+            }
+
+            params.push('--port');
+            params.push(service.port);
+
+            params.push('--didact');
+            params.push(this.didact);
+
+            if (_yargs.argv.dev) params.push('--dev');
+            if (_yargs.argv.docker) params.push('--docker');
+
+            // so we can wait for legit ready signal
+            service.success = success;
+
+            // start child
+            service.child = (0, _child_process.spawn)('node', params);
+
+            // monitor child
+            service.child.stdout.on('data', function (data) {
+                var _data = data.toString('utf8');
+                console.log(name, _data);
+            });
+            service.child.stderr.on('data', function (data) {
+                var _data = data.toString('utf8');
+                console.log(name, 'ERROR', _data);
+            });
+            service.child.on('exit', function (exitCode) {
+                console.log(name, 'has exited with code', exitCode);
+                _this2.releasePort(_this2.services[name].port);
+                delete _this2.services[name];
+            });
+
+            // track so we can kill it later
+            this.services[name] = service;
+
+            // let didact know which port
+            return service.port;
+        }
+    }, {
+        key: 'remove',
+        value: function remove(name, success, fail) {
+            if (this.services[name] === undefined) return success();
+        }
+    }, {
+        key: 'restart',
+        value: function restart(name, success, fail) {
+            if (this.services[name] === undefined) return success();
+        }
+    }]);
+
+    return RunDev;
 })(_Run3.default);
 
 exports.default = RunDev;

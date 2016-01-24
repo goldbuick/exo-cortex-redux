@@ -26,14 +26,18 @@ var _errorhandler = require('errorhandler');
 
 var _errorhandler2 = _interopRequireDefault(_errorhandler);
 
+var _HttpService = require('./_api/HttpService');
+
+var _HttpService2 = _interopRequireDefault(_HttpService);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// express server
+// expected args --service --path --port
 
 var app = (0, _express2.default)();
 
 // setup views and port
-// express server
-// expected args --path && --port
-
 app.set('views', _yargs.argv.path + '/views');
 app.set('view engine', 'html');
 app.set('port', _yargs.argv.port);
@@ -55,4 +59,9 @@ app.get('/', function (req, res) {
 // start it up
 app.listen(_yargs.argv.port, function () {
     console.log(_yargs.argv.path, 'started on', _yargs.argv.port);
+    var temp = new _HttpService2.default(_yargs.argv.service);
+    temp.ping(function () {
+        return { active: true };
+    });
+    temp.ready();
 });

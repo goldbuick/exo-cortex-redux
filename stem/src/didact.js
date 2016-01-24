@@ -1,91 +1,109 @@
 import { argv } from 'yargs';
-import CONFIG from './_api/CONFIG';
 import HttpApi from './_api/HttpApi';
+import RunDev from './_didact/RunDev';
+import RunDocker from './_didact/RunDocker';
+import Preflight from './_didact/Preflight';
 
-let gport = 7154,
+let ghost = argv.dev ? 'localhost' : 'didact',
+    gport = 7154,
+    glogs = { },
+    gaddress = { },
     gservices = { };
 
-// didact --dev    [this will send --didact as localhost:7154]
-// didact --docker [this will send --didact as didact:7154]
-
-// common arg --rethinkdb [host:port] <= this will add the rethinkdb service address
-
-// export default {
-//     HOSTS: {
-//         DIDACT: 'didact'
-//     },
-//     PORTS: {
-//         DIDACT: 7154,
-//         NEUROS: 9000,
-//         BARRIER: 8888,
-//         RETHINKDB: 28015,
-//         RETHINKDB_UI: 8080
-//     }
-// };
-
-/*
-Need to figure out a way to lookup service host & port
---didact [host:port] --rethinkdb [host:port] --port [port]
-*/
+let grun;
+if (argv.dev) {
+    grun = new RunDev(ghost, gport);
+} else {
+    grun = new RunDocker(ghost, gport);
+}
 
 let server = new HttpApi(),
     channel = server.channel('didact');
 
+// messages for neuros 
+
 channel.message('ping', {
     service: 'name of service that is pinging'
-}, (message, finish) => {
+}, (json, finish) => {
+    if (json.meta && json.meta.service) {
+        grun.ping(json.meta.service, json.meta);
+    }
     finish();
 });
 
 channel.message('log', {
     service: 'name of service this log is for',
     data: 'generic json data to log'
-}, (message, finish) => {
+}, (json, finish) => {
     finish();
 });
 
-channel.message('list', {
-}, (message, finish) => {
-    finish();
-});
-
-channel.message('add', {
-    service: 'name of service image to spin up'
-}, (message, finish) => {
-    finish();
-});
-
-channel.message('remove', {
-    service: 'name of service to stop & remove'
-}, (message, finish) => {
-    finish();
-});
-
-channel.message('restart', {
-    service: 'name of service to restart'
-}, (message, finish) => {
+channel.message('register', {
+    service: 'name of service address to register',
+    host: 'host name of the address',
+    port: 'port of the address'
+}, (json, finish) => {
+    if (json.meta && json.meta.service) {
+        gaddress[json.meta.service] = {
+            service: json.meta.service,
+            host: json.meta.host,
+            port: json.meta.port
+        };
+    }
     finish();
 });
 
 channel.message('find', {
     service: 'name of service to find address:port on',
-}, (message, finish) => {
-    let service = gservices[message.meta.service || ''] || { };
-    finish({
-        host: service.host || '',
-        port: service.port || ''
-    });
+}, (json, finish) => {
+    if (json.meta && json.meta.service) {
+        return finish(gaddress[json.meta.service || ''] || { });
+    }
+    finish();
+});
+
+// messages for service management
+
+channel.message('list', {
+}, (json, finish) => {
+    grun.list(finish);
+});
+
+channel.message('add', {
+    service: 'name of service image to spin up'
+}, (json, finish) => {
+    if (json.meta && json.meta.service) {
+        let port = grun.add(json.meta.service, finish);
+        gaddress[json.meta.service] = {
+            service: json.meta.service,
+            host: argv.dev ? 'localhost' : json.meta.service,
+            port: port
+        };
+    } else {
+        finish();
+    }
+});
+
+channel.message('remove', {
+    service: 'name of service to stop & remove'
+}, (json, finish) => {
+    if (json.meta && json.meta.service) {
+        return grun.remove(json.meta.service, finish);
+    }
+    finish();
+});
+
+channel.message('restart', {
+    service: 'name of service to restart'
+}, (json, finish) => {
+    if (json.meta && json.meta.service) {
+        return grun.restart(json.meta.service, finish);
+    }
+    finish();
 });
 
 server.start(gport);
 
-/*
-I want to boil didact down to a simple process manager
-that can collect logs from the processes it runs.
+let preflight = new Preflight(ghost, gport);
+preflight.ready(() => console.log('exo-cortex is READY!'));
 
-dev mode is without docker
-release mode is with docker containers
-
-in order to be run by didact you have to run a nuero client
-which allows you to dump logs to didact and signal didact you're ready & alive
-*/

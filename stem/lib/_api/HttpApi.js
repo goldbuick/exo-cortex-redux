@@ -43,9 +43,7 @@ var HttpApi = (function () {
         this.channels = {};
         this.http = (0, _HttpJson2.default)(function (req, json, finish) {
             var url = req.url;
-            console.log(url, json);
-
-            if (_this.onAny) _this.onAny(url, json);
+            // console.log(url, json);
 
             var channel = undefined,
                 message = undefined,
@@ -71,7 +69,7 @@ var HttpApi = (function () {
                     return message.handler(json, finish);
                 } else if (_this.onUpstream) {
                     // we don't know what to do with this message
-                    return _this.onUpstream(json, finish);
+                    return _this.onUpstream(url, json, finish);
                 }
             } else {
                 // list op
@@ -96,11 +94,6 @@ var HttpApi = (function () {
         value: function channel(name) {
             this.channels[name] = new Channel(this, name);
             return this.channels[name];
-        }
-    }, {
-        key: 'any',
-        value: function any(handler) {
-            this.onAny = handler;
         }
     }, {
         key: 'upstream',
