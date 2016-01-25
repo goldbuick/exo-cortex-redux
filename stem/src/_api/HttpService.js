@@ -25,7 +25,7 @@ class HttpService extends HttpApi {
     }
 
     ready () {
-        let data = this.onPing() || { };
+        let data = this.onPing && this.onPing() || { };
         data.service = this.name;
         PostMessage(this.didact.host, this.didact.port, 'didact', 'ping', data);        
     }
