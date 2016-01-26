@@ -25,6 +25,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // get the base exo-cortex stack up
+// D@k1WJcpL
 
 var Preflight = (function () {
     function Preflight(host, port) {
@@ -75,25 +76,28 @@ var Preflight = (function () {
                             message: 'please set the barrier domain'
                         }], function (answers) {
                             _this.message('codex', 'set', {
-                                keys: ['barrier', 'domain'],
+                                keys: ['ui-barrier', 'domain'],
                                 value: answers.domain
-                            }, validate);
+                            }, fetch);
                         });
                     }
                 };
 
-                _this.message('codex', 'get', {
-                    keys: ['barrier']
-                }, validate);
+                var fetch = function fetch(json) {
+                    _this.message('codex', 'get', {
+                        keys: ['ui-barrier']
+                    }, validate);
+                };
+                fetch();
             }
         }, {
             'starting facade': this.start('facade')
         }, {
-            'starting barrier': this.start('barrier')
+            'starting barrier': this.start('ui-barrier')
         }, {
             'display barrier config': function displayBarrierConfig(next) {
                 _this.message('codex', 'get', {
-                    keys: ['barrier']
+                    keys: ['ui-barrier']
                 }, function (json) {
                     next(json);
                 });
@@ -111,16 +115,19 @@ var Preflight = (function () {
                             message: 'please set the barrier password'
                         }], function (answers) {
                             _this.message('codex', 'set', {
-                                keys: ['barrier', 'password'],
+                                keys: ['ui-barrier', 'password'],
                                 value: answers.password
-                            }, validate);
+                            }, fetch);
                         });
                     }
                 };
 
-                _this.message('codex', 'get', {
-                    keys: ['barrier']
-                }, validate);
+                var fetch = function fetch(json) {
+                    _this.message('codex', 'get', {
+                        keys: ['ui-barrier']
+                    }, validate);
+                };
+                fetch();
             }
         }, {
             'starting didact ui': this.start('ui-didact')
@@ -190,7 +197,6 @@ var Preflight = (function () {
         key: 'message',
         value: function message(service, type, data, success) {
             this.find(service, function (address) {
-                // console.log('message', address);
                 (0, _PostMessage2.default)(address.host, address.port, service, type, data, success, function (err) {
                     console.log('message error', err);
                 });

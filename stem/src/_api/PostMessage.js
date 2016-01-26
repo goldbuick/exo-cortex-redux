@@ -5,5 +5,6 @@ import PostJson from './PostJson';
 
 export default function (host, port, channel, type, data, success, fail) {
     let path = '/' + [ channel, type ].join('/');
+    // console.log('PostMessage', host, port, channel, type, data);
     PostJson(host, port, path, Message(channel, type, data), success, fail);
 }

@@ -1,16 +1,14 @@
 import { argv } from 'yargs';
 import ObjMod from './ObjMod';
+import HttpConfig from './HttpConfig';
 import PostMessage from './PostMessage';
-import HttpService from './HttpService';
-import CodexConfig from './CodexConfig';
 
 // extended service to use codex for configuration
 
-class HttpNeuro extends HttpService {
+class HttpNeuro extends HttpConfig {
 
     constructor (name) {
         super(name);
-        this.config = new CodexConfig(name);
         this.channel('codex').message('update', {
             keys: 'which part of the config store to update',
             value: 'value to change'
@@ -22,8 +20,9 @@ class HttpNeuro extends HttpService {
         });
     }
 
-    value (pathRegex, rule, trigger) {
-        this.config.value(pathRegex, rule, trigger);
+    start () {
+        super.start();
+        this.fetch();
     }
 
 }

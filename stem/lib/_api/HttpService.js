@@ -57,7 +57,7 @@ var HttpService = (function (_HttpApi) {
     }, {
         key: 'ready',
         value: function ready() {
-            var data = this.onPing() || {};
+            var data = this.onPing && this.onPing() || {};
             data.service = this.name;
             (0, _PostMessage2.default)(this.didact.host, this.didact.port, 'didact', 'ping', data);
         }

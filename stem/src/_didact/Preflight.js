@@ -4,6 +4,7 @@ import RethinkDb from '../_api/RethinkDb';
 import PostMessage from '../_api/PostMessage';
 
 // get the base exo-cortex stack up
+// D@k1WJcpL
 
 class Preflight {
 
@@ -52,25 +53,28 @@ class Preflight {
                             message: 'please set the barrier domain'
                         }], answers => {
                             this.message('codex', 'set', {
-                                keys: [ 'barrier', 'domain' ],
+                                keys: [ 'ui-barrier', 'domain' ],
                                 value: answers.domain
-                            }, validate);
+                            }, fetch);
                         });
                     }
                 };
 
-                this.message('codex', 'get', {
-                    keys: [ 'barrier' ]
-                }, validate);
+                let fetch = json => {
+                    this.message('codex', 'get', {
+                        keys: [ 'ui-barrier' ]
+                    }, validate);
+                };
+                fetch();
             }
         },{
             'starting facade': this.start('facade')
         },{
-            'starting barrier': this.start('barrier')
+            'starting barrier': this.start('ui-barrier')
         },{
             'display barrier config': next => {
                 this.message('codex', 'get', {
-                    keys: [ 'barrier' ]
+                    keys: [ 'ui-barrier' ]
                 }, json => {
                     next(json);
                 });                
@@ -89,16 +93,19 @@ class Preflight {
                             message: 'please set the barrier password'
                         }], answers => {
                             this.message('codex', 'set', {
-                                keys: [ 'barrier', 'password' ],
+                                keys: [ 'ui-barrier', 'password' ],
                                 value: answers.password
-                            }, validate);
+                            }, fetch);
                         });
                     }
                 };
 
-                this.message('codex', 'get', {
-                    keys: [ 'barrier' ]
-                }, validate);
+                let fetch = json => {
+                    this.message('codex', 'get', {
+                        keys: [ 'ui-barrier' ]
+                    }, validate);
+                };
+                fetch();
             }
         },{
             'starting didact ui': this.start('ui-didact')
@@ -158,7 +165,6 @@ class Preflight {
 
     message (service, type, data, success) {
         this.find(service, address => {
-            // console.log('message', address);
             PostMessage(address.host, address.port, service, type, data, success, err => {
                 console.log('message error', err);
             });

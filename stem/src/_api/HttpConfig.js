@@ -1,4 +1,5 @@
 import ObjMod from './ObjMod';
+import HttpService from './HttpService';
 import PostMessage from './PostMessage';
 
 // use codex for applicaiton configuration
@@ -62,13 +63,29 @@ let flatten = (result, parent, key, path, cursor) => {
     }
 }
 
-class CodexConfig {
+class CodexConfig extends HttpService{
+
     constructor (name) {
+        super(name);
         this.name = name;
         this.store = { };
         this.rules = { };
         this.before = { };
         this.triggers = { };
+    }
+
+    ready () {
+        super.ready();
+        this.find('codex', codex => {
+            PostMessage(codex.host, codex.port, 'codex', 'get', {
+                keys: [ this.name ]
+            }, json => {
+                this.update({
+                    keys: [ this.name ],
+                    value: json
+                });
+            });
+        });
     }
 
     update (json) {

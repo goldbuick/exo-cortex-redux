@@ -12,12 +12,15 @@ import session from 'express-session';
 import { Strategy } from 'passport-local';
 
 import { argv } from 'yargs';
-import HttpService from './HttpService';
-import CodexConfig from './_api/CodexConfig';
+import HttpConfig from './_api/HttpConfig';
 
 let gproxy = {},
     gdomain = '',
-    store = new CodexConfig('barrier');
+    store = new HttpConfig('ui-barrier');
+
+store.ping(() => {
+    return { active: true };
+});
 
 store.value('', (type, value) => {
     if (value.pub === undefined) {
@@ -44,7 +47,6 @@ store.value('', (type, value) => {
     }
     if (value.domain) {
         gdomain = '.' + value.domain;
-        startBarrier();
     }
 });
 
@@ -60,132 +62,129 @@ store.value('/auth/[0-9]+', (type, value) => {
     }
 });
 
-// create an express route /codex/update via post method
-// this.config = new CodexConfig(name);
+// EXPRESS
 
-function startBarrier() {
-    // EXPRESS
+let app = express(),
+    proxy = new httpProxy.createProxyServer(),
+    sysUser = { id: '18290341234-1234123948710829347--2sdfds-aqwer' };
 
-    let app = express(),
-        proxy = new httpProxy.createProxyServer(),
-        sysUser = { id: '18290341234-1234123948710829347--2sdfds-aqwer' };
+// PROXY
+proxy.on('error', () => {
+    // prevent proxy errors from crashing barrier
+});
 
-    // PROXY
-    proxy.on('error', () => {
-        // prevent proxy errors from crashing barrier
-    });
+// PASSPORT
 
-    // PASSPORT
+passport.use(new Strategy((username, password, cb) => {
+    if (password === gproxy.password) {
+        console.log('password accepted', password);
+        return cb(null, sysUser);
+    }
+    console.log('password rejected', password, '!==', gproxy.password);
+    cb('{ "access": false }');
+}));
 
-    passport.use(new Strategy((username, password, cb) => {
-        if (password === gproxy.password) {
-            log.msg('password accepted', password);
-            return cb(null, sysUser);
-        }
-        log.msg('password rejected', password, '!==', gproxy.password);
+passport.serializeUser((user, cb) => {
+    cb(null, user.id);
+});
+
+passport.deserializeUser((id, cb) => {
+    if (id === sysUser.id) {
+        cb(null, sysUser);
+    } else {
         cb('{ "access": false }');
-    }));
+    }
+});    
 
-    passport.serializeUser((user, cb) => {
-        cb(null, user.id);
-    });
+// UI-SERVER
 
-    passport.deserializeUser((id, cb) => {
-        if (id === sysUser.id) {
-            cb(null, sysUser);
-        } else {
-            cb('{ "access": false }');
+// setup views and port
+let compiledDir = argv.path;
+app.set('views', compiledDir + '/views');
+app.set('view engine', 'html');
+app.set('port', argv.port);
+app.engine('html', engines['ejs']);
+
+// passport integration
+app.use(session({
+    resave: true,
+    saveUninitialized: false,
+    cookie: { domain: '' },
+    secret: '_exo_cortex_barrier_'
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// authenticated proxy
+app.use((req, res, next) => {
+    // make sure we have session cookie domain
+    if (req.session &&
+        req.session.cookie &&
+        req.session.cookie.domain !== gdomain) {
+        req.session.cookie.domain = gdomain;
+    }
+
+    // Enable cors.
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');        
+
+    // barrier-auth response
+    if (req.url === 'barrier-auth') {        
+        return res.end('{ "access": ' + req.isAuthenticated() + ' }', 'utf8');
+    }
+
+    // public domains
+    if (gproxy.pub !== undefined) {
+        let target = gproxy.pub[req.hostname];
+        if (target) {
+            target = 'http://' + target;
+            return proxy.web(req, res, { target: target, changeOrigin: true });
         }
-    });    
+    }
 
-    // UI-SERVER
-
-    // setup views and port
-    let compiledDir = argv.path;
-    app.set('views', compiledDir + '/views');
-    app.set('view engine', 'html');
-    app.set('port', argv.port);
-    app.engine('html', engines['ejs']);
-
-    // passport integration
-    log.msg('barrier', 'using cookie domain', gdomain);
-    app.use(session({
-        resave: true,
-        saveUninitialized: false,
-        cookie: { domain: gdomain },
-        secret: '_exo_cortex_barrier_'
-    }));
-    app.use(passport.initialize());
-    app.use(passport.session());
-
-    // authenticated proxy
-    app.use((req, res, next) => {
-        // Enable cors.
-        res.header('Access-Control-Allow-Credentials', true);
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-        res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');        
-
-        // barrier-auth response
-        if (req.url === 'barrier-auth') {        
-            return res.end('{ "access": ' + req.isAuthenticated() + ' }', 'utf8');
+    // authenticated domains
+    if (gproxy.auth !== undefined) {
+        let target = gproxy.auth[req.hostname];
+        if (target && req.isAuthenticated()) {
+            target = 'http://' + target;
+            return proxy.web(req, res, { target: target, changeOrigin: true });
         }
+    }
 
-        // public domains
-        if (gproxy.pub !== undefined) {
-            let target = gproxy.pub[req.hostname];
-            if (target) {
-                target = 'http://' + target;
-                return proxy.web(req, res, { target: target, changeOrigin: true });
-            }
-        }
+    next();
+});
 
-        // authenticated domains
-        if (gproxy.auth !== undefined) {
-            let target = gproxy.auth[req.hostname];
-            if (target && req.isAuthenticated()) {
-                target = 'http://' + target;
-                return proxy.web(req, res, { target: target, changeOrigin: true });
-            }
-        }
+// interface content
+app.use(compression());
+app.use(favicon(compiledDir + '/favicon.ico'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(express.static(compiledDir + '/public'));
+app.use(errorHandler());
 
-        next();
-    });
+// load interface
+app.get('/', (req, res) => {
+    res.render('index', { optimize: true });
+});
 
-    // interface content
-    app.use(compression());
-    app.use(favicon(compiledDir + '/favicon.ico'));
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
-    app.use(cookieParser());
-    app.use(express.static(compiledDir + '/public'));
-    app.use(errorHandler());
+// handle auth
+app.post('/barrier-auth', passport.authenticate('local'), (req, res) => {
+    res.end('{ "access": ' + req.isAuthenticated() + ' }', 'utf8');
+});
 
-    // load interface
-    app.get('/', (req, res) => {
-        res.render('index', { optimize: true });
-    });
+// handle config updates
+// will need to whitelist this request to
+// limit it to only things local to the machine
+app.post('/codex/update', (req, res) => {
+    store.update(req.body);
+    res.end('{ "success": true }');
+})
 
-    // handle auth
-    app.post('/barrier-auth', passport.authenticate('local'), (req, res) => {
-        res.end('{ "access": ' + req.isAuthenticated() + ' }', 'utf8');
-    });
-
-    // handle config updates
-    // will need to whitelist this request to
-    // limit it to only things local to the machine
-    app.post('/codex/update', (req, res) => {
-        store.update(req.body);
-        res.end('{ "success": true }');
-    })
-
-    // start it up
-    app.listen(argv.port, () => {
-        log.server('barrier', 'started on', argv.port);
-        let temp = new HttpService('barrier');
-        temp.ping(() => {
-            return { active: true };
-        });
-        temp.ready();
-    });
-}
+// start it up
+app.listen(argv.port, () => {
+    store.ready();
+    console.log('ui-barrier', 'stared on', argv.port);
+});

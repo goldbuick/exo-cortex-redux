@@ -67,6 +67,7 @@ channel.message('register', {
         };
     }
     finish();
+    // console.log(gaddress);
 });
 
 channel.message('find', {
@@ -97,6 +98,7 @@ channel.message('add', {
     } else {
         finish();
     }
+    // console.log(gaddress);
 });
 
 channel.message('remove', {
