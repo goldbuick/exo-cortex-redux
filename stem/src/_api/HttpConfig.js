@@ -74,20 +74,6 @@ class CodexConfig extends HttpService{
         this.triggers = { };
     }
 
-    ready () {
-        super.ready();
-        this.find('codex', codex => {
-            PostMessage(codex.host, codex.port, 'codex', 'get', {
-                keys: [ this.name ]
-            }, json => {
-                this.update({
-                    keys: [ this.name ],
-                    value: json
-                });
-            });
-        });
-    }
-
     update (json) {
         let keys = json.keys,
             value = json.value;
@@ -174,6 +160,20 @@ class CodexConfig extends HttpService{
         });
 
         return changed;
+    }
+
+    ready () {
+        super.ready();
+        this.find('codex', codex => {
+            PostMessage(codex.host, codex.port, 'codex', 'get', {
+                keys: [ this.name ]
+            }, json => {
+                this.update({
+                    keys: [ this.name ],
+                    value: json
+                });
+            });
+        });
     }
 
 }

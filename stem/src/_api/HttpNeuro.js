@@ -20,11 +20,6 @@ class HttpNeuro extends HttpConfig {
         });
     }
 
-    start () {
-        super.start();
-        this.fetch();
-    }
-
 }
 
 export default HttpNeuro;
