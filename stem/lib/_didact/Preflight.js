@@ -16,29 +16,31 @@ var _RethinkDb = require('../_api/RethinkDb');
 
 var _RethinkDb2 = _interopRequireDefault(_RethinkDb);
 
-var _PostMessage = require('../_api/PostMessage');
+var _ApiClient2 = require('../_api/ApiClient');
 
-var _PostMessage2 = _interopRequireDefault(_PostMessage);
+var _ApiClient3 = _interopRequireDefault(_ApiClient2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 // get the base exo-cortex stack up
 // D@k1WJcpL
 
-var Preflight = (function () {
-    function Preflight(host, port) {
-        var _this = this;
+var Preflight = (function (_ApiClient) {
+    _inherits(Preflight, _ApiClient);
 
+    function Preflight(host, port) {
         _classCallCheck(this, Preflight);
 
-        this.index = 1;
-        this.host = host;
-        this.port = port;
-        this.address = {};
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Preflight).call(this, host, port));
 
-        this.steps = [];
+        _this.index = 1;
+        _this.steps = [];
 
         if (_yargs.argv.docker) {
             // this.steps = this.steps.concat([{
@@ -48,8 +50,8 @@ var Preflight = (function () {
             // }]);
         }
 
-        this.steps = this.steps.concat([{
-            'starting vault': this.start('vault')
+        _this.steps = _this.steps.concat([{
+            'starting vault': _this.start('vault')
         }, {
             'check rethinkdb connection': function checkRethinkdbConnection(next) {
                 _this.find('rethinkdb', function (rethinkdb) {
@@ -62,7 +64,7 @@ var Preflight = (function () {
                 });
             }
         }, {
-            'starting codex': this.start('codex')
+            'starting codex': _this.start('codex')
         }, {
             'check barrier proxy domain': function checkBarrierProxyDomain(next) {
                 var validate = function validate(json) {
@@ -91,9 +93,9 @@ var Preflight = (function () {
                 fetch();
             }
         }, {
-            'starting facade': this.start('facade')
+            'starting facade': _this.start('facade')
         }, {
-            'starting barrier': this.start('ui-barrier')
+            'starting barrier': _this.start('ui-barrier')
         }, {
             'display barrier config': function displayBarrierConfig(next) {
                 _this.message('codex', 'get', {
@@ -130,8 +132,9 @@ var Preflight = (function () {
                 fetch();
             }
         }, {
-            'starting didact ui': this.start('ui-didact')
+            'starting didact ui': _this.start('ui-didact')
         }]);
+        return _this;
     }
 
     _createClass(Preflight, [{
@@ -168,52 +171,17 @@ var Preflight = (function () {
             this.next();
         }
     }, {
-        key: 'find',
-        value: function find(service, success) {
-            var _this3 = this;
-
-            if (service === 'didact') {
-                return success({
-                    service: service,
-                    host: this.host,
-                    port: this.port
-                });
-            }
-
-            if (this.address[service]) {
-                return success(this.address[service]);
-            }
-
-            (0, _PostMessage2.default)('localhost', this.port, 'didact', 'find', {
-                service: service
-            }, function (json) {
-                _this3.address[json.service] = json;
-                success(_this3.address[json.service]);
-            }, function (err) {
-                console.log('find error', err);
-            });
-        }
-    }, {
-        key: 'message',
-        value: function message(service, type, data, success) {
-            this.find(service, function (address) {
-                (0, _PostMessage2.default)(address.host, address.port, service, type, data, success, function (err) {
-                    console.log('message error', err);
-                });
-            });
-        }
-    }, {
         key: 'start',
         value: function start(service) {
-            var _this4 = this;
+            var _this3 = this;
 
             return function (next) {
-                return _this4.message('didact', 'add', { service: service }, next);
+                return _this3.message('didact', 'add', { service: service }, next);
             };
         }
     }]);
 
     return Preflight;
-})();
+})(_ApiClient3.default);
 
 exports.default = Preflight;

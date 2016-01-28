@@ -6,26 +6,41 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _ApiClient2 = require('../_api/ApiClient');
+
+var _ApiClient3 = _interopRequireDefault(_ApiClient2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Run = (function () {
-    function Run() {
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Run = (function (_ApiClient) {
+    _inherits(Run, _ApiClient);
+
+    function Run(host, port) {
         _classCallCheck(this, Run);
 
-        this.services = {};
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Run).call(this, host, port));
 
-        this.PORTS = {
+        _this.services = {};
+
+        _this.PORTS = {
             FACADE: 7156,
             NEURO: 7200,
             BARRIER: 8888
         };
 
-        this.slots = {};
-        var begin = this.PORTS.NEURO,
+        _this.slots = {};
+        var begin = _this.PORTS.NEURO,
             end = begin + 1000;
         for (var p = begin; p < end; ++p) {
-            this.slots[p] = false;
+            _this.slots[p] = false;
         }
+        return _this;
     }
 
     _createClass(Run, [{
@@ -75,6 +90,45 @@ var Run = (function () {
             success({ services: Object.keys(this.services) });
         }
     }, {
+        key: 'proxyPub',
+        value: function proxyPub(name, success, fail) {
+            var _this2 = this;
+
+            this.address(name, function (address) {
+                _this2.message('codex', 'get', {
+                    keys: ['ui-barrier']
+                }, function (json) {
+                    var barrierUrl = _this2.image(name) + '.' + json.domain,
+                        serviceUrl = address.host + ':' + address.port;
+                    _this2.message('codex', 'set', {
+                        keys: ['ui-barrier', 'pub', barrierUrl],
+                        value: serviceUrl
+                    }, success);
+                });
+            }, fail);
+        }
+    }, {
+        key: 'proxyAuth',
+        value: function proxyAuth(name, success, fail) {
+            var _this3 = this;
+
+            this.address(name, function (address) {
+                _this3.message('codex', 'get', {
+                    keys: ['ui-barrier']
+                }, function (json) {
+                    var barrierUrl = _this3.image(name) + '.' + json.domain,
+                        serviceUrl = address.host + ':' + address.port;
+                    _this3.message('codex', 'set', {
+                        keys: ['ui-barrier', 'auth', barrierUrl],
+                        value: serviceUrl
+                    }, success);
+                });
+            }, fail);
+        }
+    }, {
+        key: 'address',
+        value: function address(name, success, fail) {}
+    }, {
         key: 'ping',
         value: function ping(name, data) {}
     }, {
@@ -89,6 +143,6 @@ var Run = (function () {
     }]);
 
     return Run;
-})();
+})(_ApiClient3.default);
 
 exports.default = Run;

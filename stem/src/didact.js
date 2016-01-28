@@ -74,12 +74,15 @@ channel.message('add', {
     service: 'name of service image to spin up'
 }, (json, finish) => {
     if (json.meta && json.meta.service) {
-        let port = grun.add(json.meta.service, finish);
-        gaddress[json.meta.service] = {
-            service: json.meta.service,
-            host: argv.dev ? 'localhost' : json.meta.service,
-            port: port
-        };
+        grun.add(json.meta.service, address => {
+            console.log('grun.add', address);
+            gaddress[json.meta.service] = {
+                service: json.meta.service,
+                host: address.host,
+                port: address.port
+            };
+            finish(address);
+        });
     } else {
         finish();
     }

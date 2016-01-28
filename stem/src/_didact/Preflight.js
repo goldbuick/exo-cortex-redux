@@ -1,19 +1,17 @@
 import { argv } from 'yargs';
 import inquirer from 'inquirer';
 import RethinkDb from '../_api/RethinkDb';
-import PostMessage from '../_api/PostMessage';
+import ApiClient from '../_api/ApiClient';
 
 // get the base exo-cortex stack up
 // D@k1WJcpL
 
-class Preflight {
+class Preflight extends ApiClient {
 
     constructor (host, port) {
+        super(host, port);
+        
         this.index = 1;
-        this.host = host;
-        this.port = port;
-        this.address = { };
-
         this.steps = [ ];
 
         if (argv.docker) {
@@ -138,37 +136,6 @@ class Preflight {
     ready (callback) {
         this.onReady = callback;
         this.next();
-    }
-
-    find (service, success) {
-        if (service === 'didact') {
-            return success({
-                service: service,
-                host: this.host,
-                port: this.port
-            });
-        }
-
-        if (this.address[service]) {
-            return success(this.address[service]);
-        }
-
-        PostMessage('localhost', this.port, 'didact', 'find', {
-            service
-        }, json => {
-            this.address[json.service] = json;
-            success(this.address[json.service]);
-        }, err => {
-            console.log('find error', err);
-        });
-    }
-
-    message (service, type, data, success) {
-        this.find(service, address => {
-            PostMessage(address.host, address.port, service, type, data, success, err => {
-                console.log('message error', err);
-            });
-        });
     }
 
     start (service) {

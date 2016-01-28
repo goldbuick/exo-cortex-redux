@@ -103,26 +103,9 @@ var CodexConfig = (function (_HttpService) {
     }
 
     _createClass(CodexConfig, [{
-        key: 'ready',
-        value: function ready() {
-            var _this2 = this;
-
-            _get(Object.getPrototypeOf(CodexConfig.prototype), 'ready', this).call(this);
-            this.find('codex', function (codex) {
-                (0, _PostMessage2.default)(codex.host, codex.port, 'codex', 'get', {
-                    keys: [_this2.name]
-                }, function (json) {
-                    _this2.update({
-                        keys: [_this2.name],
-                        value: json
-                    });
-                });
-            });
-        }
-    }, {
         key: 'update',
         value: function update(json) {
-            var _this3 = this;
+            var _this2 = this;
 
             var keys = json.keys,
                 value = json.value;
@@ -139,7 +122,7 @@ var CodexConfig = (function (_HttpService) {
             if (changed) {
                 this.find('codex', function (codex) {
                     (0, _PostMessage2.default)(codex.host, codex.port, 'codex', 'set', {
-                        keys: [_this3.name],
+                        keys: [_this2.name],
                         value: config
                     });
                 });
@@ -168,7 +151,7 @@ var CodexConfig = (function (_HttpService) {
     }, {
         key: 'checkJson',
         value: function checkJson(json) {
-            var _this4 = this;
+            var _this3 = this;
 
             var changed = false;
 
@@ -176,7 +159,7 @@ var CodexConfig = (function (_HttpService) {
             flatten(lookup, undefined, '', '', json);
             this.checkPatterns(lookup, function (path, pattern) {
                 try {
-                    if (checkMatch(lookup[path], _this4.rules[pattern])) {
+                    if (checkMatch(lookup[path], _this3.rules[pattern])) {
                         changed = true;
                     }
                 } catch (e) {
@@ -189,12 +172,12 @@ var CodexConfig = (function (_HttpService) {
             this.checkPatterns(lookup, function (path, pattern) {
                 var before = undefined;
 
-                if (_this4.triggers[pattern] !== undefined) {
+                if (_this3.triggers[pattern] !== undefined) {
                     try {
-                        if (_this4.before[path] === undefined) {
-                            _this4.triggers[pattern](lookup[path].value, undefined);
-                        } else if (_this4.before[path] !== JSON.stringify(lookup[path].value)) {
-                            _this4.triggers[pattern](lookup[path].value, JSON.parse(_this4.before[path]));
+                        if (_this3.before[path] === undefined) {
+                            _this3.triggers[pattern](lookup[path].value, undefined);
+                        } else if (_this3.before[path] !== JSON.stringify(lookup[path].value)) {
+                            _this3.triggers[pattern](lookup[path].value, JSON.parse(_this3.before[path]));
                         }
                     } catch (e) {
                         console.log('config', 'trigger', pattern, e);
@@ -204,10 +187,27 @@ var CodexConfig = (function (_HttpService) {
 
             this.before = {};
             Object.keys(lookup).forEach(function (path) {
-                _this4.before[path] = JSON.stringify(lookup[path].value);
+                _this3.before[path] = JSON.stringify(lookup[path].value);
             });
 
             return changed;
+        }
+    }, {
+        key: 'ready',
+        value: function ready() {
+            var _this4 = this;
+
+            _get(Object.getPrototypeOf(CodexConfig.prototype), 'ready', this).call(this);
+            this.find('codex', function (codex) {
+                (0, _PostMessage2.default)(codex.host, codex.port, 'codex', 'get', {
+                    keys: [_this4.name]
+                }, function (json) {
+                    _this4.update({
+                        keys: [_this4.name],
+                        value: json
+                    });
+                });
+            });
         }
     }]);
 

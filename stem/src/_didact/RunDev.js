@@ -17,12 +17,21 @@ class RunDev extends Run {
         return 'tableau';
     }
 
+    address (name, success, fail) {
+        success({
+            host: 'localhost',
+            port: (this.services[name] || {}).port || 0
+        });
+    }
+
     ping (name, data) {
         if (this.services[name] === undefined ||
             this.services[name].success === undefined) return;
 
-        this.services[name].success(name + ' is ready');
+        let success = this.services[name].success;
         delete this.services[name].success;
+
+        this.address(name, success);
     }
 
     add (name, success, fail) {
@@ -77,18 +86,29 @@ class RunDev extends Run {
         // track so we can kill it later
         this.services[name] = service;
 
-        // let didact know which port 
-        return service.port;
+        // proxy ui
+        // if (ui && image !== 'barrier') {
+        //     this.proxyAuth(name, () => {
+        //         console.log(name, 'auth proxied');
+        //     });
+        // }
     }
 
     remove (name, success, fail) {
         if (this.services[name] === undefined) return success();
-
+        this.services[name].child.kill();
+        let wait = () => {
+            if (this.services[name] === undefined) return success();
+            setTimeout(wait, 512);
+        };
+        wait();
     }
 
     restart (name, success, fail) {
         if (this.services[name] === undefined) return success();
-
+        this.remove(name, () => {
+            this.add(name, success, fail);
+        }, fail);
     }
 
 }

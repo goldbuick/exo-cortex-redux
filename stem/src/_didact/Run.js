@@ -1,7 +1,10 @@
+import ApiClient from '../_api/ApiClient';
 
-class Run {
+class Run extends ApiClient {
 
-    constructor () {
+    constructor (host, port) {
+        super(host, port);
+
         this.services = { };
 
         this.PORTS = {
@@ -55,6 +58,39 @@ class Run {
 
     list (success) {
         success({ services: Object.keys(this.services) });
+    }
+
+    proxyPub (name, success, fail) {
+        this.address(name, address => {
+            this.message('codex', 'get', {
+                keys: [ 'ui-barrier' ]
+            }, json => {
+                let barrierUrl = this.image(name) + '.' + json.domain,
+                    serviceUrl = address.host + ':' + address.port;
+                this.message('codex', 'set', {
+                    keys: [ 'ui-barrier', 'pub', barrierUrl ],
+                    value: serviceUrl
+                }, success);
+            });
+        }, fail);
+    }
+
+    proxyAuth (name, success, fail) {
+        this.address(name, address => {
+            this.message('codex', 'get', {
+                keys: [ 'ui-barrier' ]
+            }, json => {
+                let barrierUrl = this.image(name) + '.' + json.domain,
+                    serviceUrl = address.host + ':' + address.port;
+                this.message('codex', 'set', {
+                    keys: [ 'ui-barrier', 'auth', barrierUrl ],
+                    value: serviceUrl
+                }, success);
+            });
+        }, fail);
+    }
+
+    address (name, success, fail) {
     }
 
     ping (name, data) {

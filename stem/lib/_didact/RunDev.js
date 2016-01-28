@@ -48,12 +48,22 @@ var RunDev = (function (_Run) {
             return 'tableau';
         }
     }, {
+        key: 'address',
+        value: function address(name, success, fail) {
+            success({
+                host: 'localhost',
+                port: (this.services[name] || {}).port || 0
+            });
+        }
+    }, {
         key: 'ping',
         value: function ping(name, data) {
             if (this.services[name] === undefined || this.services[name].success === undefined) return;
 
-            this.services[name].success(name + ' is ready');
+            var success = this.services[name].success;
             delete this.services[name].success;
+
+            this.address(name, success);
         }
     }, {
         key: 'add',
@@ -110,18 +120,35 @@ var RunDev = (function (_Run) {
             // track so we can kill it later
             this.services[name] = service;
 
-            // let didact know which port
-            return service.port;
+            // proxy ui
+            // if (ui && image !== 'barrier') {
+            //     this.proxyAuth(name, () => {
+            //         console.log(name, 'auth proxied');
+            //     });
+            // }
         }
     }, {
         key: 'remove',
         value: function remove(name, success, fail) {
+            var _this3 = this;
+
             if (this.services[name] === undefined) return success();
+            this.services[name].child.kill();
+            var wait = function wait() {
+                if (_this3.services[name] === undefined) return success();
+                setTimeout(wait, 512);
+            };
+            wait();
         }
     }, {
         key: 'restart',
         value: function restart(name, success, fail) {
+            var _this4 = this;
+
             if (this.services[name] === undefined) return success();
+            this.remove(name, function () {
+                _this4.add(name, success, fail);
+            }, fail);
         }
     }]);
 
