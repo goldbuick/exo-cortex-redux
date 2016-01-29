@@ -40,7 +40,7 @@ var HttpService = (function (_HttpApi) {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HttpService).call(this));
 
         _this.name = name;
-        _this.address = {};
+        _this.addressCache = {};
 
         var args = _yargs.argv.didact.split(':');
         _this.didact = { host: args[0], port: args[1] };
@@ -74,15 +74,23 @@ var HttpService = (function (_HttpApi) {
         value: function find(service, success, fail) {
             var _this2 = this;
 
-            if (this.address[service]) {
-                return success(this.address[service]);
+            if (service === 'didact') {
+                return success({
+                    service: service,
+                    host: this.didact.host,
+                    port: this.didact.port
+                });
+            }
+
+            if (this.addressCache[service]) {
+                return success(this.addressCache[service]);
             }
 
             (0, _PostMessage2.default)(this.didact.host, this.didact.port, 'didact', 'find', {
                 service: service
             }, function (json) {
-                _this2.address[json.service] = json;
-                success(_this2.address[json.service]);
+                _this2.addressCache[json.service] = json;
+                success(_this2.addressCache[json.service]);
             }, fail);
         }
     }, {

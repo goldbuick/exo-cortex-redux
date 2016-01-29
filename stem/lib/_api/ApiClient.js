@@ -20,7 +20,7 @@ var ApiClient = (function () {
 
         this.host = host;
         this.port = port;
-        this.address = {};
+        this.addressCache = {};
     }
 
     _createClass(ApiClient, [{
@@ -36,15 +36,15 @@ var ApiClient = (function () {
                 });
             }
 
-            if (this.address[service]) {
-                return success(this.address[service]);
+            if (this.addressCache[service]) {
+                return success(this.addressCache[service]);
             }
 
             (0, _PostMessage2.default)(this.host, this.port, 'didact', 'find', {
                 service: service
             }, function (json) {
-                _this.address[json.service] = json;
-                success(_this.address[json.service]);
+                _this.addressCache[json.service] = json;
+                success(_this.addressCache[json.service]);
             }, function (err) {
                 console.log('find error', err);
             });
@@ -52,8 +52,8 @@ var ApiClient = (function () {
     }, {
         key: 'message',
         value: function message(service, type, data, success) {
-            this.find(service, function (address) {
-                (0, _PostMessage2.default)(address.host, address.port, service, type, data, success, function (err) {
+            this.find(service, function (target) {
+                (0, _PostMessage2.default)(target.host, target.port, service, type, data, success, function (err) {
                     console.log('message error', err);
                 });
             });

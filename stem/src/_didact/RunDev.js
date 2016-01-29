@@ -6,8 +6,7 @@ import { spawn } from 'child_process';
 class RunDev extends Run {
 
     constructor (host, port) {
-        super();
-        this.didact = host + ':' + port;
+        super(host, port);
     }
 
     nodeScript (image) {
@@ -17,7 +16,7 @@ class RunDev extends Run {
         return 'tableau';
     }
 
-    address (name, success, fail) {
+    findAddress (name, success, fail) {
         success({
             host: 'localhost',
             port: (this.services[name] || {}).port || 0
@@ -31,7 +30,7 @@ class RunDev extends Run {
         let success = this.services[name].success;
         delete this.services[name].success;
 
-        this.address(name, success);
+        this.findAddress(name, success);
     }
 
     add (name, success, fail) {
@@ -57,7 +56,7 @@ class RunDev extends Run {
         params.push(service.port);
 
         params.push('--didact');
-        params.push(this.didact);
+        params.push(this.host + ':' + this.port);
 
         if (argv.dev) params.push('--dev');
         if (argv.docker) params.push('--docker');
@@ -87,11 +86,11 @@ class RunDev extends Run {
         this.services[name] = service;
 
         // proxy ui
-        // if (ui && image !== 'barrier') {
-        //     this.proxyAuth(name, () => {
-        //         console.log(name, 'auth proxied');
-        //     });
-        // }
+        if (ui && image !== 'barrier') {
+            this.proxyAuth(name, () => {
+                console.log(name, 'auth proxied');
+            });
+        }
     }
 
     remove (name, success, fail) {

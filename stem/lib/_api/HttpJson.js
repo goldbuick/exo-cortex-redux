@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = function (fn) {
 
     function writeError(res, code, error) {
-        console.log('HttpJson', error);
+        console.log('HttpJson', 'error', error);
         res.writeHead(code, error, {
             'Content-Type': 'text/html; charset=utf-8',
             'Access-Control-Allow-Origin': '*',
@@ -53,10 +53,10 @@ exports.default = function (fn) {
                     // invoke callback
                     writeResponse(req, res, json);
                 } catch (e) {
-                    writeError(res, 400, [e.message, e.fileName, e.lineNumber, requestBody].join('\n'));
+                    writeError(res, 400, e.stack);
                 }
             } catch (e) {
-                writeError(res, 400, ['JSON error', e.message, e.fileName, e.lineNumber, requestBody].join('\n'));
+                writeError(res, 400, [e.stack, requestBody].join('\n'));
             }
         });
     }

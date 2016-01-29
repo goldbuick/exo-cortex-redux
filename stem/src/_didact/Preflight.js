@@ -4,7 +4,6 @@ import RethinkDb from '../_api/RethinkDb';
 import ApiClient from '../_api/ApiClient';
 
 // get the base exo-cortex stack up
-// D@k1WJcpL
 
 class Preflight extends ApiClient {
 
@@ -70,15 +69,8 @@ class Preflight extends ApiClient {
         },{
             'starting barrier': this.start('ui-barrier')
         },{
-            'display barrier config': next => {
-                this.message('codex', 'get', {
-                    keys: [ 'ui-barrier' ]
-                }, json => {
-                    next(json);
-                });                
-            }
-        },{
             'check barrier password': next => {
+                // D@k1WJcpL
                 let validate = json => {
                     let password = json.password;
                     if (password && password.length) {
@@ -107,6 +99,14 @@ class Preflight extends ApiClient {
             }
         },{
             'starting didact ui': this.start('ui-didact')
+        },{
+            'display barrier config': next => {
+                this.message('codex', 'get', {
+                    keys: [ 'ui-barrier' ]
+                }, json => {
+                    next(json);
+                });                
+            }
         }]);
     }
 

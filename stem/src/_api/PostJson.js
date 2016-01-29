@@ -6,7 +6,7 @@ import https from 'https';
 export default function(host, port, path, data, success, fail) {
     function writeError() {
         let error = Array.prototype.slice.call(arguments).join(' ');
-        console.log('PostJson', error);
+        console.log('PostJson', 'error', error);
     }
 
     let dataString = JSON.stringify(data);
@@ -49,11 +49,11 @@ export default function(host, port, path, data, success, fail) {
                     if (success) success(json);
 
                 } catch (e) {
-                    callbackError([ e.message, e.fileName, e.lineNumber ].join('\n'));
+                    callbackError(e.stack);
                 }
 
             } catch (e) {
-                callbackError(['Invalid JSON', responseBody].join('\n'));
+                callbackError([e.stack, responseBody].join('\n'));
             }
         });
     });

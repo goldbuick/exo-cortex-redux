@@ -76,7 +76,7 @@ class Run extends ApiClient {
     }
 
     proxyAuth (name, success, fail) {
-        this.address(name, address => {
+        this.findAddress(name, address => {
             this.message('codex', 'get', {
                 keys: [ 'ui-barrier' ]
             }, json => {
@@ -90,7 +90,7 @@ class Run extends ApiClient {
         }, fail);
     }
 
-    address (name, success, fail) {
+    findAddress (name, success, fail) {
     }
 
     ping (name, data) {

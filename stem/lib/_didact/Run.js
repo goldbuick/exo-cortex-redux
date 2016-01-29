@@ -112,7 +112,7 @@ var Run = (function (_ApiClient) {
         value: function proxyAuth(name, success, fail) {
             var _this3 = this;
 
-            this.address(name, function (address) {
+            this.findAddress(name, function (address) {
                 _this3.message('codex', 'get', {
                     keys: ['ui-barrier']
                 }, function (json) {
@@ -126,8 +126,8 @@ var Run = (function (_ApiClient) {
             }, fail);
         }
     }, {
-        key: 'address',
-        value: function address(name, success, fail) {}
+        key: 'findAddress',
+        value: function findAddress(name, success, fail) {}
     }, {
         key: 'ping',
         value: function ping(name, data) {}

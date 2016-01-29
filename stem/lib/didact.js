@@ -67,7 +67,6 @@ channel.message('register', {
         };
     }
     finish();
-    // console.log(gaddress);
 });
 
 channel.message('find', {

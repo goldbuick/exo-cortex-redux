@@ -32,10 +32,7 @@ var RunDev = (function (_Run) {
     function RunDev(host, port) {
         _classCallCheck(this, RunDev);
 
-        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(RunDev).call(this));
-
-        _this.didact = host + ':' + port;
-        return _this;
+        return _possibleConstructorReturn(this, Object.getPrototypeOf(RunDev).call(this, host, port));
     }
 
     _createClass(RunDev, [{
@@ -48,8 +45,8 @@ var RunDev = (function (_Run) {
             return 'tableau';
         }
     }, {
-        key: 'address',
-        value: function address(name, success, fail) {
+        key: 'findAddress',
+        value: function findAddress(name, success, fail) {
             success({
                 host: 'localhost',
                 port: (this.services[name] || {}).port || 0
@@ -63,7 +60,7 @@ var RunDev = (function (_Run) {
             var success = this.services[name].success;
             delete this.services[name].success;
 
-            this.address(name, success);
+            this.findAddress(name, success);
         }
     }, {
         key: 'add',
@@ -91,7 +88,7 @@ var RunDev = (function (_Run) {
             params.push(service.port);
 
             params.push('--didact');
-            params.push(this.didact);
+            params.push(this.host + ':' + this.port);
 
             if (_yargs.argv.dev) params.push('--dev');
             if (_yargs.argv.docker) params.push('--docker');
@@ -121,11 +118,11 @@ var RunDev = (function (_Run) {
             this.services[name] = service;
 
             // proxy ui
-            // if (ui && image !== 'barrier') {
-            //     this.proxyAuth(name, () => {
-            //         console.log(name, 'auth proxied');
-            //     });
-            // }
+            if (ui && image !== 'barrier') {
+                this.proxyAuth(name, function () {
+                    console.log(name, 'auth proxied');
+                });
+            }
         }
     }, {
         key: 'remove',

@@ -5,7 +5,7 @@ class ApiClient {
     constructor (host, port) {
         this.host = host;
         this.port = port;
-        this.address = { };
+        this.addressCache = { };
     }
     
     find (service, success) {
@@ -17,23 +17,23 @@ class ApiClient {
             });
         }
 
-        if (this.address[service]) {
-            return success(this.address[service]);
+        if (this.addressCache[service]) {
+            return success(this.addressCache[service]);
         }
 
         PostMessage(this.host, this.port, 'didact', 'find', {
             service
         }, json => {
-            this.address[json.service] = json;
-            success(this.address[json.service]);
+            this.addressCache[json.service] = json;
+            success(this.addressCache[json.service]);
         }, err => {
             console.log('find error', err);
         });
     }
 
     message (service, type, data, success) {
-        this.find(service, address => {
-            PostMessage(address.host, address.port, service, type, data, success, err => {
+        this.find(service, target => {
+            PostMessage(target.host, target.port, service, type, data, success, err => {
                 console.log('message error', err);
             });
         });

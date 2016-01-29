@@ -12,7 +12,7 @@ class HttpService extends HttpApi {
     constructor (name) {
         super();
         this.name = name;
-        this.address = { };
+        this.addressCache = { };
 
         let args = argv.didact.split(':');
         this.didact = { host: args[0], port: args[1] };
@@ -38,15 +38,23 @@ class HttpService extends HttpApi {
     }
 
     find (service, success, fail) {
-        if (this.address[service]) {
-            return success(this.address[service]);
+        if (service === 'didact') {
+            return success({
+                service: service,
+                host: this.didact.host,
+                port: this.didact.port
+            });
+        }
+
+        if (this.addressCache[service]) {
+            return success(this.addressCache[service]);
         }
 
         PostMessage(this.didact.host, this.didact.port, 'didact', 'find', {
             service
         }, (json) => {
-            this.address[json.service] = json;
-            success(this.address[json.service]);
+            this.addressCache[json.service] = json;
+            success(this.addressCache[json.service]);
         }, fail);
     }
 

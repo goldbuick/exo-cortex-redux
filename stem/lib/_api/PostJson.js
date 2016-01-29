@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = function (host, port, path, data, success, fail) {
     function writeError() {
         var error = Array.prototype.slice.call(arguments).join(' ');
-        console.log('PostJson', error);
+        console.log('PostJson', 'error', error);
     }
 
     var dataString = JSON.stringify(data);
@@ -49,10 +49,10 @@ exports.default = function (host, port, path, data, success, fail) {
                     // invoke callback
                     if (success) success(json);
                 } catch (e) {
-                    callbackError([e.message, e.fileName, e.lineNumber].join('\n'));
+                    callbackError(e.stack);
                 }
             } catch (e) {
-                callbackError(['Invalid JSON', responseBody].join('\n'));
+                callbackError([e.stack, responseBody].join('\n'));
             }
         });
     });

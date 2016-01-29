@@ -1,7 +1,7 @@
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 
 var _Run2 = require('./Run');
@@ -17,15 +17,15 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var RunDocker = (function (_Run) {
-  _inherits(RunDocker, _Run);
+    _inherits(RunDocker, _Run);
 
-  function RunDocker() {
-    _classCallCheck(this, RunDocker);
+    function RunDocker(host, port) {
+        _classCallCheck(this, RunDocker);
 
-    return _possibleConstructorReturn(this, Object.getPrototypeOf(RunDocker).apply(this, arguments));
-  }
+        return _possibleConstructorReturn(this, Object.getPrototypeOf(RunDocker).call(this, host, port));
+    }
 
-  return RunDocker;
+    return RunDocker;
 })(_Run3.default);
 
 exports.default = RunDocker;
