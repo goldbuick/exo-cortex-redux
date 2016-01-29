@@ -65,7 +65,7 @@ class Preflight extends ApiClient {
                 fetch();
             }
         },{
-            'starting facade': this.start('facade')
+            'starting facade': this.start('ui-facade')
         },{
             'starting barrier': this.start('ui-barrier')
         },{

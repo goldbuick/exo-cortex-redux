@@ -92,7 +92,7 @@ var Preflight = (function (_ApiClient) {
                 fetch();
             }
         }, {
-            'starting facade': _this.start('facade')
+            'starting facade': _this.start('ui-facade')
         }, {
             'starting barrier': _this.start('ui-barrier')
         }, {

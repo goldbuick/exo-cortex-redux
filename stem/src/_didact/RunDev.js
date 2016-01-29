@@ -11,7 +11,9 @@ class RunDev extends Run {
 
     nodeScript (image) {
         switch (image) {
-            case 'barrier': return image;
+            case 'facade':
+            case 'barrier':
+                return image;
         }
         return 'tableau';
     }

@@ -74,7 +74,6 @@ channel.message('add', {
 }, (json, finish) => {
     if (json.meta && json.meta.service) {
         grun.add(json.meta.service, address => {
-            console.log('grun.add', address);
             gaddress[json.meta.service] = {
                 service: json.meta.service,
                 host: address.host,

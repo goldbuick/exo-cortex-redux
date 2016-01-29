@@ -39,6 +39,7 @@ var RunDev = (function (_Run) {
         key: 'nodeScript',
         value: function nodeScript(image) {
             switch (image) {
+                case 'facade':
                 case 'barrier':
                     return image;
             }
