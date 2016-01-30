@@ -30,7 +30,15 @@ var Page = React.createClass({
         // onPointer={this.handlePointer}
         return <ThreeScene onCreate={this.handleCreate}>
             <Background seed="something-else-yeah"/>
-            <TestButton />
+            <TestButton position-x="-256" position-y="-256"/>
+            <TestButton position-x="0" position-y="-256"/>
+            <TestButton position-x="256" position-y="-256"/>
+            <TestButton position-x="-256" position-y="0"/>
+            <TestButton position-x="0" position-y="0"/>
+            <TestButton position-x="256" position-y="0"/>
+            <TestButton position-x="-256" position-y="256"/>
+            <TestButton position-x="0" position-y="256"/>
+            <TestButton position-x="256" position-y="256"/>
         </ThreeScene>;
     },
 

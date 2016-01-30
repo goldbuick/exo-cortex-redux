@@ -129,20 +129,22 @@ var ThreeScene = React.createClass({
 
     handlePointer: function (id, pressed, x, y) {
         if (!this._object3D) return;
-        let size = this.containerSize(),
+        let current,
+            size = this.containerSize(),
             last = this.lastPointerObject[id];
 
-        this.rayCoords.x = (x / size.width) * 2 - 1;
-        this.rayCoords.y = -(y / size.height) * 2 + 1;
-        this.ray.setFromCamera(this.rayCoords, this.camera);
+        if (pressed !== undefined) {
+            this.rayCoords.x = (x / size.width) * 2 - 1;
+            this.rayCoords.y = -(y / size.height) * 2 + 1;
+            this.ray.setFromCamera(this.rayCoords, this.camera);
 
-        let current,
-            intersects = this.ray.intersectObjects(this._object3D.children, true);
-        for (let i=0; i<intersects.length; ++i) {
-            let obj = intersects[i].object;
-            if (obj && obj.userData && obj.userData.onPointer) {
-                current = intersects[i];
-                break;
+            let intersects = this.ray.intersectObjects(this._object3D.children, true);
+            for (let i=0; i<intersects.length; ++i) {
+                let obj = intersects[i].object;
+                if (obj && obj.userData && obj.userData.onPointer) {
+                    current = intersects[i];
+                    break;
+                }
             }
         }
 
@@ -178,6 +180,7 @@ var ThreeScene = React.createClass({
         for (let i=0; i<event.changedTouches.length; ++i) {
             let touch = event.changedTouches[i];
             this.handlePointer(touch.identifier, false, touch.clientX, touch.clientY);
+            this.handlePointer(touch.identifier);
         }
     },
 
