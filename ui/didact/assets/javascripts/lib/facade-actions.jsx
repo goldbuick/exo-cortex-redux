@@ -23,6 +23,14 @@ require([ url + '/socket.io/socket.io.js'], io => {
     socket.on('connect_error', e => FacadeActions.connectError(e));
 });
 
+FacadeActions.api.listen(list => {
+    if (list === undefined) socket.emit('api');
+});
+
+FacadeActions.nodes.listen(list => {
+    if (list === undefined) socket.emit('nodes');
+});
+
 FacadeActions.emit.listen((channel, type, meta) => {
     socket.emit('message', {
         id: uuid.v4(),

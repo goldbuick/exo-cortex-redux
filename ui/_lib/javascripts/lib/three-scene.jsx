@@ -64,6 +64,8 @@ var ThreeScene = React.createClass({
         this.refs.container.appendChild(this.renderer.domElement);
 
         // add picker 
+        this.mousePressed = false;
+        this.lastPointerObject = { };
         this.ray = new THREE.Raycaster();
         this.rayCoords = new THREE.Vector2();
 
@@ -127,20 +129,31 @@ var ThreeScene = React.createClass({
 
     handlePointer: function (id, pressed, x, y) {
         if (!this._object3D) return;
-        let size = this.containerSize();
+        let size = this.containerSize(),
+            last = this.lastPointerObject[id];
+
         this.rayCoords.x = (x / size.width) * 2 - 1;
         this.rayCoords.y = -(y / size.height) * 2 + 1;
         this.ray.setFromCamera(this.rayCoords, this.camera);
-        let intersects = this.ray.intersectObjects(this._object3D.children, true);
+
+        let current,
+            intersects = this.ray.intersectObjects(this._object3D.children, true);
         for (let i=0; i<intersects.length; ++i) {
-            let obj = intersects[i];
+            let obj = intersects[i].object;
             if (obj && obj.userData && obj.userData.onPointer) {
-                obj.userData.onPointer(id, pressed, x, y);
+                current = intersects[i];
                 break;
             }
         }
-        if (this.props.onPointer) {
-            this.props.onPointer(id, pressed, x, y, intersects);
+
+        if (last && (!current || last !== current.object)) {
+            last.userData.onPointer(id);
+            delete this.lastPointerObject[id];
+        }
+
+        if (current) {
+            this.lastPointerObject[id] = current.object;
+            current.object.userData.onPointer(id, pressed, current.point);
         }
     },
 
@@ -170,19 +183,18 @@ var ThreeScene = React.createClass({
 
     handleMouseDown: function (event) {
         event.preventDefault();
-        this.mouseDown = true;
+        this.mousePressed = true;
         this.handlePointer(-1, true, event.clientX, event.clientY);
     },
 
     handleMouseMove: function (event) {
         event.preventDefault();
-        if (!this.mouseDown) return;
-        this.handlePointer(-1, true, event.clientX, event.clientY);
+        this.handlePointer(-1, this.mousePressed, event.clientX, event.clientY);
     },
 
     handleMouseUp: function (event) {
         event.preventDefault();
-        this.mouseDown = false;
+        this.mousePressed = false;
         this.handlePointer(-1, false, event.clientX, event.clientY);
     },
 

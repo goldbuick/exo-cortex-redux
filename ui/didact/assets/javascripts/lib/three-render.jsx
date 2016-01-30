@@ -79,8 +79,9 @@ export default {
                 this.props.parent.shouldAnimate(this);
                 this.applyProps3D('position-x', 'position-y', 'position-z');
             }
-            if (this.handlePointer) {
+            if (this.handlePointer && !(this._object3D instanceof THREE.Scene)) {
                 this._object3D.userData.onPointer = this.handlePointer;
+                console.log(this._object3D);
             }
         }
 
