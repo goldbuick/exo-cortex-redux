@@ -1,5 +1,5 @@
-import css from 'lib/css';
-import Glyph from 'lib/glyph';
+import Css from 'lib/Css';
+import Glyph from 'lib/Glyph';
 import BmFontText from 'lib/threejs/bmfont/text';
 import BmFontShader from 'lib/threejs/bmfont/sdf';
 import BmFontLoad from 'lib/threejs/bmfont/load';
@@ -9,7 +9,7 @@ BmFontLoad({
     font: '/media/lib/OCRA.fnt',
     image: '/media/lib/OCRA.png'
 }, (font, texture) => {
-    fontColor = css.getStyleRuleValue('.fg-color', 'color');
+    fontColor = Css.getStyleRuleValue('.fg-color', 'color');
     fontConfig = font;
     fontTexture = texture;
     fontTexture.needsUpdate = true;
@@ -25,7 +25,7 @@ BmFontLoad({
     font: '/media/lib/LOGO.fnt',
     image: '/media/lib/LOGO.png'
 }, (font, texture) => {
-    fontColor = css.getStyleRuleValue('.fg-color', 'color');
+    fontColor = Css.getStyleRuleValue('.fg-color', 'color');
     logoFontConfig = font;
     logoFontTexture = texture;
     logoFontTexture.needsUpdate = true;

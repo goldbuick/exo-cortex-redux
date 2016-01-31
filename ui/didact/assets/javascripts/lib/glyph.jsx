@@ -1,6 +1,6 @@
-import css from 'lib/css';
+import Css from 'lib/Css';
 
-var baseColor = css.getStyleRuleValue('.fg-color', 'color');
+var baseColor = Css.getStyleRuleValue('.fg-color', 'color');
 baseColor = baseColor.substring(4, baseColor.length - 1).split(',').map(str => {
     return parseFloat(str.trim(str)) / 255.0;
 });
@@ -202,7 +202,7 @@ class Glyph {
     }
 }
 
-Glyph.baseColor = css.getStyleRuleValue('.fg-color', 'color');
-Glyph.deepColor = css.getStyleRuleValue('.deep-color', 'color');
+Glyph.baseColor = Css.getStyleRuleValue('.fg-color', 'color');
+Glyph.deepColor = Css.getStyleRuleValue('.deep-color', 'color');
 
 export default Glyph;

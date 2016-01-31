@@ -1,5 +1,5 @@
-import Graph from 'lib/graph';
-import ThreeRender from 'lib/three-render';
+import Graph from 'lib/Graph';
+import ThreeRender from 'lib/ThreeRender';
 import 'lib/threejs/SimplexNoise';
 
 var Background = React.createClass({

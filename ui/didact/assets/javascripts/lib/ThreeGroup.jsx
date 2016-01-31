@@ -1,4 +1,4 @@
-import ThreeRender from 'lib/three-render';
+import ThreeRender from 'lib/ThreeRender';
 
 var ThreeGroup = React.createClass({
     mixins: [

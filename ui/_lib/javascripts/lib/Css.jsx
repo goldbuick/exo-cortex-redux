@@ -1,7 +1,6 @@
-define(function (require, exports, module) {
-    'use strict';
+export default {
 
-    exports.getStyleRuleValue = function (selector, style) {
+    getStyleRuleValue: (selector, style) => {
         var sheets = document.styleSheets;
         for (var i = 0, l = sheets.length; i < l; i++) {
             var sheet = sheets[i];
@@ -15,6 +14,6 @@ define(function (require, exports, module) {
             }
         }
         return null;
-    };
+    }
 
-});
+}

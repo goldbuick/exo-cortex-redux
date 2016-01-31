@@ -1,6 +1,6 @@
-import Graph from 'lib/graph';
-import UiButton from 'lib/ui-button';
-import ThreeRender from 'lib/three-render';
+import Graph from 'lib/Graph';
+import UiButton from 'lib/UiButton';
+import ThreeRender from 'lib/ThreeRender';
 
 var TestButton = React.createClass({
     mixins: [
@@ -12,7 +12,7 @@ var TestButton = React.createClass({
         switch (action) {
             case 'out': anim.targetScale = 1; break;
             case 'over':
-            case 'click': anim.targetScale = 1.2; break;
+            case 'click': anim.targetScale = 1.5; break;
             case 'pressed': anim.targetScale = 0.8; break;
         }
     },
