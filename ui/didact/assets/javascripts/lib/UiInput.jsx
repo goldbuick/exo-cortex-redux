@@ -29,6 +29,8 @@ var UiInput = React.createClass({
         if (anim.tick >= anim.cycle * 2) anim.tick -= anim.cycle * 2;
 
         let caret = obj.children[0];
+        if (caret === undefined) return;
+
         if (anim.offset === undefined) {
             caret.visible = false;
         } else {
@@ -52,6 +54,7 @@ var UiInput = React.createClass({
                     anim.offset = caret.position.y = (glyph.position[1] + 64) * scale;
                 }
             }
+            caret.position.x += text.position.x;
         }
     },
 
@@ -88,7 +91,8 @@ var UiInput = React.createClass({
     render3D: function () {
         let input = new Graph(),
             scale = this.getScale(),
-            value = this.state.value;
+            value = this.state.value,
+            ax = this.props.center ? 0.5 : 0.0;
 
         input.drawLine([
             { x: 0, y:  1, z: 64 * scale },
@@ -101,12 +105,15 @@ var UiInput = React.createClass({
             transform: Graph.projectPlane(1)
         });
         this._object3D.add(Graph.genText({
-            ax: 0,
+            ax: ax,
             scale: scale,
             text: value,
             pos: [ 0, 0, 0 ],
             nudge: [ 0, 0, 0 ]
         }));
+
+        // let text = this._object3D.children[1].children[0];
+        // if (text) console.log(text);
 
         return <input type="text"
             ref="input"
