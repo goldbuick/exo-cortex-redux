@@ -2,6 +2,7 @@ import FacadeActions from 'lib/FacadeActions';
 import Background from 'lib/Background';
 import ThreeScene from 'lib/ThreeScene';
 import TestButton from './TestButton';
+import UiInput from 'lib/UiInput';
 
 /*
 what do I need from web-didact
@@ -30,7 +31,8 @@ var Page = React.createClass({
         // onPointer={this.handlePointer}
         return <ThreeScene onCreate={this.handleCreate}>
             <Background seed="something-else-yeah"/>
-            <TestButton position-x="0" position-y="0"/>
+            <TestButton position-x="0" position-y="256"/>
+            <UiInput />
         </ThreeScene>;
     },
 

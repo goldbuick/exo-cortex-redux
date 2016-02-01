@@ -24,7 +24,7 @@ export default {
 
     clear3D: function () {
         if (!this._object3D || !this._object3D.parent) return;
-        // console.log('clear3D', this._object3D);
+        this.props.parent.stopAnimate(this);
         this._object3D.parent.remove(this._object3D);
         this._object3D = undefined;
     },
@@ -38,6 +38,10 @@ export default {
                 item.animate(delta);
             });
         }
+    },
+
+    stopAnimate: function (item) {
+        this._animate3D = this._animate3D.filter(child => child !== item);
     },
 
     shouldAnimate: function (item) {

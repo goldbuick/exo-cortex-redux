@@ -26,10 +26,12 @@ var TestButton = React.createClass({
     },
 
     render3D: function () {
-        let geometry = new THREE.SphereGeometry(100, 12, 12),
-            material = new THREE.MeshBasicMaterial({ color: 0x444444 });
+        let button = new Graph();
 
-        return new THREE.Mesh(geometry, material);
+        button.drawCircle(0, 0, 0, 32, 100);
+        return button.build({
+            transform: Graph.projectFacePlane(1)
+        });
     }
 });
 

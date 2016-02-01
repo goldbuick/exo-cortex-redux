@@ -9,7 +9,7 @@ import 'lib/threejs/postprocessing/BloomPass';
 import 'lib/threejs/postprocessing/ShaderPass';
 import 'lib/threejs/postprocessing/GlitchPass';
 import 'lib/threejs/postprocessing/RenderPass';
-import ThreeRender from 'lib/three-render';
+import ThreeRender from 'lib/ThreeRender';
 
 var ThreeScene = React.createClass({
     mixins: [
