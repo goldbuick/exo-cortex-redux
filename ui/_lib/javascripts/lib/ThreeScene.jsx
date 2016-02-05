@@ -156,6 +156,8 @@ var ThreeScene = React.createClass({
         if (current) {
             this.lastPointerObject[id] = current.object;
             current.object.userData.onPointer(id, pressed, current.point);
+        } else if (pressed) {
+            document.activeElement.blur();
         }
     },
 

@@ -21,7 +21,7 @@ var fillMaterial = new THREE.MeshBasicMaterial({
 });
 
 var alphaFillMaterial = new THREE.MeshBasicMaterial({
-    opacity: 0.05,
+    opacity: 0.1,
     transparent: true,
     side: THREE.DoubleSide,
     vertexColors: THREE.VertexColors
@@ -237,28 +237,6 @@ class Glyph {
             positions.push(result[0], result[1], result[2]);
         }
 
-        if (this.points.length) {
-            var pointGeometry = new THREE.BufferGeometry();
-            pointGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.points), 1));
-            pointGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
-            pointGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
-            pointGeometry.computeBoundingSphere();
-
-            var pointMesh = new THREE.Points(pointGeometry, pointMaterial);
-            group.add(pointMesh);
-        }
-
-        if (this.lines.length) {
-            var lineGeometry = new THREE.BufferGeometry();
-            lineGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.lines), 1));
-            lineGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
-            lineGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
-            lineGeometry.computeBoundingSphere();
-
-            var lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
-            group.add(lineMesh);
-        }
-
         if (this.fills.length) {
             var fillGeometry = new THREE.BufferGeometry();
             fillGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.fills), 1));
@@ -279,6 +257,28 @@ class Glyph {
 
             var alphaFillMesh = new THREE.Mesh(alphaFillGeometry, alphaFillMaterial);
             group.add(alphaFillMesh);
+        }
+
+        if (this.points.length) {
+            var pointGeometry = new THREE.BufferGeometry();
+            pointGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.points), 1));
+            pointGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+            pointGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
+            pointGeometry.computeBoundingSphere();
+
+            var pointMesh = new THREE.Points(pointGeometry, pointMaterial);
+            group.add(pointMesh);
+        }
+
+        if (this.lines.length) {
+            var lineGeometry = new THREE.BufferGeometry();
+            lineGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.lines), 1));
+            lineGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+            lineGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
+            lineGeometry.computeBoundingSphere();
+
+            var lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
+            group.add(lineMesh);
         }
 
         return group;

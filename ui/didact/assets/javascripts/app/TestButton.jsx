@@ -28,7 +28,8 @@ var TestButton = React.createClass({
     render3D: function () {
         let button = new Graph();
 
-        button.drawCircle(0, 0, 0, 32, 100);
+        button.drawCircle(0, 0, 0, 32, 100, undefined, undefined, undefined, undefined, true);
+        button.drawLoop(0, 0, 0, 32, 100);
         return button.build({
             transform: Graph.projectFacePlane(1)
         });

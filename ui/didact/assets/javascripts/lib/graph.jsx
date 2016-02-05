@@ -128,7 +128,7 @@ class Graph {
         this.glyph.addFill(offset + 2, offset + 1, offset + 3, alpha);
     }
 
-    drawCircle (x, y, z, sides, radius, front, back, drift, bump) {
+    drawCircle (x, y, z, sides, radius, front, back, drift, bump, alpha) {
         var offset = this.glyph.count,
             points = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
@@ -141,7 +141,7 @@ class Graph {
         }
 
         for (var i=0; i<points.length-1; ++i) {
-            this.glyph.addFill(center, base + i + 1, base + i);
+            this.glyph.addFill(center, base + i + 1, base + i, alpha);
         }
     }
 
