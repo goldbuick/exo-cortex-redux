@@ -112,7 +112,7 @@ class Graph {
         }
     }
 
-    drawRect (x, y, w, h, z) {
+    drawRect (x, y, w, h, z, alpha) {
         var offset = this.glyph.count;
 
         z = z || 0;
@@ -124,8 +124,8 @@ class Graph {
         this.glyph.addVert(x - hw, y + hh, z);
         this.glyph.addVert(x + hw, y + hh, z);
 
-        this.glyph.addFill(offset, offset + 1, offset + 2);
-        this.glyph.addFill(offset + 2, offset + 1, offset + 3);
+        this.glyph.addFill(offset, offset + 1, offset + 2, alpha);
+        this.glyph.addFill(offset + 2, offset + 1, offset + 3, alpha);
     }
 
     drawCircle (x, y, z, sides, radius, front, back, drift, bump) {

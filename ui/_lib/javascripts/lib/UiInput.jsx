@@ -14,7 +14,6 @@ var UiInput = React.createClass({
         this.refs.input.style.top = '-10000px';
         this.refs.input.style.left = '-10000px';
         this.refs.input.style.position = 'absolute';
-        this.refs.input.focus();
     },
 
     getScale: function () {
@@ -28,7 +27,10 @@ var UiInput = React.createClass({
         anim.tick += delta;
         if (anim.tick >= anim.cycle * 2) anim.tick -= anim.cycle * 2;
 
-        let caret = obj.children[0];
+        let scale = this.getScale(),
+            text = obj.userData.text.children[0],
+            caret = obj.userData.caret.children[0];
+
         if (caret === undefined) return;
 
         if (anim.offset === undefined) {
@@ -39,8 +41,6 @@ var UiInput = React.createClass({
                 (anim.selectionStart !== anim.selectionEnd);
         }
 
-        let scale = this.getScale(),
-            text = obj.children[1].children[0];
         if (text) {
             let index = anim.swap ? anim.selectionStart : anim.selectionEnd,
                 glyph = text.geometry.layout.glyphs[index];
@@ -55,6 +55,16 @@ var UiInput = React.createClass({
                 }
             }
             caret.position.x += text.position.x;
+        }
+    },
+
+    handlePointer: function (id, pressed, pt) {
+        if (this.refs.input) {
+            if (pressed === undefined) {
+                this.refs.input.blur();
+            } else if (pressed) {
+                this.refs.input.focus();
+            }
         }
     },
 
@@ -89,31 +99,39 @@ var UiInput = React.createClass({
     },
 
     render3D: function () {
-        let input = new Graph(),
-            scale = this.getScale(),
+        let scale = this.getScale(),
             value = this.state.value,
             ax = this.props.center ? 0.5 : 0.0;
+        this._object3D = new THREE.Group();
 
+        let input = new Graph();
         input.drawLine([
             { x: 0, y:  1, z: 64 * scale },
             { x: 0, y:  2, z: -32 * scale },
             { x: 0, y: -2, z: 32 * scale },
             { x: 0, y: -1, z: -64 * scale },
         ]);
-
-        this._object3D = input.build({
+        this._object3D.userData.caret = input.build({
             transform: Graph.projectPlane(1)
         });
-        this._object3D.add(Graph.genText({
+
+        this._object3D.userData.text = Graph.genText({
             ax: ax,
             scale: scale,
             text: value,
             pos: [ 0, 0, 0 ],
             nudge: [ 0, 0, 0 ]
-        }));
+        });
 
-        // let text = this._object3D.children[1].children[0];
-        // if (text) console.log(text);
+        let plate = new Graph();
+        plate.drawRect(-16, 0, 100 * scale, 512, 0, true);
+        this._object3D.userData.plate = plate.build({
+            transform: Graph.projectFacePlane(1)
+        });
+
+        this._object3D.add(this._object3D.userData.plate);
+        this._object3D.add(this._object3D.userData.text);
+        this._object3D.add(this._object3D.userData.caret);
 
         return <input type="text"
             ref="input"

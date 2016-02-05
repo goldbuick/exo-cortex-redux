@@ -20,6 +20,13 @@ var fillMaterial = new THREE.MeshBasicMaterial({
     vertexColors: THREE.VertexColors
 });
 
+var alphaFillMaterial = new THREE.MeshBasicMaterial({
+    opacity: 0.05,
+    transparent: true,
+    side: THREE.DoubleSide,
+    vertexColors: THREE.VertexColors
+});
+
 class Glyph {
     constructor () {
         this.count = 0;
@@ -28,6 +35,7 @@ class Glyph {
         this.points = [ ];
         this.lines = [ ];
         this.fills = [ ];
+        this.alphaFills = [ ];
     }
 
     addVert (x, y, z) {
@@ -51,8 +59,12 @@ class Glyph {
         this.lines.push(v1, v2);
     }
 
-    addFill (v1, v2, v3) {
-        this.fills.push(v1, v2, v3);
+    addFill (v1, v2, v3, alpha) {
+        if (alpha) {
+            this.alphaFills.push(v1, v2, v3);
+        } else {
+            this.fills.push(v1, v2, v3);
+        }
     }
 
     getPosition (index, vec) {
@@ -151,9 +163,69 @@ class Glyph {
         return !done;
     }
 
+    tessellateAlphaFills (step) {
+        var done = true,
+            alphaFills = [ ];
+
+        var len = [ 0, 0, 0 ],
+            index = [ 0, 0, 0 ],
+            dist = [
+                new THREE.Vector3(),
+                new THREE.Vector3(),
+                new THREE.Vector3()
+            ],
+            vec = [
+                new THREE.Vector3(),
+                new THREE.Vector3(),
+                new THREE.Vector3() 
+            ],
+            mid = [
+                new THREE.Vector3(),
+                new THREE.Vector3(),
+                new THREE.Vector3() 
+            ];
+
+        var v;
+        for (var i=0; i < this.alphaFills.length; i += 3) {
+            for (v=0; v < 3; ++v)
+                this.getPosition(this.alphaFills[i+v], vec[v]);
+
+            dist[0].subVectors(vec[1], vec[0]);
+            dist[1].subVectors(vec[2], vec[1]);
+            dist[2].subVectors(vec[2], vec[0]);
+            for (v=0; v < 3; ++v) 
+                len[v] = dist[v].length();
+
+            if (len[0] > step ||
+                len[1] > step ||
+                len[2] > step) {
+                for (v=0; v < 3; ++v)
+                    dist[v].multiplyScalar(0.5);
+                mid[0].addVectors(vec[0], dist[0]);
+                mid[1].addVectors(vec[1], dist[1]);
+                mid[2].addVectors(vec[0], dist[2]);
+                for (v=0; v < 3; ++v)
+                    index[v] = this.splitVert(mid[v].x, mid[v].y, mid[v].z);
+
+                alphaFills.push(this.alphaFills[i], index[0], index[2]);
+                alphaFills.push(index[0], this.alphaFills[i+1], index[1]);
+                alphaFills.push(index[1], this.alphaFills[i+2], index[2]);
+                alphaFills.push(index[0], index[1], index[2]);
+
+                done = false;
+            } else {
+                alphaFills.push(this.alphaFills[i], this.alphaFills[i+1], this.alphaFills[i+2]);
+            }
+        }
+
+        this.alphaFills = alphaFills;
+        return !done;
+    }
+
     tessellate (step) {
         while (this.tessellateLines(step));
         while (this.tessellateFills(step));
+        while (this.tessellateAlphaFills(step));
     }
 
     build (opts) {
@@ -196,6 +268,17 @@ class Glyph {
 
             var fillMesh = new THREE.Mesh(fillGeometry, fillMaterial);
             group.add(fillMesh);
+        }
+
+        if (this.alphaFills.length) {
+            var alphaFillGeometry = new THREE.BufferGeometry();
+            alphaFillGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.alphaFills), 1));
+            alphaFillGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+            alphaFillGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
+            alphaFillGeometry.computeBoundingSphere();
+
+            var alphaFillMesh = new THREE.Mesh(alphaFillGeometry, alphaFillMaterial);
+            group.add(alphaFillMesh);
         }
 
         return group;

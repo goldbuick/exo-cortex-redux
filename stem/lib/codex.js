@@ -18,6 +18,10 @@ var _HttpService = require('./_api/HttpService');
 
 var _HttpService2 = _interopRequireDefault(_HttpService);
 
+var _PostMessage = require('./_api/PostMessage');
+
+var _PostMessage2 = _interopRequireDefault(_PostMessage);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // simple key / value store api
@@ -48,7 +52,7 @@ server.find('rethinkdb', function (rethinkdb) {
 
         // signal value change to neuro
         server.find(key, function (neuro) {
-            PostMessage(neuro.host, neuro.port, 'codex', 'update', {
+            (0, _PostMessage2.default)(neuro.host, neuro.port, 'codex', 'update', {
                 keys: [key],
                 value: gstore[key]
             });

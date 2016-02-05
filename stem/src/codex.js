@@ -3,6 +3,7 @@ import ObjMod from './_api/ObjMod';
 import Debounce from './_api/Debounce';
 import RethinkDb from './_api/RethinkDb';
 import HttpService from './_api/HttpService';
+import PostMessage from './_api/PostMessage';
 
 // simple key / value store api
 
