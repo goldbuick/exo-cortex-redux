@@ -24,12 +24,17 @@ var UiInput = React.createClass({
 
     getWidth: function (targetWidth) {
         let minWidth = this.props.minWidth || 300;
-        return Math.max(targetWidth, minWidth);
+        return Math.max(targetWidth * this.getScale(), minWidth);
     },
 
     sizePlate: function (obj, width) {
+        let padding = 100 * this.getScale();
+        width += padding;
         let scale = width / 100;
         obj.scale.set(scale, 1, 1);
+        if (!this.props.center) {
+            obj.position.x = (width * 0.5) - (padding * 0.5);
+        }
     },
 
     animate3D: function (delta, anim, obj) {
@@ -42,7 +47,8 @@ var UiInput = React.createClass({
         let scale = this.getScale(),
             text = obj.userData.text.children[0],
             caret = obj.userData.caret.children[0],
-            plate = obj.userData.plate;
+            plate = obj.userData.plate,
+            underline = obj.userData.underline;
 
         if (anim.offset === undefined) {
             caret.visible = false;
@@ -69,8 +75,14 @@ var UiInput = React.createClass({
             }
             caret.position.x += text.position.x;
             plate.position.y = anim.offset;
-            this.sizePlate(plate, this.getWidth(text.geometry.layout._width + 100 * scale));
+            this.sizePlate(plate, this.getWidth(text.geometry.layout._width));
         }
+
+        underline.visible = anim.over ? true : false;
+    },
+
+    hasFocusInput: function () {
+        return true;
     },
 
     handleButton: function (anim, obj, action, pt) {
@@ -79,9 +91,9 @@ var UiInput = React.createClass({
                 anim.over = false; break;
             case 'over':
             case 'click':
-                anim.over = false; break;
+                anim.over = true; break;
             case 'pressed':
-                anim.over = false;
+                anim.over = true;
                 this.refs.input.focus();
                 break;
         }
@@ -151,13 +163,30 @@ var UiInput = React.createClass({
 
         graph = new Graph();
         graph.drawLine([
-            { x: 0, y:  50 * scale, z: 0 },
-            { x: 0, y:  50 * scale, z: -50 * scale },
-            { x: 0, y: -50 * scale, z: -50 * scale },
+            { x: 0, y:  50, z: -20 * scale },
+            { x: 0, y:  50, z: -50 * scale },
+            { x: 0, y: -50, z: -50 * scale },
         ]);
         this._object3D.userData.plate.add(graph.build({
             transform: Graph.projectPlane(1)
         }));
+
+        graph = new Graph();
+        graph.drawLine([
+            { x: 0, y:  40, z: (-50 * scale) - 8 },
+            { x: 0, y:   0, z: (-50 * scale) - 32 },
+            { x: 0, y: -40, z: (-50 * scale) - 8 },
+        ]);
+        graph.drawLine([
+            { x: 0, y:  30, z: (-50 * scale) - 18 },
+            { x: 0, y:   0, z: (-50 * scale) - 42 },
+            { x: 0, y: -30, z: (-50 * scale) - 18 },
+        ]);
+        this._object3D.userData.underline = graph.build({
+            transform: Graph.projectPlane(1)
+        });
+        this._object3D.userData.plate.add(this._object3D.userData.underline);
+        this._object3D.userData.underline.visible = false;
 
         this._object3D.add(this._object3D.userData.plate);
         this._object3D.add(this._object3D.userData.text);

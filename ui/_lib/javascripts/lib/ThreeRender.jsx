@@ -89,6 +89,7 @@ export default {
                     if (!placed && obj.geometry) {
                         placed = true;
                         obj.userData.onPointer = this.handlePointer;
+                        obj.userData.hasFocusInput = this.hasFocusInput;
                     }
                 });
             }

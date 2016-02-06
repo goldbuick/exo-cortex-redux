@@ -145,7 +145,7 @@ class Graph {
         }
     }
 
-    drawSwipe (x, y, z, sides, radius, width, front, back, drift, bump) {
+    drawSwipe (x, y, z, sides, radius, width, front, back, drift, bump, alpha) {
         var offset = this.glyph.count,
             innerRadius = radius,
             outerRadius = radius + width,
@@ -158,8 +158,8 @@ class Graph {
         var base, len = ipoints.length;
         for (var i=0; i<len-1; ++i) {
             base = offset + i;
-            this.glyph.addFill(base, base + 1, base + len);
-            this.glyph.addFill(base + len, base + 1, base + len + 1);
+            this.glyph.addFill(base, base + 1, base + len, alpha);
+            this.glyph.addFill(base + len, base + 1, base + len + 1, alpha);
         }
     }
 
