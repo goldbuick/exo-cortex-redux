@@ -76,7 +76,7 @@ var Preflight = (function (_ApiClient) {
                             name: 'domain',
                             message: 'please set the barrier domain'
                         }], function (answers) {
-                            _this.message('codex', 'set', {
+                            _this.emit('codex', 'set', {
                                 keys: ['ui-barrier', 'domain'],
                                 value: answers.domain
                             }, fetch);
@@ -85,7 +85,7 @@ var Preflight = (function (_ApiClient) {
                 };
 
                 var fetch = function fetch(json) {
-                    _this.message('codex', 'get', {
+                    _this.emit('codex', 'get', {
                         keys: ['ui-barrier']
                     }, validate);
                 };
@@ -108,7 +108,7 @@ var Preflight = (function (_ApiClient) {
                             name: 'password',
                             message: 'please set the barrier password'
                         }], function (answers) {
-                            _this.message('codex', 'set', {
+                            _this.emit('codex', 'set', {
                                 keys: ['ui-barrier', 'password'],
                                 value: answers.password
                             }, fetch);
@@ -117,7 +117,7 @@ var Preflight = (function (_ApiClient) {
                 };
 
                 var fetch = function fetch(json) {
-                    _this.message('codex', 'get', {
+                    _this.emit('codex', 'get', {
                         keys: ['ui-barrier']
                     }, validate);
                 };
@@ -127,7 +127,7 @@ var Preflight = (function (_ApiClient) {
             'starting didact ui': _this.start('ui-didact')
         }, {
             'display barrier config': function displayBarrierConfig(next) {
-                _this.message('codex', 'get', {
+                _this.emit('codex', 'get', {
                     keys: ['ui-barrier']
                 }, function (json) {
                     next(json);
@@ -176,7 +176,7 @@ var Preflight = (function (_ApiClient) {
             var _this3 = this;
 
             return function (next) {
-                return _this3.message('didact', 'add', { service: service }, next);
+                return _this3.emit('didact', 'add', { service: service }, next);
             };
         }
     }]);

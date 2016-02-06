@@ -49,7 +49,7 @@ class Preflight extends ApiClient {
                             name: 'domain',
                             message: 'please set the barrier domain'
                         }], answers => {
-                            this.message('codex', 'set', {
+                            this.emit('codex', 'set', {
                                 keys: [ 'ui-barrier', 'domain' ],
                                 value: answers.domain
                             }, fetch);
@@ -58,7 +58,7 @@ class Preflight extends ApiClient {
                 };
 
                 let fetch = json => {
-                    this.message('codex', 'get', {
+                    this.emit('codex', 'get', {
                         keys: [ 'ui-barrier' ]
                     }, validate);
                 };
@@ -82,7 +82,7 @@ class Preflight extends ApiClient {
                             name: 'password',
                             message: 'please set the barrier password'
                         }], answers => {
-                            this.message('codex', 'set', {
+                            this.emit('codex', 'set', {
                                 keys: [ 'ui-barrier', 'password' ],
                                 value: answers.password
                             }, fetch);
@@ -91,7 +91,7 @@ class Preflight extends ApiClient {
                 };
 
                 let fetch = json => {
-                    this.message('codex', 'get', {
+                    this.emit('codex', 'get', {
                         keys: [ 'ui-barrier' ]
                     }, validate);
                 };
@@ -101,7 +101,7 @@ class Preflight extends ApiClient {
             'starting didact ui': this.start('ui-didact')
         },{
             'display barrier config': next => {
-                this.message('codex', 'get', {
+                this.emit('codex', 'get', {
                     keys: [ 'ui-barrier' ]
                 }, json => {
                     next(json);
@@ -139,7 +139,7 @@ class Preflight extends ApiClient {
     }
 
     start (service) {
-        return next => this.message('didact', 'add', { service }, next);
+        return next => this.emit('didact', 'add', { service }, next);
     }
 
 }

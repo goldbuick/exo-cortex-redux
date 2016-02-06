@@ -50,11 +50,11 @@ var ApiClient = (function () {
             });
         }
     }, {
-        key: 'message',
-        value: function message(service, type, data, success) {
+        key: 'emit',
+        value: function emit(service, type, data, success) {
             this.find(service, function (target) {
                 (0, _PostMessage2.default)(target.host, target.port, service, type, data, success, function (err) {
-                    console.log('message error', err);
+                    console.log('emit error', err);
                 });
             });
         }

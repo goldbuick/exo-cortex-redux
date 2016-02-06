@@ -8,18 +8,16 @@ server.ping(() => {
     return { active: true };
 });
 
-// create a webhook channel ..
-let channel = server.channel('webhook');
-
-channel.message('push', {
-}, (json, finish) => {
-    console.log('webhook/push', json);
-    finish();
+server.upstream(json => {
+    console.log('upstream', json);
 });
 
 io.on('connection', socket => {
     // do cool shit here ...
-    console.log('we have a connection!');
+    // console.log('we have a connection!');
+    socket.on('api', json => {
+
+    });
 });
 
 server.start();

@@ -95,12 +95,12 @@ var Run = (function (_ApiClient) {
             var _this2 = this;
 
             this.address(name, function (address) {
-                _this2.message('codex', 'get', {
+                _this2.emit('codex', 'get', {
                     keys: ['ui-barrier']
                 }, function (json) {
                     var barrierUrl = _this2.image(name) + '.' + json.domain,
                         serviceUrl = address.host + ':' + address.port;
-                    _this2.message('codex', 'set', {
+                    _this2.emit('codex', 'set', {
                         keys: ['ui-barrier', 'pub', barrierUrl],
                         value: serviceUrl
                     }, success);
@@ -113,12 +113,12 @@ var Run = (function (_ApiClient) {
             var _this3 = this;
 
             this.findAddress(name, function (address) {
-                _this3.message('codex', 'get', {
+                _this3.emit('codex', 'get', {
                     keys: ['ui-barrier']
                 }, function (json) {
                     var barrierUrl = _this3.image(name) + '.' + json.domain,
                         serviceUrl = address.host + ':' + address.port;
-                    _this3.message('codex', 'set', {
+                    _this3.emit('codex', 'set', {
                         keys: ['ui-barrier', 'auth', barrierUrl],
                         value: serviceUrl
                     }, success);

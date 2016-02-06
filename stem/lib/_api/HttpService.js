@@ -94,6 +94,15 @@ var HttpService = (function (_HttpApi) {
             }, fail);
         }
     }, {
+        key: 'emit',
+        value: function emit(service, type, data, success) {
+            this.find(service, function (target) {
+                (0, _PostMessage2.default)(target.host, target.port, service, type, data, success, function (err) {
+                    console.log('emit error', err);
+                });
+            });
+        }
+    }, {
         key: 'register',
         value: function register(service, host, port, success, fail) {
             (0, _PostMessage2.default)(this.didact.host, this.didact.port, 'didact', 'register', {

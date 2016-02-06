@@ -31,10 +31,10 @@ class ApiClient {
         });
     }
 
-    message (service, type, data, success) {
+    emit (service, type, data, success) {
         this.find(service, target => {
             PostMessage(target.host, target.port, service, type, data, success, err => {
-                console.log('message error', err);
+                console.log('emit error', err);
             });
         });
     }

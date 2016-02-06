@@ -17,17 +17,14 @@ server.ping(function () {
     return { active: true };
 });
 
-// create a webhook channel ..
-var channel = server.channel('webhook');
-
-channel.message('push', {}, function (json, finish) {
-    console.log('webhook/push', json);
-    finish();
+server.upstream(function (json) {
+    console.log('upstream', json);
 });
 
 io.on('connection', function (socket) {
     // do cool shit here ...
-    console.log('we have a connection!');
+    // console.log('we have a connection!');
+    socket.on('api', function (json) {});
 });
 
 server.start();

@@ -57,6 +57,14 @@ class HttpService extends HttpApi {
             success(this.addressCache[json.service]);
         }, fail);
     }
+    
+    emit (service, type, data, success) {
+        this.find(service, target => {
+            PostMessage(target.host, target.port, service, type, data, success, err => {
+                console.log('emit error', err);
+            });
+        });
+    }
 
     register (service, host, port, success, fail) {
         PostMessage(this.didact.host, this.didact.port, 'didact', 'register', {

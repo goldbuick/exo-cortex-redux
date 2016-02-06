@@ -62,12 +62,12 @@ class Run extends ApiClient {
 
     proxyPub (name, success, fail) {
         this.address(name, address => {
-            this.message('codex', 'get', {
+            this.emit('codex', 'get', {
                 keys: [ 'ui-barrier' ]
             }, json => {
                 let barrierUrl = this.image(name) + '.' + json.domain,
                     serviceUrl = address.host + ':' + address.port;
-                this.message('codex', 'set', {
+                this.emit('codex', 'set', {
                     keys: [ 'ui-barrier', 'pub', barrierUrl ],
                     value: serviceUrl
                 }, success);
@@ -77,12 +77,12 @@ class Run extends ApiClient {
 
     proxyAuth (name, success, fail) {
         this.findAddress(name, address => {
-            this.message('codex', 'get', {
+            this.emit('codex', 'get', {
                 keys: [ 'ui-barrier' ]
             }, json => {
                 let barrierUrl = this.image(name) + '.' + json.domain,
                     serviceUrl = address.host + ':' + address.port;
-                this.message('codex', 'set', {
+                this.emit('codex', 'set', {
                     keys: [ 'ui-barrier', 'auth', barrierUrl ],
                     value: serviceUrl
                 }, success);
