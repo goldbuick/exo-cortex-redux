@@ -152,7 +152,8 @@ var UiInput = React.createClass({
             scale: scale,
             text: value,
             pos: [ 0, 0, 0 ],
-            nudge: [ 0, 0, 0 ]
+            nudge: [ 0, 0, 0 ],
+            font: 'NewFont1'
         });
 
         graph = new Graph();

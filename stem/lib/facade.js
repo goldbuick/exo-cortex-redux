@@ -8,6 +8,10 @@ var _HttpService = require('./_api/HttpService');
 
 var _HttpService2 = _interopRequireDefault(_HttpService);
 
+var _Message = require('./_api/Message');
+
+var _Message2 = _interopRequireDefault(_Message);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var server = new _HttpService2.default('ui-facade'),
@@ -18,13 +22,15 @@ server.ping(function () {
 });
 
 server.upstream(function (json) {
-    console.log('upstream', json);
+    socket.emit('message', json);
 });
 
 io.on('connection', function (socket) {
-    // do cool shit here ...
-    // console.log('we have a connection!');
-    socket.on('api', function (json) {});
+    socket.on('api', function (json) {
+        server.emit(json.channel, json.type, json.meta, function (result) {
+            socket.emit('message', (0, _Message2.default)(json.channel, json.type, result));
+        });
+    });
 });
 
 server.start();

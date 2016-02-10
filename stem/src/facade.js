@@ -1,5 +1,6 @@
 import SocketIO from 'socket.io';
 import HttpService from './_api/HttpService';
+import Message from './_api/Message';
 
 let server = new HttpService('ui-facade'),
     io = SocketIO(server.http);
@@ -9,14 +10,14 @@ server.ping(() => {
 });
 
 server.upstream(json => {
-    console.log('upstream', json);
+    socket.emit('message', json);
 });
 
 io.on('connection', socket => {
-    // do cool shit here ...
-    // console.log('we have a connection!');
     socket.on('api', json => {
-
+        server.emit(json.channel, json.type, json.meta, result => {
+            socket.emit('message', Message(json.channel, json.type, result));
+        });
     });
 });
 

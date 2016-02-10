@@ -4,8 +4,6 @@ let socket,
 
 let FacadeActions = Reflux.createActions([
     'api',
-    'emit',
-    'nodes',
     'message',
     'connect',
     'connectError'
@@ -13,9 +11,9 @@ let FacadeActions = Reflux.createActions([
 
 require([ url + '/socket.io/socket.io.js'], io => {
     socket = io(url);
-    socket.on('api', e => FacadeActions.api(e));
-    socket.on('nodes', e => FacadeActions.nodes(e));
-    socket.on('message', e => FacadeActions.message(e));
+    socket.on('message', e => {
+        FacadeActions.message(e);
+    });
     socket.on('connect', () => {
         FacadeActions.connect();
         FacadeActions.connect.listen = (callback => callback());
@@ -23,21 +21,13 @@ require([ url + '/socket.io/socket.io.js'], io => {
     socket.on('connect_error', e => FacadeActions.connectError(e));
 });
 
-FacadeActions.api.listen(list => {
-    if (list === undefined) socket.emit('api');
-});
-
-FacadeActions.nodes.listen(list => {
-    if (list === undefined) socket.emit('nodes');
-});
-
-FacadeActions.emit.listen((channel, type, meta) => {
-    socket.emit('message', {
+FacadeActions.api.listen((service, type, data, success, fail) => {
+    socket.emit('api', {
         id: uuid.v4(),
         when: new Date().toISOString(),
-        channel: channel,
+        channel: service,
         type: type,
-        meta: meta || { }
+        meta: data || { }
     });
 });
 

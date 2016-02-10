@@ -4,36 +4,46 @@ import BmFontText from 'lib/threejs/bmfont/text';
 import BmFontShader from 'lib/threejs/bmfont/sdf';
 import BmFontLoad from 'lib/threejs/bmfont/load';
 
-var fontColor, fontConfig, fontTexture, fontQueue = [ ];
-BmFontLoad({
-    font: '/media/lib/OCRA.fnt',
-    image: '/media/lib/OCRA.png'
-}, (font, texture) => {
-    fontColor = Css.getStyleRuleValue('.fg-color', 'color');
-    fontConfig = font;
-    fontTexture = texture;
-    fontTexture.needsUpdate = true;
-    fontTexture.minFilter = THREE.LinearMipMapLinearFilter;
-    fontTexture.magFilter = THREE.LinearFilter;
-    fontTexture.generateMipmaps = true;
-    fontTexture.anisotropy = window.maxAni;
-    fontQueue.forEach(fn => { fn(); });
-});
+let fontColor,
+    fontData = { },
+    fontQueue = { };
 
-var logoFontConfig, logoFontTexture, logoFontQueue = [ ];
-BmFontLoad({
-    font: '/media/lib/LOGO.fnt',
-    image: '/media/lib/LOGO.png'
-}, (font, texture) => {
-    fontColor = Css.getStyleRuleValue('.fg-color', 'color');
-    logoFontConfig = font;
-    logoFontTexture = texture;
-    logoFontTexture.needsUpdate = true;
-    logoFontTexture.minFilter = THREE.LinearMipMapLinearFilter;
-    logoFontTexture.magFilter = THREE.LinearFilter;
-    logoFontTexture.generateMipmaps = true;
-    logoFontTexture.anisotropy = window.maxAni;
-    logoFontQueue.forEach(fn => { fn(); });
+function fetchFont (name, retry) {
+    if (fontData[name]) {
+        return fontData[name];
+    }
+    if (fontQueue[name] === undefined) {
+        fontQueue[name] = [ ];
+    }
+    fontQueue[name].push(retry());
+    return undefined;
+}
+
+[ 'OCRA', 'LOGO', 'NewFont1', 'NewFont2' ].forEach(name => {
+    BmFontLoad({
+        font: '/media/lib/' + name + '.fnt',
+        image: '/media/lib/' + name + '.png'
+    }, (config, texture) => {
+        if (fontColor === undefined) {
+            fontColor = Css.getStyleRuleValue('.fg-color', 'color');
+        }
+
+        texture.needsUpdate = true;
+        texture.minFilter = THREE.LinearMipMapLinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.generateMipmaps = true;
+        texture.anisotropy = window.maxAni;
+        fontData[name] = {
+            config: config,
+            texture: texture
+        };
+
+        console.log(fontData, fontQueue);
+        if (fontQueue[name] !== undefined) {
+            fontQueue[name].forEach(fn => fn());
+            delete fontQueue[name];
+        }
+    });
 });
 
 class Graph {
@@ -267,27 +277,24 @@ function genTextRetry (temp, opts, callback) {
 }
 
 Graph.genText = function (opts, callback, flat) {
-    if (!opts.logo && !fontConfig) {
-        let temp = new THREE.Object3D();
-        fontQueue.push(genTextRetry(temp, opts, callback));
-        return temp;
-    }
-    if (opts.logo && !logoFontConfig) {
-        let temp = new THREE.Object3D();
-        logoFontQueue.push(genTextRetry(temp, opts, callback));
-        return temp;
-    }
+    let temp = new THREE.Object3D(),
+        useFont = opts.font || 'OCRA';
+
+    let font = fetchFont(useFont, () => {
+        return genTextRetry(temp, opts, callback);
+    });
+    if (font === undefined) return temp;
     
-    var fopts = {
+    let fopts = {
         text: opts.text,
-        font: opts.logo ? logoFontConfig : fontConfig
+        font: font.config
     };
     if (opts.mode !== undefined) fopts.mode = opts.mode;
     if (opts.width !== undefined) fopts.width = opts.width;
     
     var geometry = BmFontText(fopts),
         material = new THREE.ShaderMaterial(BmFontShader({
-            map: opts.logo ? logoFontTexture : fontTexture,
+            map: font.texture,
             smooth: 1 / 16,
             transparent: true,
             side: THREE.DoubleSide,
@@ -318,7 +325,6 @@ Graph.genText = function (opts, callback, flat) {
 
     if (flat) return mesh;
 
-    let temp = new THREE.Object3D();
     temp.add(mesh);
     if (callback) callback(temp, mesh);
     return temp;

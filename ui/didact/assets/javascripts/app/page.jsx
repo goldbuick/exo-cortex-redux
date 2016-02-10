@@ -12,11 +12,12 @@ edit upstream path
 */
 
 FacadeActions.connect.listen(() => {
-    FacadeActions.emit('didact', 'neuros');
+    FacadeActions.api('didact', 'list', {});
+    // FacadeActions.emit('didact', 'neuros');
 });
 
-FacadeActions.api.listen(api => console.log(api));
-FacadeActions.nodes.listen(nodes => console.log(nodes));
+// FacadeActions.api.listen(api => console.log(api));
+// FacadeActions.nodes.listen(nodes => console.log(nodes));
 FacadeActions.message.listen(message => console.log(message));
 
 var Page = React.createClass({
@@ -26,16 +27,18 @@ var Page = React.createClass({
     getInitialState: function () {
         return { };
     },
-    
-    render: function () {
-        return <ThreeScene onCreate={this.handleCreate}>
-            <Background seed="something-else-yeah"/>
+/*
             <TestButton position-x="-700" position-y="550"/>
             <TestButton position-x="-400" position-y="300" fill="true"/>
             <TestButton position-x="0" position-y="200"/>
             <TestButton position-x="400" position-y="300" fill="true"/>
             <TestButton position-x="700" position-y="550"/>
-            <UiInput minWidth="600" center="true" position-y="-100" scale="2.0"/>
+            <UiInput minWidth="600" center="true" position-y="-100" scale="1.0"/>
+*/    
+    render: function () {
+        return <ThreeScene onCreate={this.handleCreate}>
+            <Background seed="something-else-yeah"/>
+            <UiInput minWidth="600" center="true" position-y="-100" scale="3.0"/>
         </ThreeScene>;
     },
 
