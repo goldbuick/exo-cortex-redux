@@ -8,13 +8,21 @@ var Substrate = React.createClass({
     ],
 
     animate3D: function (delta, anim, obj) {
+        let r = alea(this.props.seed || 'neon-wave'),
+            rr = new SimplexNoise({ random: r }),
+            scale = 0.00375;
+
+        anim.offset = (anim.offset || 0) + (delta * 0.04);
+
+        let verts = obj.geometry.attributes.position.array;
+        for (let i=0; i < verts.length; i += 3) {
+            verts[i + 2] = rr.noise3d(verts[i] * scale, verts[i+1] * scale, anim.offset) * 64;
+        }
+
+        obj.geometry.attributes.position.needsUpdate = true;
     },
 
     render3D: function () {
-        let r = alea(this.props.seed || 'neon-wave'),
-            rr = new SimplexNoise({ random: r }),
-            scale = 0.00217;
-
         let geometry = new THREE.PlaneBufferGeometry(5000, 2000, 32, 16),
             material = new THREE.MeshBasicMaterial({
                 color: Glyph.baseColor,
@@ -22,15 +30,10 @@ var Substrate = React.createClass({
                 wireframe: true
             });
 
-        let verts = geometry.attributes.position.array;
-        for (let i=0; i < verts.length; i += 3) {
-            verts[i + 2] = rr.noise3d(verts[i] * scale, verts[i+1] * scale, 0) * 64;
-        }
-        geometry.rotateX(Math.PI / -2);
-        console.log(geometry);
-
         let plane = new THREE.Mesh(geometry, material);
         plane.position.y = -700;
+        plane.rotation.x = Math.PI * -0.5;
+
         return plane;
     }
 });
