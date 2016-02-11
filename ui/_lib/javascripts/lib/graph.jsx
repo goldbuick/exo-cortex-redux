@@ -19,7 +19,7 @@ function fetchFont (name, retry) {
     return undefined;
 }
 
-[ 'OCRA', 'LOGO', 'NewFont1', 'NewFont2' ].forEach(name => {
+[ 'OCRA', 'LOGO', 'FIRACODE' ].forEach(name => {
     BmFontLoad({
         font: '/media/lib/' + name + '.fnt',
         image: '/media/lib/' + name + '.png'
@@ -38,7 +38,6 @@ function fetchFont (name, retry) {
             texture: texture
         };
 
-        console.log(fontData, fontQueue);
         if (fontQueue[name] !== undefined) {
             fontQueue[name].forEach(fn => fn());
             delete fontQueue[name];

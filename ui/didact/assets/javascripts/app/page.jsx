@@ -2,6 +2,7 @@ import FacadeActions from 'lib/FacadeActions';
 import Background from 'lib/Background';
 import ThreeScene from 'lib/ThreeScene';
 import TestButton from './TestButton';
+import Substrate from 'lib/Substrate';
 import UiInput from 'lib/UiInput';
 
 /*
@@ -38,7 +39,13 @@ var Page = React.createClass({
     render: function () {
         return <ThreeScene onCreate={this.handleCreate}>
             <Background seed="something-else-yeah"/>
-            <UiInput minWidth="600" center="true" position-y="-100" scale="3.0"/>
+            <Substrate />
+            <TestButton position-x="-700" position-y="550"/>
+            <TestButton position-x="-400" position-y="300" fill="true"/>
+            <TestButton position-x="0" position-y="200"/>
+            <TestButton position-x="400" position-y="300" fill="true"/>
+            <TestButton position-x="700" position-y="550"/>
+            <UiInput minWidth="600" center="true" position-y="-100" scale="1.0"/>
         </ThreeScene>;
     },
 

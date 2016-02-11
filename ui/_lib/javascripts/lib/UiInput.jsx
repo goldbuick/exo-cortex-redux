@@ -133,7 +133,9 @@ var UiInput = React.createClass({
         let graph,
             scale = this.getScale(),
             value = this.state.value,
-            ax = this.props.center ? 0.5 : 0.0;
+            ax = this.props.center ? 0.5 : 0.0,
+            fontName = this.props.fontName || 'OCRA';
+
         this._object3D = new THREE.Group();
 
         graph = new Graph();
@@ -153,7 +155,7 @@ var UiInput = React.createClass({
             text: value,
             pos: [ 0, 0, 0 ],
             nudge: [ 0, 0, 0 ],
-            font: 'NewFont1'
+            font: fontName
         });
 
         graph = new Graph();

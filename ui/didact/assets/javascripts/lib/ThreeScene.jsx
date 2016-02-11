@@ -44,7 +44,7 @@ var ThreeScene = React.createClass({
         let renderPass = new THREE.RenderPass(this._object3D, this.camera);
         let effectBloom = new THREE.BloomPass(2);
         let effectCopy = new THREE.ShaderPass(THREE.CopyShader);
-        let effectFilm = new THREE.FilmPass(2.0, 0.5, size.height * 2, false);
+        let effectFilm = new THREE.FilmPass(2.0, 0.2, size.height * 2, false);
         let effectGlitch = new THREE.GlitchPass(64);
 
         let passes = [

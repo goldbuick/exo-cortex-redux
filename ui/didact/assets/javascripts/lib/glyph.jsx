@@ -286,6 +286,9 @@ class Glyph {
 }
 
 Glyph.baseColor = Css.getStyleRuleValue('.fg-color', 'color');
+Glyph.bgColor = Css.getStyleRuleValue('.bg-color', 'color');
+Glyph.altColor = Css.getStyleRuleValue('.alt-color', 'color');
 Glyph.deepColor = Css.getStyleRuleValue('.deep-color', 'color');
+Glyph.neonColor = Css.getStyleRuleValue('.neon-color', 'color');
 
 export default Glyph;
