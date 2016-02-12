@@ -9,7 +9,7 @@ var UiInput = React.createClass({
     ],
 
     getInitialState: function () {
-        return { value: 'Hello!' };
+        return { value: this.props.value || '' };
     },
 
     componentDidMount: function () {

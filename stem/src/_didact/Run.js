@@ -10,7 +10,7 @@ class Run extends ApiClient {
         this.PORTS = {
             FACADE: 7156,
             NEURO: 7200,
-            BARRIER: 8888
+            BARRIER: 7777
         };
 
         this.slots = { };

@@ -31,7 +31,7 @@ var Run = (function (_ApiClient) {
         _this.PORTS = {
             FACADE: 7156,
             NEURO: 7200,
-            BARRIER: 8888
+            BARRIER: 7777
         };
 
         _this.slots = {};

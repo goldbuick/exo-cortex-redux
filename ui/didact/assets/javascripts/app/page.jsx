@@ -45,7 +45,7 @@ var Page = React.createClass({
             <TestButton position-x="0" position-y="200"/>
             <TestButton position-x="400" position-y="300" fill="true"/>
             <TestButton position-x="700" position-y="550"/>
-            <UiInput minWidth="600" center="true" position-y="-100" scale="1.0"/>
+            <UiInput value="<=- Didact -=>" minWidth="600" center="true" position-y="-100" scale="1.0"/>
         </ThreeScene>;
     },
 

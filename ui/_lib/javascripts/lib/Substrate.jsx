@@ -10,20 +10,27 @@ var Substrate = React.createClass({
     animate3D: function (delta, anim, obj) {
         let r = alea(this.props.seed || 'neon-wave'),
             rr = new SimplexNoise({ random: r }),
-            scale = 0.00375;
+            scale = 0.00295;
 
-        anim.offset = (anim.offset || 0) + (delta * 0.04);
+        anim.offset = (anim.offset || 0) + (delta * 0.2);
 
         let verts = obj.geometry.attributes.position.array;
         for (let i=0; i < verts.length; i += 3) {
-            verts[i + 2] = rr.noise3d(verts[i] * scale, verts[i+1] * scale, anim.offset) * 64;
+            let x = verts[i],
+                y = verts[i+1],
+                a = rr.noise3d(x * scale, y * scale, anim.offset),
+                v = Math.sin(Math.sqrt(x * x + y * y) * 0.01) +
+                    Math.sin((x + y) * 0.005);
+            verts[i + 2] = v * 48 + a * 32;
         }
 
         obj.geometry.attributes.position.needsUpdate = true;
     },
 
     render3D: function () {
-        let geometry = new THREE.PlaneBufferGeometry(5000, 2000, 32, 16),
+        let detail = 24,
+            range = 1900,
+            geometry = new THREE.PlaneBufferGeometry(range * 3, range, detail * 3, detail),
             material = new THREE.MeshBasicMaterial({
                 color: Glyph.baseColor,
                 side: THREE.DoubleSide,
@@ -31,7 +38,8 @@ var Substrate = React.createClass({
             });
 
         let plane = new THREE.Mesh(geometry, material);
-        plane.position.y = -700;
+        plane.position.z = -600;
+        plane.position.y = -800;
         plane.rotation.x = Math.PI * -0.5;
 
         return plane;
