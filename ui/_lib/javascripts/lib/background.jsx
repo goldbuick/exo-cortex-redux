@@ -8,7 +8,7 @@ var Background = React.createClass({
     ],
 
     animate3D: function (delta, anim, obj) {
-        anim.angle = (anim.angle || 0) + delta * 0.005;
+        anim.angle = (anim.angle || 0) + delta * 0.007;
         obj.rotation.x = Math.cos(anim.angle);
         obj.rotation.y = Math.cos(anim.angle) + Math.sin(-anim.angle);
         obj.rotation.z = Math.sin(anim.angle);

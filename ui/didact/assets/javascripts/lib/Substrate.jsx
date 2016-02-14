@@ -7,34 +7,36 @@ var Substrate = React.createClass({
         ThreeRender
     ],
 
+    getVelocity: function () {
+        return this.props.velocity || 1;
+    },
+
     animate3D: function (delta, anim, obj) {
-        let r = alea(this.props.seed || 'neon-wave'),
-            rr = new SimplexNoise({ random: r }),
-            scale = 0.00295;
+        anim.offset = (anim.offset || 0) + (delta * this.getVelocity());
 
-        anim.offset = (anim.offset || 0) + (delta * 0.2);
+        let max = 3000,
+            scale = 0.017,
+            verts = obj.geometry.attributes.position.array;
 
-        let verts = obj.geometry.attributes.position.array;
         for (let i=0; i < verts.length; i += 3) {
             let x = verts[i],
                 y = verts[i+1],
-                a = rr.noise3d(x * scale, y * scale, anim.offset),
-                v = Math.sin(Math.sqrt(x * x + y * y) * 0.01) +
-                    Math.sin((x + y) * 0.005);
-            verts[i + 2] = v * 48 + a * 32;
+                d = Math.max(1, Math.sqrt(x * x + y * y) - 100),
+                r = 1 - (d / max),
+                v = Math.sin(d * scale - anim.offset);
+            verts[i + 2] = v * 80 * r;
         }
 
         obj.geometry.attributes.position.needsUpdate = true;
     },
 
     render3D: function () {
-        let detail = 24,
+        let detail = 32,
             range = 1900,
             geometry = new THREE.PlaneBufferGeometry(range * 3, range, detail * 3, detail),
             material = new THREE.MeshBasicMaterial({
-                color: Glyph.baseColor,
-                side: THREE.DoubleSide,
-                wireframe: true
+                wireframe: true,
+                color: Glyph.baseColor
             });
 
         let plane = new THREE.Mesh(geometry, material);
