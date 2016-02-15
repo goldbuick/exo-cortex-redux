@@ -1,5 +1,5 @@
 require([
-    'app/page'
+    'app/Page'
 ], function (Page) {
     'use strict';
     var page = React.createElement(Page, {}),

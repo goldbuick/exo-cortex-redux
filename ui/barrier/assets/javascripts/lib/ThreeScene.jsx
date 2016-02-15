@@ -9,7 +9,7 @@ import 'lib/threejs/postprocessing/BloomPass';
 import 'lib/threejs/postprocessing/ShaderPass';
 import 'lib/threejs/postprocessing/GlitchPass';
 import 'lib/threejs/postprocessing/RenderPass';
-import ThreeRender from 'lib/three-render';
+import ThreeRender from 'lib/ThreeRender';
 
 var ThreeScene = React.createClass({
     mixins: [
@@ -44,7 +44,7 @@ var ThreeScene = React.createClass({
         let renderPass = new THREE.RenderPass(this._object3D, this.camera);
         let effectBloom = new THREE.BloomPass(2);
         let effectCopy = new THREE.ShaderPass(THREE.CopyShader);
-        let effectFilm = new THREE.FilmPass(2.0, 0.5, size.height * 2, false);
+        let effectFilm = new THREE.FilmPass(2.0, 0.2, size.height * 2, false);
         let effectGlitch = new THREE.GlitchPass(64);
 
         let passes = [
@@ -64,6 +64,8 @@ var ThreeScene = React.createClass({
         this.refs.container.appendChild(this.renderer.domElement);
 
         // add picker 
+        this.mousePressed = false;
+        this.lastPointerObject = { };
         this.ray = new THREE.Raycaster();
         this.rayCoords = new THREE.Vector2();
 
@@ -126,13 +128,41 @@ var ThreeScene = React.createClass({
     },
 
     handlePointer: function (id, pressed, x, y) {
-        if (!this.props.onPointer || !this._object3D) return;
-        let size = this.containerSize();
-        this.rayCoords.x = (x / size.width) * 2 - 1;
-        this.rayCoords.y = -(y / size.height) * 2 + 1;
-        this.ray.setFromCamera(this.rayCoords, this.camera);
-        let intersects = this.ray.intersectObjects(this._object3D.children, true);
-        this.props.onPointer(id, pressed, x, y, intersects);
+        if (!this._object3D) return;
+        let current,
+            size = this.containerSize(),
+            last = this.lastPointerObject[id];
+
+        if (pressed !== undefined) {
+            this.rayCoords.x = (x / size.width) * 2 - 1;
+            this.rayCoords.y = -(y / size.height) * 2 + 1;
+            this.ray.setFromCamera(this.rayCoords, this.camera);
+
+            let intersects = this.ray.intersectObjects(this._object3D.children, true);
+            for (let i=0; i<intersects.length; ++i) {
+                let obj = intersects[i].object;
+                if (obj && obj.userData && obj.userData.onPointer) {
+                    current = intersects[i];
+                    break;
+                }
+            }
+        }
+
+        if (last && (!current || last !== current.object)) {
+            last.userData.onPointer(id);
+            delete this.lastPointerObject[id];
+        }
+
+        if (current) {
+            this.lastPointerObject[id] = current.object;
+            current.object.userData.onPointer(id, pressed, current.point);
+        }
+
+        if (pressed && (
+            current === undefined || 
+            current.object.userData.hasFocusInput === undefined)) {
+            document.activeElement.blur();
+        }
     },
 
     handleTouchStart: function (event) {
@@ -156,24 +186,24 @@ var ThreeScene = React.createClass({
         for (let i=0; i<event.changedTouches.length; ++i) {
             let touch = event.changedTouches[i];
             this.handlePointer(touch.identifier, false, touch.clientX, touch.clientY);
+            this.handlePointer(touch.identifier);
         }
     },
 
     handleMouseDown: function (event) {
         event.preventDefault();
-        this.mouseDown = true;
+        this.mousePressed = true;
         this.handlePointer(-1, true, event.clientX, event.clientY);
     },
 
     handleMouseMove: function (event) {
         event.preventDefault();
-        if (!this.mouseDown) return;
-        this.handlePointer(-1, true, event.clientX, event.clientY);
+        this.handlePointer(-1, this.mousePressed, event.clientX, event.clientY);
     },
 
     handleMouseUp: function (event) {
         event.preventDefault();
-        this.mouseDown = false;
+        this.mousePressed = false;
         this.handlePointer(-1, false, event.clientX, event.clientY);
     },
 

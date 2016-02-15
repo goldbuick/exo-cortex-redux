@@ -1,5 +1,5 @@
-import Graph from 'lib/graph';
-import ThreeRender from 'lib/three-render';
+import Graph from 'lib/Graph';
+import ThreeRender from 'lib/ThreeRender';
 import 'lib/threejs/SimplexNoise';
 
 var Background = React.createClass({
@@ -8,14 +8,14 @@ var Background = React.createClass({
     ],
 
     animate3D: function (delta, anim, obj) {
-        anim.angle = (anim.angle || 0) + delta * 0.1;
+        anim.angle = (anim.angle || 0) + delta * 0.007;
         obj.rotation.x = Math.cos(anim.angle);
         obj.rotation.y = Math.cos(anim.angle) + Math.sin(-anim.angle);
         obj.rotation.z = Math.sin(anim.angle);
     },
 
     render3D: function () {
-        let r = alea('star-speckle-background'),
+        let r = alea(this.props.seed || 'star-speckle-background'),
             points = [ ],
             sparks = new Graph();
 
@@ -43,7 +43,7 @@ var Background = React.createClass({
                 }
             }
         }
-        for (let i=0; i<3000; ++i) {
+        for (let i=0; i<2000; ++i) {
             points.push({
                 x: (r()-0.5) * range,
                 y: (r()-0.5) * range,
@@ -51,7 +51,6 @@ var Background = React.createClass({
             });
         }
 
-        console.log(points.length);
         sparks.drawPoints(points);
 
         return sparks.build({

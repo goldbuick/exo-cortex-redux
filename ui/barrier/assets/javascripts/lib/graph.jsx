@@ -1,39 +1,48 @@
-import css from 'lib/css';
-import Glyph from 'lib/glyph';
+import Css from 'lib/Css';
+import Glyph from 'lib/Glyph';
 import BmFontText from 'lib/threejs/bmfont/text';
 import BmFontShader from 'lib/threejs/bmfont/sdf';
 import BmFontLoad from 'lib/threejs/bmfont/load';
 
-var fontColor, fontConfig, fontTexture, fontQueue = [ ];
-BmFontLoad({
-    font: '/media/lib/OCRA.fnt',
-    image: '/media/lib/OCRA.png'
-}, (font, texture) => {
-    fontColor = css.getStyleRuleValue('.fg-color', 'color');
-    fontConfig = font;
-    fontTexture = texture;
-    fontTexture.needsUpdate = true;
-    fontTexture.minFilter = THREE.LinearMipMapLinearFilter;
-    fontTexture.magFilter = THREE.LinearFilter;
-    fontTexture.generateMipmaps = true;
-    fontTexture.anisotropy = window.maxAni;
-    fontQueue.forEach(fn => { fn(); });
-});
+let fontColor,
+    fontData = { },
+    fontQueue = { };
 
-var logoFontConfig, logoFontTexture, logoFontQueue = [ ];
-BmFontLoad({
-    font: '/media/lib/LOGO.fnt',
-    image: '/media/lib/LOGO.png'
-}, (font, texture) => {
-    fontColor = css.getStyleRuleValue('.fg-color', 'color');
-    logoFontConfig = font;
-    logoFontTexture = texture;
-    logoFontTexture.needsUpdate = true;
-    logoFontTexture.minFilter = THREE.LinearMipMapLinearFilter;
-    logoFontTexture.magFilter = THREE.LinearFilter;
-    logoFontTexture.generateMipmaps = true;
-    logoFontTexture.anisotropy = window.maxAni;
-    logoFontQueue.forEach(fn => { fn(); });
+function fetchFont (name, retry) {
+    if (fontData[name]) {
+        return fontData[name];
+    }
+    if (fontQueue[name] === undefined) {
+        fontQueue[name] = [ ];
+    }
+    fontQueue[name].push(retry());
+    return undefined;
+}
+
+[ 'OCRA', 'LOGO', 'FIRACODE' ].forEach(name => {
+    BmFontLoad({
+        font: '/media/lib/' + name + '.fnt',
+        image: '/media/lib/' + name + '.png'
+    }, (config, texture) => {
+        if (fontColor === undefined) {
+            fontColor = Css.getStyleRuleValue('.fg-color', 'color');
+        }
+
+        texture.needsUpdate = true;
+        texture.minFilter = THREE.LinearMipMapLinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.generateMipmaps = true;
+        texture.anisotropy = window.maxAni;
+        fontData[name] = {
+            config: config,
+            texture: texture
+        };
+
+        if (fontQueue[name] !== undefined) {
+            fontQueue[name].forEach(fn => fn());
+            delete fontQueue[name];
+        }
+    });
 });
 
 class Graph {
@@ -112,7 +121,7 @@ class Graph {
         }
     }
 
-    drawRect (x, y, w, h, z) {
+    drawRect (x, y, w, h, z, alpha) {
         var offset = this.glyph.count;
 
         z = z || 0;
@@ -124,11 +133,11 @@ class Graph {
         this.glyph.addVert(x - hw, y + hh, z);
         this.glyph.addVert(x + hw, y + hh, z);
 
-        this.glyph.addFill(offset, offset + 1, offset + 2);
-        this.glyph.addFill(offset + 2, offset + 1, offset + 3);
+        this.glyph.addFill(offset, offset + 1, offset + 2, alpha);
+        this.glyph.addFill(offset + 2, offset + 1, offset + 3, alpha);
     }
 
-    drawCircle (x, y, z, sides, radius, front, back, drift, bump) {
+    drawCircle (x, y, z, sides, radius, front, back, drift, bump, alpha) {
         var offset = this.glyph.count,
             points = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
@@ -141,11 +150,11 @@ class Graph {
         }
 
         for (var i=0; i<points.length-1; ++i) {
-            this.glyph.addFill(center, base + i + 1, base + i);
+            this.glyph.addFill(center, base + i + 1, base + i, alpha);
         }
     }
 
-    drawSwipe (x, y, z, sides, radius, width, front, back, drift, bump) {
+    drawSwipe (x, y, z, sides, radius, width, front, back, drift, bump, alpha) {
         var offset = this.glyph.count,
             innerRadius = radius,
             outerRadius = radius + width,
@@ -158,8 +167,8 @@ class Graph {
         var base, len = ipoints.length;
         for (var i=0; i<len-1; ++i) {
             base = offset + i;
-            this.glyph.addFill(base, base + 1, base + len);
-            this.glyph.addFill(base + len, base + 1, base + len + 1);
+            this.glyph.addFill(base, base + 1, base + len, alpha);
+            this.glyph.addFill(base + len, base + 1, base + len + 1, alpha);
         }
     }
 
@@ -267,27 +276,24 @@ function genTextRetry (temp, opts, callback) {
 }
 
 Graph.genText = function (opts, callback, flat) {
-    if (!opts.logo && !fontConfig) {
-        let temp = new THREE.Object3D();
-        fontQueue.push(genTextRetry(temp, opts, callback));
-        return temp;
-    }
-    if (opts.logo && !logoFontConfig) {
-        let temp = new THREE.Object3D();
-        logoFontQueue.push(genTextRetry(temp, opts, callback));
-        return temp;
-    }
+    let temp = new THREE.Object3D(),
+        useFont = opts.font || 'OCRA';
+
+    let font = fetchFont(useFont, () => {
+        return genTextRetry(temp, opts, callback);
+    });
+    if (font === undefined) return temp;
     
-    var fopts = {
+    let fopts = {
         text: opts.text,
-        font: opts.logo ? logoFontConfig : fontConfig
+        font: font.config
     };
     if (opts.mode !== undefined) fopts.mode = opts.mode;
     if (opts.width !== undefined) fopts.width = opts.width;
     
     var geometry = BmFontText(fopts),
         material = new THREE.ShaderMaterial(BmFontShader({
-            map: opts.logo ? logoFontTexture : fontTexture,
+            map: font.texture,
             smooth: 1 / 16,
             transparent: true,
             side: THREE.DoubleSide,
@@ -318,7 +324,6 @@ Graph.genText = function (opts, callback, flat) {
 
     if (flat) return mesh;
 
-    let temp = new THREE.Object3D();
     temp.add(mesh);
     if (callback) callback(temp, mesh);
     return temp;

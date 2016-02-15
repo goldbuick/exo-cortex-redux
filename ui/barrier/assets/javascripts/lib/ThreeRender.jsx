@@ -24,7 +24,7 @@ export default {
 
     clear3D: function () {
         if (!this._object3D || !this._object3D.parent) return;
-        // console.log('clear3D', this._object3D);
+        this.props.parent.stopAnimate(this);
         this._object3D.parent.remove(this._object3D);
         this._object3D = undefined;
     },
@@ -38,6 +38,10 @@ export default {
                 item.animate(delta);
             });
         }
+    },
+
+    stopAnimate: function (item) {
+        this._animate3D = this._animate3D.filter(child => child !== item);
     },
 
     shouldAnimate: function (item) {
@@ -70,14 +74,25 @@ export default {
                 out = React.cloneElement(out, { parent: this });
             }
         }
-
-        if (this._object3D &&
-            this.props.parent &&
-            this.props.parent._object3D) {
-            this._object3D.name = this.constructor.displayName;
-            this.props.parent._object3D.add(this._object3D);
-            this.props.parent.shouldAnimate(this);
-            this.applyProps3D('position-x', 'position-y', 'position-z');
+        
+        if (this._object3D) {
+            if (this.props.parent &&
+                this.props.parent._object3D) {
+                this._object3D.name = this.constructor.displayName;
+                this.props.parent._object3D.add(this._object3D);
+                this.props.parent.shouldAnimate(this);
+                this.applyProps3D('position-x', 'position-y', 'position-z');
+            }
+            if (this.handlePointer && !(this._object3D instanceof THREE.Scene)) {
+                let placed = false;
+                this._object3D.traverse(obj => {
+                    if (!placed && obj.geometry) {
+                        placed = true;
+                        obj.userData.onPointer = this.handlePointer;
+                        obj.userData.hasFocusInput = this.hasFocusInput;
+                    }
+                });
+            }
         }
 
         return out;

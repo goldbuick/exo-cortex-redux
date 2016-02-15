@@ -1,12 +1,18 @@
-import Graph from 'lib/graph';
-import TypeChar from 'app/type-char';
-import ThreeGroup from 'lib/three-group';
-import ThreeRender from 'lib/three-render';
+import Graph from 'lib/Graph';
+import TypeChar from 'app/TypeChar';
+import ThreeGroup from 'lib/ThreeGroup';
+import ThreeRender from 'lib/ThreeRender';
 
 var TypeRing = React.createClass({
     mixins: [
         ThreeRender
     ],
+
+    handlePressed: function (row, col, chr) {
+        if (this.props.onPressed) {
+            this.props.onPressed(row, col, chr);
+        }
+    },
 
     animate3D: function (delta, anim, obj) {
     },
@@ -20,10 +26,9 @@ var TypeRing = React.createClass({
             offset += step;
             return <TypeChar
                 key={'char-' + i}
-                row={this.props.row}
-                col={i}
                 chr={chr}
-                position-x={offset} />;
+                position-x={offset}
+                onPressed={this.handlePressed.bind(this, this.props.row, i, chr)} />;
         })}</ThreeGroup>;
     }
 });

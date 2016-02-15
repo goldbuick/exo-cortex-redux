@@ -1,11 +1,11 @@
-import Logo from 'app/logo';
-import Path from 'app/path';
-import Gems from 'app/gems';
-import Plate from 'app/plate';
-import Feather from 'app/feather';
-import TypeRing from 'app/type-ring';
-import Background from 'lib/background';
-import ThreeScene from 'lib/three-scene';
+import Logo from 'app/Logo';
+import Path from 'app/Path';
+import Gems from 'app/Gems';
+import Plate from 'app/Plate';
+import Feather from 'app/Feather';
+import TypeRing from 'app/TypeRing';
+import Background from 'lib/Background';
+import ThreeScene from 'lib/ThreeScene';
 
 function repAt(str, index, chr) {
     return str.substr(0, index) + chr + str.substr(index + 1);
@@ -45,7 +45,7 @@ var Page = React.createClass({
         let step = -300,
             offset = 400 + -step;
 
-        return <ThreeScene onCreate={this.handleCreate} onPointer={this.handlePointer}>
+        return <ThreeScene onCreate={this.handleCreate}>
             <Background />
             <Gems />
             <Plate />
@@ -63,7 +63,8 @@ var Page = React.createClass({
                     key={'ring' + i}
                     row={i}
                     offset={offset}
-                    chars={chrs.join('')} />
+                    chars={chrs.join('')} 
+                    onPressed={this.handlePressed} />
             })}
         </ThreeScene>;
     },
@@ -72,35 +73,16 @@ var Page = React.createClass({
         render.camera.position.z = 1440;
     },
 
-    handleResult: function (response) {
-        if (response.access) {
-            // signal user success ?
-        } else {
-
-        }
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
-    },
-
-    handlePointer: function (id, pressed, x, y, intersects) {
-        if (pressed !== true ||
-            intersects.length === 0 ||
-            intersects[0].object === undefined ||
-            intersects[0].object.userData.chr === ' ' ||
-            intersects[0].object.userData.chr === undefined) return;
-
-        let data = intersects[0].object.userData;
-
+    handlePressed: function (row, col, chr) {
+        if (chr === undefined || chr === ' ') return;
+        
         let path = this.state.path;
-        path.push({ col: data.col, row: data.row });
+        path.push({ col: col, row: row });
 
         let index = this.state.index,
-            passcode = repAt(this.state.passcode, index++, data.chr);
+            passcode = repAt(this.state.passcode, index++, chr);
 
-        let rows = this.state.rows,
-            row = data.row,
-            col = data.col;
+        let rows = this.state.rows;
 
         rows[row][col] = ' ';
         let charset = this.getCharset(9, this.state.passcode).split('');
@@ -120,7 +102,18 @@ var Page = React.createClass({
             .done(this.handleResult)
             .error(this.handleResult)
         }
-    }
+    },
+
+    handleResult: function (response) {
+        if (response.access) {
+            // signal user success ?
+        } else {
+
+        }
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+    },
 
 });
 

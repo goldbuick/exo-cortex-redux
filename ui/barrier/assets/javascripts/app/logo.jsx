@@ -1,5 +1,5 @@
-import Graph from 'lib/graph';
-import ThreeRender from 'lib/three-render';
+import Graph from 'lib/Graph';
+import ThreeRender from 'lib/ThreeRender';
 
 var Logo = React.createClass({
     mixins: [
@@ -25,7 +25,7 @@ var Logo = React.createClass({
 
         group.add(Graph.genText({
             scale: 3,
-            logo: true,
+            font: 'LOGO',
             text: 'exoBARRIER',
             pos: [ 0, 128, 64 ],
             nudge: [ 8, 0, 0 ]
