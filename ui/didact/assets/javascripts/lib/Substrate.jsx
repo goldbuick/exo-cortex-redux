@@ -14,7 +14,7 @@ var Substrate = React.createClass({
     animate3D: function (delta, anim, obj) {
         anim.offset = (anim.offset || 0) + (delta * this.getVelocity());
 
-        let max = 3000,
+        let max = 2900,
             scale = 0.017,
             verts = obj.geometry.attributes.position.array;
 

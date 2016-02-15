@@ -22,7 +22,7 @@ var Page = React.createClass({
         return <ThreeScene onCreate={this.handleCreate}>
             <Background seed="something-else-yeah"/>
             <Substrate />
-            <JellyBase position-y="600"/>
+            <JellyBase position-y="700"/>
         </ThreeScene>;
     },
 
