@@ -28,7 +28,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 // extended service to use codex for configuration
 
-var HttpNeuro = (function (_HttpConfig) {
+var HttpNeuro = function (_HttpConfig) {
     _inherits(HttpNeuro, _HttpConfig);
 
     function HttpNeuro(name) {
@@ -49,6 +49,6 @@ var HttpNeuro = (function (_HttpConfig) {
     }
 
     return HttpNeuro;
-})(_HttpConfig3.default);
+}(_HttpConfig3.default);
 
 exports.default = HttpNeuro;

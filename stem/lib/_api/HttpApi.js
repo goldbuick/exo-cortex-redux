@@ -1,6 +1,6 @@
 'use strict';
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -16,7 +16,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 // handle messages on channels with ability to describe supported messages
 
-var Channel = (function () {
+var Channel = function () {
     function Channel(httpApi, name) {
         _classCallCheck(this, Channel);
 
@@ -32,9 +32,9 @@ var Channel = (function () {
     }]);
 
     return Channel;
-})();
+}();
 
-var HttpApi = (function () {
+var HttpApi = function () {
     function HttpApi() {
         var _this = this;
 
@@ -109,6 +109,6 @@ var HttpApi = (function () {
     }]);
 
     return HttpApi;
-})();
+}();
 
 exports.default = HttpApi;
