@@ -1,5 +1,9 @@
 'use strict';
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -28,7 +32,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 // extended service to use codex for configuration
 
-var HttpNeuro = function (_HttpConfig) {
+var HttpNeuro = (function (_HttpConfig) {
     _inherits(HttpNeuro, _HttpConfig);
 
     function HttpNeuro(name) {
@@ -41,14 +45,38 @@ var HttpNeuro = function (_HttpConfig) {
             value: 'value to change'
         }, function (json, finish) {
             if (json.meta) {
-                _this.config.update(json.meta);
+                _this.update({
+                    keys: [_this.name],
+                    value: json
+                });
             }
+            finish();
+        });
+
+        _this.upstream(function (url, json, finish) {
+            console.log(url, json, finish);
             finish();
         });
         return _this;
     }
 
+    _createClass(HttpNeuro, [{
+        key: 'update',
+        value: function update(json) {
+            var _this2 = this;
+
+            _get(Object.getPrototypeOf(HttpNeuro.prototype), 'update', this).call(this, json);
+            if (this.config().upstream === undefined) return;
+            this.find('codex', function (codex) {
+                (0, _PostMessage2.default)(codex.host, codex.port, 'codex', 'set', {
+                    keys: [_this2.name, 'upstream'],
+                    value: ''
+                });
+            });
+        }
+    }]);
+
     return HttpNeuro;
-}(_HttpConfig3.default);
+})(_HttpConfig3.default);
 
 exports.default = HttpNeuro;

@@ -21,8 +21,11 @@ class Preflight extends ApiClient {
             // }]);
         }
 
+        let rethinkdbHost = argv.dev ? '192.168.99.100' : 'rethinkdb';
         this.steps = this.steps.concat([{
-            'starting vault': this.start('vault')
+            'registering rethinkdb': this.register('rethinkdb', rethinkdbHost, 28015)
+        },{
+            'registering ui-rethinkdb': this.register('ui-rethinkdb', rethinkdbHost, 8080)
         },{
             'check rethinkdb connection': next => {
                 this.find('rethinkdb', rethinkdb => {
@@ -140,6 +143,10 @@ class Preflight extends ApiClient {
 
     start (service) {
         return next => this.emit('didact', 'add', { service }, next);
+    }
+
+    register (service, host, port) {
+        return next => this.emit('didact', 'register', { service, host, port }, next);
     }
 
 }

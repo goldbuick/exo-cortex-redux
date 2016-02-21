@@ -1,4 +1,5 @@
 import Graph from 'lib/Graph';
+import Animate from 'lib/Animate';
 import ThreeRender from 'lib/ThreeRender';
 
 var JellyBase = React.createClass({
@@ -9,8 +10,8 @@ var JellyBase = React.createClass({
     animate3D: function (delta, anim, obj) {
         for (let i=0; i<obj.children.length; ++i) {
             let service = obj.children[i];
-            let _anim = this.subAnim(anim, service.userData.name);
-            _anim.angle = this.clampAngle((_anim.angle || 0) + (delta * service.userData.spinRate));
+            let _anim = Animate.subAnim(anim, service.userData.name);
+            _anim.angle = Animate.clampAngle((_anim.angle || 0) + (delta * service.userData.spinRate));
             service.rotation.y = _anim.angle;
             service.position.y = service.userData.yOffset + Math.cos(_anim.angle) * 4;
         }

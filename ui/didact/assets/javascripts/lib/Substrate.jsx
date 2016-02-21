@@ -14,8 +14,8 @@ var Substrate = React.createClass({
     animate3D: function (delta, anim, obj) {
         anim.offset = (anim.offset || 0) + (delta * this.getVelocity());
 
-        let max = 2900,
-            scale = 0.017,
+        let max = 5000,
+            scale = 0.027,
             verts = obj.geometry.attributes.position.array;
 
         for (let i=0; i < verts.length; i += 3) {
@@ -23,7 +23,7 @@ var Substrate = React.createClass({
                 y = verts[i+1],
                 d = Math.max(1, Math.sqrt(x * x + y * y) - 100),
                 r = 1 - (d / max),
-                v = Math.sin(d * scale - anim.offset);
+                v = Math.sin(d * r * scale - anim.offset);
             verts[i + 2] = v * 80 * r;
         }
 
@@ -32,7 +32,7 @@ var Substrate = React.createClass({
 
     render3D: function () {
         let detail = 32,
-            range = 1900,
+            range = 2000,
             geometry = new THREE.PlaneBufferGeometry(range * 3, range, detail * 3, detail),
             material = new THREE.MeshBasicMaterial({
                 wireframe: true,

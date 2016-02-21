@@ -89,10 +89,10 @@ var ThreeScene = React.createClass({
 
     handleResize: function () {
         let size = this.containerSize();
-        this.renderer.setSize(size.width, size.height);
         this.camera.aspect = size.width / size.height;
         this.camera.updateProjectionMatrix();
-        this.composer.reset();
+        this.renderer.setSize(size.width, size.height);
+        this.composer.setSize(size.width, size.height);
     },
 
     update: function () {

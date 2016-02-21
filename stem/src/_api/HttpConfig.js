@@ -74,6 +74,10 @@ class CodexConfig extends HttpService{
         this.triggers = { };
     }
 
+    config () {
+        return this.store[this.name];
+    }
+
     update (json) {
         let keys = json.keys,
             value = json.value;

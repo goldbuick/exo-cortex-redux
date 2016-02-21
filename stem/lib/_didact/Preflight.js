@@ -1,6 +1,6 @@
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -30,7 +30,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 // get the base exo-cortex stack up
 
-var Preflight = function (_ApiClient) {
+var Preflight = (function (_ApiClient) {
     _inherits(Preflight, _ApiClient);
 
     function Preflight(host, port) {
@@ -49,8 +49,11 @@ var Preflight = function (_ApiClient) {
             // }]);
         }
 
+        var rethinkdbHost = _yargs.argv.dev ? '192.168.99.100' : 'rethinkdb';
         _this.steps = _this.steps.concat([{
-            'starting vault': _this.start('vault')
+            'registering rethinkdb': _this.register('rethinkdb', rethinkdbHost, 28015)
+        }, {
+            'registering ui-rethinkdb': _this.register('ui-rethinkdb', rethinkdbHost, 8080)
         }, {
             'check rethinkdb connection': function checkRethinkdbConnection(next) {
                 _this.find('rethinkdb', function (rethinkdb) {
@@ -179,9 +182,18 @@ var Preflight = function (_ApiClient) {
                 return _this3.emit('didact', 'add', { service: service }, next);
             };
         }
+    }, {
+        key: 'register',
+        value: function register(service, host, port) {
+            var _this4 = this;
+
+            return function (next) {
+                return _this4.emit('didact', 'register', { service: service, host: host, port: port }, next);
+            };
+        }
     }]);
 
     return Preflight;
-}(_ApiClient3.default);
+})(_ApiClient3.default);
 
 exports.default = Preflight;

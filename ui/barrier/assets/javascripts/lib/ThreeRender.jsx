@@ -29,20 +29,6 @@ export default {
         this._object3D = undefined;
     },
 
-    clampAngle: function (angle) {
-        let max = Math.PI * 2;
-        if (angle < 0) angle += max;
-        if (angle > max) angle -= max;
-        return angle;
-    },
-
-    subAnim: function (anim, name) {
-        if (anim[name] === undefined) {
-            anim[name] = { };
-        }
-        return anim[name];
-    },
-
     animate: function (delta) {
         if (this.animate3D) {
             this.animate3D(delta, this._animateState, this._object3D);
