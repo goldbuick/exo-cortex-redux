@@ -1,19 +1,24 @@
 import Graph from 'lib/Graph';
 import Animate from 'lib/Animate';
 import ThreeRender from 'lib/ThreeRender';
+import DidactStore from 'app/DidactStore';
 
 var JellyBase = React.createClass({
     mixins: [
-        ThreeRender
+        ThreeRender,
+        Reflux.connect(DidactStore, 'didact'),
     ],
 
     animate3D: function (delta, anim, obj) {
         for (let i=0; i<obj.children.length; ++i) {
             let service = obj.children[i];
             let _anim = Animate.subAnim(anim, service.userData.name);
-            _anim.angle = Animate.clampAngle((_anim.angle || 0) + (delta * service.userData.spinRate));
+            _anim.angle = Animate.clampAngle((_anim.angle || service.userData.angle) + (delta * service.userData.spinRate));
             service.rotation.y = _anim.angle;
             service.position.y = service.userData.yOffset + Math.cos(_anim.angle) * 4;
+            let spinner = service.userData.hub.userData.spinner;
+            _anim.spinAngle = Animate.clampAngle((_anim.spinAngle || 0) + delta);
+            spinner.rotation.z = _anim.spinAngle;
         }
     },
 
@@ -21,78 +26,85 @@ var JellyBase = React.createClass({
         let gap = 8,
             drift = 0.1,
             sides = 256,
-            bump = r() * Math.PI * 2;
+            bump = 0.90;
         jelly.drawLoopR(0, 0, -gap * r(), sides, radius + r(), r, 0.3, 0, 0, drift + r() * 0.5, bump + r());
         jelly.drawLoopR(0, 0, -gap * r(), sides, radius + r(), r, 0.3, 0, 0, drift + r() * 0.5, bump + r());
         jelly.drawSwipe(0, 0, -gap * r(), sides, radius + r(), 4 + r() * 4, 0, 0, drift + r() * 0.5, bump + r());
         jelly.drawSwipe(0, 0, gap * r(), sides, radius + r(), 4 + r() * 4, 0, 0, drift + r() * 0.5, bump + r());
         jelly.drawLoopR(0, 0, gap * r(), sides, radius + r(), r, 0.3, 0, 0, drift + r() * 0.5, bump + r());
         jelly.drawLoopR(0, 0, gap * r(), sides, radius + r(), r, 0.3, 0, 0, drift + r() * 0.5, bump + r());
-        return bump;
     },
 
-    drawAnchor: function (r, jelly, radius, spin, name) {
-        let service = new Graph(),
-            rad = -radius;
+    drawAnchor: function (r, radius, name) {
+        let skip,
+            service = new Graph();
 
-        let skip = Math.round(r() * 16);
-        service.drawSwipe(0, rad, 0, 32, 12 - r() * 2, 4 + r(), skip, 0, 0, r() * Math.PI * 2);
-        
-        skip = Math.round(r() * 16);
-        service.drawSwipe(0, rad, 0, 32, 32, 6 + r(), skip, 0, 0, r() * Math.PI * 2);
-        
-        skip = Math.round(r() * 16);
-        service.drawLoopR(0, rad, 5, 32, 42 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
-        service.drawLoopR(0, rad, -5, 32, 42 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        let hub = new THREE.Group();
+        hub.position.x = -radius;
 
         skip = Math.round(r() * 16);
-        service.drawLoopR(0, rad, 5, 32, 20 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
-        service.drawLoopR(0, rad, -5, 32, 20 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
-        service.drawLoopR(0, rad, 15, 32, 16 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
-        service.drawLoopR(0, rad, -15, 32, 16 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
-        service.drawLoopR(0, rad, 20, 32, 12 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
-        service.drawLoopR(0, rad, -20, 32, 12 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
-        service.drawLoopR(0, rad, 25, 32, 10 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
-        service.drawLoopR(0, rad, -25, 32, 10 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawSwipe(0, 0, 0, 32, 12 - r() * 2, 4 + r(), skip, 0, 0, r() * Math.PI * 2);
+        
+        skip = Math.round(r() * 16);
+        service.drawSwipe(0, 0, 0, 32, 32, 6 + r(), skip, 0, 0, r() * Math.PI * 2);
+        
+        skip = Math.round(r() * 16);
+        service.drawLoopR(0, 0, 5, 32, 42 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawLoopR(0, 0, -5, 32, 42 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+
+        skip = Math.round(r() * 16);
+        service.drawLoopR(0, 0, 5, 32, 20 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawLoopR(0, 0, -5, 32, 20 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawLoopR(0, 0, 15, 32, 16 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawLoopR(0, 0, -15, 32, 16 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawLoopR(0, 0, 20, 32, 12 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawLoopR(0, 0, -20, 32, 12 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawLoopR(0, 0, 25, 32, 10 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        service.drawLoopR(0, 0, -25, 32, 10 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
 
         service = service.build({
             transform: Graph.projectFacePlane(1)
         });
-
-        service.rotation.y = (Math.PI * -0.5) - spin;
-        jelly.add(service);
+        hub.add(service);
+        hub.userData.spinner = service;
 
         let label = Graph.genText({
             ax: 0.5,
             ay: 0.8,
             scale: 0.85,
             text: name,
-            pos: [ 0, 0, radius + 64 ], 
+            pos: [ 0, 0, 64 ], 
             nudge: [ 0, 0, 0 ],
             font: 'OCRA'
         });
-        label.rotation.y = (Math.PI * 2) - spin;
-        jelly.add(label);
+        label.rotation.y = Math.PI * 1.5;
+        hub.add(label);
+
+        return hub;
     },
 
     drawService: function (name, radius) {
         let r = alea('jelly-base-' + name),
             jelly = new Graph();
 
-        let spin = this.drawRing(r, jelly, radius);
+        this.drawRing(r, jelly, radius);
         jelly = jelly.build({
             transform: Graph.projectPlane(1)
         });
 
-        this.drawAnchor(r, jelly, radius, spin, name);
+        let hub = this.drawAnchor(r, radius, name);
+        jelly.add(hub);
+        jelly.userData.hub = hub;
+
         return jelly;
     },
 
     render3D: function () {
         let base = new THREE.Group(),
-            names = [ 'vault', 'codex', 'ui-facade', 'ui-barrier', 'ui-didact' ];
+            r = alea('jelly-base-all'),
+            names = this.state.didact.services;
 
-        let step = -64,
+        let step = -100,
             astep = (Math.PI * 0.5) / names.length,
             radius = rad => 128 + Math.sin(rad * astep) * 512;
 
@@ -100,14 +112,14 @@ var JellyBase = React.createClass({
             let service = this.drawService(names[i], radius(i));
             service.userData.name = names[i];
             service.userData.yOffset = i * step;
-            service.userData.spinRate = ((1 + i) / names.length) - (Math.random() * 1.2);
+            service.userData.angle = Math.PI * 2 * r();
+            service.userData.spinRate = ((1 + i) / names.length) - (r() * 1.2);
             service.userData.spinRate /= 10;
             base.add(service);
-            console.log(service.userData);
         }
 
         base.rotation.x = 0.4;
-        base.rotation.z = 0.05;
+        base.rotation.z = 0.06;
         return base;
     }
 });

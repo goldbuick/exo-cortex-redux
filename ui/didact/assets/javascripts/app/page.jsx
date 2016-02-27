@@ -4,12 +4,6 @@ import ThreeScene from 'lib/ThreeScene';
 import Substrate from 'lib/Substrate';
 import JellyBase from 'app/JellyBase';
 
-FacadeActions.connect.listen(() => {
-    FacadeActions.api('didact', 'list', {});
-});
-
-FacadeActions.message.listen(message => console.log(message));
-
 var Page = React.createClass({
     mixins: [
     ],
