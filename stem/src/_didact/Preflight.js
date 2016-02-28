@@ -110,6 +110,8 @@ class Preflight extends ApiClient {
                     next(json);
                 });                
             }
+        },{
+            'starting test': this.start('test')            
         }]);
     }
 

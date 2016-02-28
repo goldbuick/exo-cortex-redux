@@ -1,6 +1,7 @@
 
 let DidactActions = Reflux.createActions([
-    'list'
+    'list',
+    'listResponse',
 ]);
 
 export default DidactActions;

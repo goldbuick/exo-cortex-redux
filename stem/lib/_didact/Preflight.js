@@ -136,6 +136,8 @@ var Preflight = (function (_ApiClient) {
                     next(json);
                 });
             }
+        }, {
+            'starting test': _this.start('test')
         }]);
         return _this;
     }

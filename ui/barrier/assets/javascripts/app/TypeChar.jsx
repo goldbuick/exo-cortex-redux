@@ -24,7 +24,7 @@ var TypeChar = React.createClass({
     render3D: function () {
         let graph = new Graph();
 
-        graph.drawRect(-50, 0, 200, 200, 0, true);
+        graph.drawRect(-35, 0, 200, 200, 0, true);
 
         graph = graph.build({
             transform: Graph.projectFacePlane(1)

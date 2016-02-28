@@ -14,7 +14,11 @@ let DidactStore = Reflux.createStore({
         return this.data;
     },
 
-    onList: function(services) {
+    onList: function() {
+        FacadeActions.api('didact', 'list', {});        
+    },
+
+    onListResponse: function(services) {
         this.data.services = services.filter(service => {
             if (service !== 'ui-facade') return true;
             this.data.facade = true;
@@ -24,11 +28,11 @@ let DidactStore = Reflux.createStore({
     }
 });
 
-FacadeActions.connect.listen(() => FacadeActions.api('didact', 'list', {}));
+FacadeActions.connect.listen(() => DidactActions.list());
 
 FacadeActions.onMessage({
     channel: 'didact',
     type: 'list'
-}, message => DidactActions.list(message.meta.services));
+}, message => DidactActions.listResponse(message.meta.services));
 
 export default DidactStore;

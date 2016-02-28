@@ -31,4 +31,12 @@ FacadeActions.api.listen((service, type, data, success, fail) => {
     });
 });
 
+FacadeActions.onMessage = (attr, fn) => {
+    FacadeActions.message.listen(message => {
+        let props = Object.keys(attr),
+            matched = props.filter(prop => attr[prop] === message[prop]);
+        if (matched.length === props.length) fn(message);
+    });
+};
+
 export default FacadeActions;

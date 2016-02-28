@@ -29,6 +29,8 @@ var ThreeScene = React.createClass({
         // core rendering objects
         this.renderer = new THREE.WebGLRenderer({
             alpha: true,
+            stencil: false,
+            antialias: true,
             preserveDrawingBuffer: true
         });
         this.camera = new THREE.PerspectiveCamera(60, 4 / 3, 0.1, 10000);
@@ -42,7 +44,7 @@ var ThreeScene = React.createClass({
 
         this.composer = new THREE.EffectComposer(this.renderer);
         let renderPass = new THREE.RenderPass(this._object3D, this.camera);
-        let effectBloom = new THREE.BloomPass(2);
+        let effectBloom = new THREE.BloomPass(2, 25, 4, 256);
         let effectCopy = new THREE.ShaderPass(THREE.CopyShader);
         let effectFilm = new THREE.FilmPass(2.0, 0.2, size.height * 2, false);
         let effectGlitch = new THREE.GlitchPass(64);
@@ -54,9 +56,11 @@ var ThreeScene = React.createClass({
             effectFilm,
             // effectGlitch,
         ];
+
         for (let i=0; i<passes.length; ++i) {
             this.composer.addPass(passes[i]);
         }
+
         let lastPass = passes.pop();
         lastPass.renderToScreen = true;
 
@@ -103,6 +107,17 @@ var ThreeScene = React.createClass({
         this.composer.render(delta);
         if (this.props.onUpdate) this.props.onUpdate(this, delta);
         this.renderTimer = window.requestAnimationFrame(this.update);
+
+        // calc screenRatio
+        let len = 100,
+            hwidth = 0.5 * this.renderer.context.canvas.width,
+            left = new THREE.Vector3(len, 0, 1).project(this.camera),
+            center = new THREE.Vector3(0, 0, 1).project(this.camera);
+
+        left = (left.x * hwidth) + hwidth;
+        center = (center.x * hwidth) + hwidth;
+        ThreeScene.screenRatio = len / (left - center);
+        ThreeScene.screenHalfWidth = hwidth;
     },
 
     render3D: function (children) {
@@ -208,5 +223,17 @@ var ThreeScene = React.createClass({
     },
 
 });
+
+ThreeScene.screenLeft = coord => {
+    return (-ThreeScene.screenHalfWidth + coord) * ThreeScene.screenRatio;
+};
+
+ThreeScene.screenRight = coord => {
+    return (ThreeScene.screenHalfWidth - coord) * ThreeScene.screenRatio;
+};
+
+ThreeScene.screenMiddle = coord => {
+    return coord * ThreeScene.screenRatio;
+};
 
 export default ThreeScene;

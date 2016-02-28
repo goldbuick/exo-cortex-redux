@@ -46,7 +46,7 @@ var JellyBase = React.createClass({
         service.drawSwipe(0, 0, 0, 32, 12 - r() * 2, 4 + r(), skip, 0, 0, r() * Math.PI * 2);
         
         skip = Math.round(r() * 16);
-        service.drawSwipe(0, 0, 0, 32, 32, 6 + r(), skip, 0, 0, r() * Math.PI * 2);
+        service.drawSwipe(0, 0, 0, 32, 52, 6 + r(), skip, 0, 0, r() * Math.PI * 2);
         
         skip = Math.round(r() * 16);
         service.drawLoopR(0, 0, 5, 32, 42 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
@@ -114,7 +114,7 @@ var JellyBase = React.createClass({
             service.userData.yOffset = i * step;
             service.userData.angle = Math.PI * 2 * r();
             service.userData.spinRate = ((1 + i) / names.length) - (r() * 1.2);
-            service.userData.spinRate /= 10;
+            service.userData.spinRate /= 5;
             base.add(service);
         }
 
