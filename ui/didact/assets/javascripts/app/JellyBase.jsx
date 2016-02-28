@@ -1,12 +1,12 @@
 import Graph from 'lib/Graph';
 import Animate from 'lib/Animate';
 import ThreeRender from 'lib/ThreeRender';
-import DidactStore from 'app/DidactStore';
+import ExoStore from 'app/ExoStore';
 
 var JellyBase = React.createClass({
     mixins: [
         ThreeRender,
-        Reflux.connect(DidactStore, 'didact'),
+        Reflux.connect(ExoStore, 'exo'),
     ],
 
     animate3D: function (delta, anim, obj) {
@@ -100,6 +100,7 @@ var JellyBase = React.createClass({
     },
 
     render3D: function () {
+        return;///
         let base = new THREE.Group(),
             r = alea('jelly-base-all'),
             names = this.state.didact.services;

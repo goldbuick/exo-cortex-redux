@@ -14,3 +14,4 @@ server.ping(function () {
 });
 
 server.start();
+server.ready();

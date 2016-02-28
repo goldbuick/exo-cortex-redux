@@ -76,7 +76,7 @@ server.find('rethinkdb', rethinkdb => {
     }, (json, finish) => {
         let keys = json.meta.keys,
             value = json.meta.value;
-        if (keys === undefined || value === undefined) return;
+        if (keys === undefined || value === undefined) return finish();
 
         ObjMod.set(gstore, keys, value);
         finish({ keys: keys, value: value });
@@ -90,8 +90,9 @@ server.find('rethinkdb', rethinkdb => {
     }, (json, finish) => {
         let keys = json.meta.keys;
         if (keys === undefined) return finish();
+        
         let value = ObjMod.get(gstore, keys);
-        finish(value);      
+        finish({ keys: keys, value: value });
     });
 
     server.start();

@@ -7,3 +7,4 @@ server.ping(() => {
 });
 
 server.start();
+server.ready();

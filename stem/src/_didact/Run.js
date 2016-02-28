@@ -65,7 +65,7 @@ class Run extends ApiClient {
             this.emit('codex', 'get', {
                 keys: [ 'ui-barrier' ]
             }, json => {
-                let barrierUrl = this.image(name) + '.' + json.domain,
+                let barrierUrl = this.image(name) + '.' + json.value.domain,
                     serviceUrl = address.host + ':' + address.port;
                 this.emit('codex', 'set', {
                     keys: [ 'ui-barrier', 'pub', barrierUrl ],
@@ -80,7 +80,7 @@ class Run extends ApiClient {
             this.emit('codex', 'get', {
                 keys: [ 'ui-barrier' ]
             }, json => {
-                let barrierUrl = this.image(name) + '.' + json.domain,
+                let barrierUrl = this.image(name) + '.' + json.value.domain,
                     serviceUrl = address.host + ':' + address.port;
                 this.emit('codex', 'set', {
                     keys: [ 'ui-barrier', 'auth', barrierUrl ],

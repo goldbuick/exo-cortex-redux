@@ -198,19 +198,16 @@ var CodexConfig = (function (_HttpService) {
             return changed;
         }
     }, {
-        key: 'ready',
-        value: function ready() {
+        key: 'start',
+        value: function start() {
             var _this4 = this;
 
-            _get(Object.getPrototypeOf(CodexConfig.prototype), 'ready', this).call(this);
+            _get(Object.getPrototypeOf(CodexConfig.prototype), 'start', this).call(this);
             this.find('codex', function (codex) {
                 (0, _PostMessage2.default)(codex.host, codex.port, 'codex', 'get', {
                     keys: [_this4.name]
                 }, function (json) {
-                    _this4.update({
-                        keys: [_this4.name],
-                        value: json
-                    });
+                    _this4.update(json);
                 });
             });
         }

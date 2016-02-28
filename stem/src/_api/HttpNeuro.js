@@ -15,10 +15,8 @@ class HttpNeuro extends HttpConfig {
             value: 'value to change'
         }, (json, finish) => {
             if (json.meta) {
-                this.update({
-                    keys: [ this.name ],
-                    value: json
-                });
+                console.log('codex/update with', json.meta);
+                this.update(json.meta);
             }
             finish();
         });
@@ -31,7 +29,8 @@ class HttpNeuro extends HttpConfig {
 
     update (json) {
         super.update(json);
-        if (this.config().upstream === undefined) return;
+        if (this.config().upstream !== undefined) return;
+        
         this.find('codex', codex => {
             PostMessage(codex.host, codex.port, 'codex', 'set', {
                 keys: [ this.name, 'upstream' ],

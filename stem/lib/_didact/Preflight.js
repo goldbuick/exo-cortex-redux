@@ -70,7 +70,7 @@ var Preflight = (function (_ApiClient) {
         }, {
             'check barrier proxy domain': function checkBarrierProxyDomain(next) {
                 var validate = function validate(json) {
-                    var domain = json.domain;
+                    var domain = json.value.domain;
                     if (domain && domain.length) {
                         next('domain is setup ' + domain);
                     } else {
@@ -102,7 +102,7 @@ var Preflight = (function (_ApiClient) {
             'check barrier password': function checkBarrierPassword(next) {
                 // D@k1WJcpL
                 var validate = function validate(json) {
-                    var password = json.password;
+                    var password = json.value.password;
                     if (password && password.length) {
                         next('password is setup ' + password);
                     } else {

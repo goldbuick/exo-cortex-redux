@@ -63,7 +63,7 @@ let flatten = (result, parent, key, path, cursor) => {
     }
 }
 
-class CodexConfig extends HttpService{
+class CodexConfig extends HttpService {
 
     constructor (name) {
         super(name);
@@ -166,16 +166,13 @@ class CodexConfig extends HttpService{
         return changed;
     }
 
-    ready () {
-        super.ready();
+    start () {
+        super.start();
         this.find('codex', codex => {
             PostMessage(codex.host, codex.port, 'codex', 'get', {
                 keys: [ this.name ]
             }, json => {
-                this.update({
-                    keys: [ this.name ],
-                    value: json
-                });
+                this.update(json);
             });
         });
     }

@@ -69,7 +69,6 @@ store.value('', function (type, value) {
         value.password = 'D@k1WJcpL';
     }
 }, function (value) {
-    console.log('updated', value);
     gproxy.pub = {};
     gproxy.auth = {};
     if (value.password) {
@@ -217,7 +216,7 @@ app.post('/barrier-auth', _passport2.default.authenticate('local'), function (re
 // will need to whitelist this request to
 // limit it to only things local to the machine
 app.post('/codex/update', function (req, res) {
-    store.update(req.body);
+    store.update(req.body.meta);
     res.end('{ "success": true }');
 });
 

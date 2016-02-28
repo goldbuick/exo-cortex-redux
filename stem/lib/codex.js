@@ -91,7 +91,7 @@ server.find('rethinkdb', function (rethinkdb) {
     }, function (json, finish) {
         var keys = json.meta.keys,
             value = json.meta.value;
-        if (keys === undefined || value === undefined) return;
+        if (keys === undefined || value === undefined) return finish();
 
         _ObjMod2.default.set(gstore, keys, value);
         finish({ keys: keys, value: value });
@@ -105,8 +105,9 @@ server.find('rethinkdb', function (rethinkdb) {
     }, function (json, finish) {
         var keys = json.meta.keys;
         if (keys === undefined) return finish();
+
         var value = _ObjMod2.default.get(gstore, keys);
-        finish(value);
+        finish({ keys: keys, value: value });
     });
 
     server.start();

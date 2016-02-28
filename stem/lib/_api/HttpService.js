@@ -102,13 +102,6 @@ var HttpService = (function (_HttpApi) {
                 });
             });
         }
-
-        // register (service, host, port, success, fail) {
-        //     PostMessage(this.didact.host, this.didact.port, 'didact', 'register', {
-        //         service, host, port
-        //     }, success, fail);
-        // }
-
     }, {
         key: 'start',
         value: function start() {

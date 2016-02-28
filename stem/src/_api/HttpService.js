@@ -66,12 +66,6 @@ class HttpService extends HttpApi {
         });
     }
 
-    // register (service, host, port, success, fail) {
-    //     PostMessage(this.didact.host, this.didact.port, 'didact', 'register', {
-    //         service, host, port
-    //     }, success, fail);
-    // }
-
     start () {
         if (this.onPing === undefined) {
             console.log('HttpService requires ping handler');

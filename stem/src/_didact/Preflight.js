@@ -42,7 +42,7 @@ class Preflight extends ApiClient {
         },{
             'check barrier proxy domain': next => {
                 let validate = json => {
-                    let domain = json.domain;
+                    let domain = json.value.domain;
                     if (domain && domain.length) {
                         next('domain is setup ' + domain);
 
@@ -75,7 +75,7 @@ class Preflight extends ApiClient {
             'check barrier password': next => {
                 // D@k1WJcpL
                 let validate = json => {
-                    let password = json.password;
+                    let password = json.value.password;
                     if (password && password.length) {
                         next('password is setup ' + password);
 

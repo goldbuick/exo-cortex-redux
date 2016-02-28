@@ -45,10 +45,8 @@ var HttpNeuro = (function (_HttpConfig) {
             value: 'value to change'
         }, function (json, finish) {
             if (json.meta) {
-                _this.update({
-                    keys: [_this.name],
-                    value: json
-                });
+                console.log('codex/update with', json.meta);
+                _this.update(json.meta);
             }
             finish();
         });
@@ -66,7 +64,8 @@ var HttpNeuro = (function (_HttpConfig) {
             var _this2 = this;
 
             _get(Object.getPrototypeOf(HttpNeuro.prototype), 'update', this).call(this, json);
-            if (this.config().upstream === undefined) return;
+            if (this.config().upstream !== undefined) return;
+
             this.find('codex', function (codex) {
                 (0, _PostMessage2.default)(codex.host, codex.port, 'codex', 'set', {
                     keys: [_this2.name, 'upstream'],

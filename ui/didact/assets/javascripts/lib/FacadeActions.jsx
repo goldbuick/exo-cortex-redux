@@ -21,7 +21,7 @@ require([ url + '/socket.io/socket.io.js'], io => {
     socket.on('connect_error', e => FacadeActions.connectError(e));
 });
 
-FacadeActions.api.listen((service, type, data, success, fail) => {
+FacadeActions.api.listen((service, type, data) => {
     socket.emit('api', {
         id: uuid.v4(),
         when: new Date().toISOString(),
@@ -31,12 +31,20 @@ FacadeActions.api.listen((service, type, data, success, fail) => {
     });
 });
 
-FacadeActions.onMessage = (attr, fn) => {
-    FacadeActions.message.listen(message => {
-        let props = Object.keys(attr),
-            matched = props.filter(prop => attr[prop] === message[prop]);
-        if (matched.length === props.length) fn(message);
-    });
+FacadeActions.onMessage = (attr) => {
+    let type = attr.type,
+        target = attr.target,
+        channel = attr.channel,
+        props = Object.keys(attr).filter(prop => prop !== 'target');
+    if (type && target && channel) {
+        let invoke = channel + type.charAt(0).toUpperCase() + type.slice(1);
+        FacadeActions.message.listen(message => {
+            let matched = props.filter(prop => attr[prop] === message[prop]);
+            if (matched.length === props.length) {
+                target[invoke](message);
+            }
+        });
+    }
 };
 
 export default FacadeActions;

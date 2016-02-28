@@ -98,7 +98,7 @@ var Run = (function (_ApiClient) {
                 _this2.emit('codex', 'get', {
                     keys: ['ui-barrier']
                 }, function (json) {
-                    var barrierUrl = _this2.image(name) + '.' + json.domain,
+                    var barrierUrl = _this2.image(name) + '.' + json.value.domain,
                         serviceUrl = address.host + ':' + address.port;
                     _this2.emit('codex', 'set', {
                         keys: ['ui-barrier', 'pub', barrierUrl],
@@ -116,7 +116,7 @@ var Run = (function (_ApiClient) {
                 _this3.emit('codex', 'get', {
                     keys: ['ui-barrier']
                 }, function (json) {
-                    var barrierUrl = _this3.image(name) + '.' + json.domain,
+                    var barrierUrl = _this3.image(name) + '.' + json.value.domain,
                         serviceUrl = address.host + ':' + address.port;
                     _this3.emit('codex', 'set', {
                         keys: ['ui-barrier', 'auth', barrierUrl],
