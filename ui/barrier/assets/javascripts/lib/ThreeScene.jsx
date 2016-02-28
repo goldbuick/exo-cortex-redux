@@ -10,6 +10,7 @@ import 'lib/threejs/postprocessing/ShaderPass';
 import 'lib/threejs/postprocessing/GlitchPass';
 import 'lib/threejs/postprocessing/RenderPass';
 import ThreeRender from 'lib/ThreeRender';
+import ThreeScreen from 'lib/ThreeScreen';
 
 var ThreeScene = React.createClass({
     mixins: [
@@ -30,11 +31,9 @@ var ThreeScene = React.createClass({
         this.renderer = new THREE.WebGLRenderer({
             alpha: true,
             stencil: false,
-            antialias: true,
             preserveDrawingBuffer: true
         });
         this.camera = new THREE.PerspectiveCamera(60, 4 / 3, 0.1, 10000);
-        // this.renderer.setPixelRatio(window.devicePixelRatio ? window.devicePixelRatio : 1);
         
         // default scene setup
         this._object3D.add(this.camera);
@@ -116,8 +115,8 @@ var ThreeScene = React.createClass({
 
         left = (left.x * hwidth) + hwidth;
         center = (center.x * hwidth) + hwidth;
-        ThreeScene.screenRatio = len / (left - center);
-        ThreeScene.screenHalfWidth = hwidth;
+        ThreeScreen.screenRatio = len / (left - center);
+        ThreeScreen.screenHalfWidth = hwidth;
     },
 
     render3D: function (children) {
@@ -223,17 +222,5 @@ var ThreeScene = React.createClass({
     },
 
 });
-
-ThreeScene.screenLeft = coord => {
-    return (-ThreeScene.screenHalfWidth + coord) * ThreeScene.screenRatio;
-};
-
-ThreeScene.screenRight = coord => {
-    return (ThreeScene.screenHalfWidth - coord) * ThreeScene.screenRatio;
-};
-
-ThreeScene.screenMiddle = coord => {
-    return coord * ThreeScene.screenRatio;
-};
 
 export default ThreeScene;

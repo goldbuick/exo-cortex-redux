@@ -12,23 +12,17 @@ var Page = React.createClass({
     getInitialState: function () {
         return { };
     },
-            // <JellyBase position-y="700"/>
 
     render: function () {
-        return <ThreeScene onCreate={this.handleCreate} onUpdate={this.handleUpdate}>
+        return <ThreeScene onCreate={this.handleCreate}>
             <Background />
-            <LogoLabel ref="logo" text="exoDIDACT" position-y="-760" />
+            <LogoLabel ref="logo" text="exoDIDACT" screenLeft="16" position-y="-760" />
+            <JellyBase position-y="700"/>
         </ThreeScene>;
     },
 
     handleCreate: function (render) {
         render.camera.position.z = 1440;
-    },
-
-    handleUpdate: function (scene, delta) {
-        if (this.refs.logo && this.refs.logo._object3D) {
-            this.refs.logo._object3D.position.x = ThreeScene.screenLeft(10);
-        }
     }
 
 });

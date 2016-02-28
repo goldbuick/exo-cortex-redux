@@ -1,3 +1,5 @@
+import ThreeScreen from 'lib/ThreeScreen';
+
 export default {
 
     applyProps3D: function () {
@@ -30,6 +32,15 @@ export default {
     },
 
     animate: function (delta) {
+        if (this.props.screenLeft !== undefined) {
+            this._object3D.position.x = ThreeScreen.left(parseFloat(this.props.screenLeft));            
+        }
+        if (this.props.screenRight !== undefined) {
+            this._object3D.position.x = ThreeScreen.right(parseFloat(this.props.screenRight));            
+        }
+        if (this.props.screenMiddle !== undefined) {
+            this._object3D.position.x = ThreeScreen.middle(parseFloat(this.props.screenMiddle));            
+        }
         if (this.animate3D) {
             this.animate3D(delta, this._animateState, this._object3D);
         }
