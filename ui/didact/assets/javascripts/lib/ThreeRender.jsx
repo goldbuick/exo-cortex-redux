@@ -76,12 +76,15 @@ export default {
         
         if (this.render3D) {
             out = this.render3D(this.children3D());
-            if (out instanceof THREE.Object3D) {
+            if (out === undefined) {
+                this._object3D = new THREE.Object3D();
+                out = null;
+            } else if (out instanceof THREE.Object3D) {
                 this._object3D = out;
                 out = null;
             } else if (this._object3D === undefined) {
                 this._object3D = new THREE.Object3D();
-                this._object3D.name = 'ThreeObject3D';
+                this._object3D.name = out.displayName;
                 out = React.cloneElement(out, { parent: this });
             }
         }
@@ -92,7 +95,11 @@ export default {
                 this._object3D.name = this.constructor.displayName;
                 this.props.parent._object3D.add(this._object3D);
                 this.props.parent.shouldAnimate(this);
-                this.applyProps3D('position-x', 'position-y', 'position-z');
+                this.applyProps3D(
+                    'scale-x', 'scale-y', 'scale-z',
+                    'rotation-x', 'rotation-y', 'rotation-z',
+                    'position-x', 'position-y', 'position-z'
+                );
             }
             if (this.handlePointer && !(this._object3D instanceof THREE.Scene)) {
                 let placed = false;

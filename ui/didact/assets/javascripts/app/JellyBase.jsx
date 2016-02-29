@@ -23,16 +23,34 @@ var JellyBase = React.createClass({
     },
 
     drawRing: function (r, jelly, radius) {
-        let gap = 8,
-            drift = 0.1,
+        let skip,
+            gap = 16,
             sides = 256,
-            bump = 0.90;
-        jelly.drawLoopR(0, 0, -gap * r(), sides, radius + r(), r, 0.3, 0, 0, drift + r() * 0.5, bump + r());
-        jelly.drawLoopR(0, 0, -gap * r(), sides, radius + r(), r, 0.3, 0, 0, drift + r() * 0.5, bump + r());
-        jelly.drawSwipe(0, 0, -gap * r(), sides, radius + r(), 4 + r() * 4, 0, 0, drift + r() * 0.5, bump + r());
-        jelly.drawSwipe(0, 0, gap * r(), sides, radius + r(), 4 + r() * 4, 0, 0, drift + r() * 0.5, bump + r());
-        jelly.drawLoopR(0, 0, gap * r(), sides, radius + r(), r, 0.3, 0, 0, drift + r() * 0.5, bump + r());
-        jelly.drawLoopR(0, 0, gap * r(), sides, radius + r(), r, 0.3, 0, 0, drift + r() * 0.5, bump + r());
+            _sides = sides * 0.5;
+        
+        skip = Math.round(r() * _sides);
+        jelly.drawLoopR(0, 0, -gap, sides, radius * (2 + r()), 
+            r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        
+        skip = Math.round(r() * _sides);
+        jelly.drawLoopR(0, 0, gap, sides, radius * (2 + r()), 
+            r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        
+        skip = Math.round(r() * _sides);
+        jelly.drawLoopR(0, 0, 0, sides, radius * (2 + r()), 
+            r, 0.3, skip, 0, 0, r() * Math.PI * 2);
+        
+        skip = Math.round(r() * _sides);
+        jelly.drawSwipe(0, 0, -gap, sides, radius + r() * 16, 
+            6 + r() * 12, skip, 0, 0, r() * Math.PI * 2);
+        
+        skip = Math.round(r() * _sides);
+        jelly.drawSwipe(0, 0, gap, sides, radius + r() * 16, 
+            6 + r() * 12, skip, 0, 0, r() * Math.PI * 2);
+
+        skip = Math.round(r() * _sides);
+        jelly.drawSwipe(0, 0, 0, sides, radius + r() * 16, 
+            6 + r() * 12, skip, 0, 0, r() * Math.PI * 2);
     },
 
     drawAnchor: function (r, radius, name) {
@@ -100,10 +118,9 @@ var JellyBase = React.createClass({
     },
 
     render3D: function () {
-        return;///
         let base = new THREE.Group(),
             r = alea('jelly-base-all'),
-            names = this.state.didact.services;
+            names = this.state.exo.services;
 
         let step = -100,
             astep = (Math.PI * 0.5) / names.length,
@@ -114,13 +131,12 @@ var JellyBase = React.createClass({
             service.userData.name = names[i];
             service.userData.yOffset = i * step;
             service.userData.angle = Math.PI * 2 * r();
-            service.userData.spinRate = ((1 + i) / names.length) - (r() * 1.2);
+            service.userData.spinRate = r() <= 0.5 ? r() : -r();
             service.userData.spinRate /= 5;
             base.add(service);
         }
 
         base.rotation.x = 0.4;
-        base.rotation.z = 0.06;
         return base;
     }
 });
