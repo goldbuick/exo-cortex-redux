@@ -28,10 +28,11 @@ var JellyArms = React.createClass({
         //     root.drawLoopR(0, 0, i * -10, 32, radius, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
         // }
 
-        for (let i=0; i<5; ++i) {
-            radius = 16 + r() * 256;
+        let count = 5;
+        for (let i=0; i<count; ++i) {
+            radius = 16 + r() * (count-i) * 64;
             skip = Math.round(r() * 16);
-            root.drawSwipe(0, 0, i * 16, 64, radius, 6 + r() * 12, skip, 0, 0, r() * Math.PI * 2);
+            root.drawSwipe(0, 0, i * -16, 64, radius, 6 + r() * 12, skip, 0, 0, r() * Math.PI * 2);
         }
 
         return root.build({

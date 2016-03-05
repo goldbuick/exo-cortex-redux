@@ -1,4 +1,3 @@
-import Css from 'lib/Css';
 import Glyph from 'lib/Glyph';
 import BmFontText from 'lib/threejs/bmfont/text';
 import BmFontShader from 'lib/threejs/bmfont/sdf';
@@ -24,15 +23,14 @@ function fetchFont (name, retry) {
         font: '/media/lib/' + name + '.fnt',
         image: '/media/lib/' + name + '.png'
     }, (config, texture) => {
-        if (fontColor === undefined) {
-            fontColor = Css.getStyleRuleValue('.fg-color', 'color');
-        }
 
         texture.needsUpdate = true;
         texture.minFilter = THREE.LinearMipMapLinearFilter;
         texture.magFilter = THREE.LinearFilter;
         texture.generateMipmaps = true;
         texture.anisotropy = window.maxAni;
+
+        fontColor = Glyph.baseColor;
         fontData[name] = {
             config: config,
             texture: texture

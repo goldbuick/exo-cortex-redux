@@ -13,13 +13,13 @@ var Page = React.createClass({
     getInitialState: function () {
         return { };
     },
+            // <JellyBase position-y="700" />
+            // <JellyArms position-y="200" />
 
     render: function () {
         return <ThreeScene onCreate={this.handleCreate}>
             <Background />
             <LogoLabel ref="logo" text="exoDIDACT" screenLeft="16" position-y="-750" />
-            <JellyBase position-y="700" />
-            <JellyArms position-y="200" />
         </ThreeScene>;
     },
 

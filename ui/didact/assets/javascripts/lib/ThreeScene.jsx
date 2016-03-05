@@ -29,7 +29,7 @@ var ThreeScene = React.createClass({
 
         // core rendering objects
         this.renderer = new THREE.WebGLRenderer({
-            alpha: true,
+            // alpha: true,
             stencil: false,
             preserveDrawingBuffer: true
         });
