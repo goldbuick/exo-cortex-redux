@@ -2,16 +2,13 @@ exports.config = {
   "modules": [
     "copy",
     "server",
-    "jshint",
-    "csslint",
     "require",
     "minify-js",
     "minify-css",
     "live-reload",
     "bower",
     "less",
-    "react",
-    "babel",
+    "babel6",
     "import-source"
   ],
   "server": {
@@ -30,13 +27,6 @@ exports.config = {
       "to": "assets"
     }]
   },
-  "react": {
-    "extensions": ["jsx"],
-    "options": {
-      "harmony": true,
-      "sourceMap": true
-    }
-  },
   "bower": {
     "copy": {
       "mainOverrides": {
@@ -44,12 +34,6 @@ exports.config = {
           "crossfilter.js"
         ]
       },
-    }
-  },
-  "babel": {
-    "extensions": ["jsx"],
-    "options": {
-      "modules": "amd"
     }
   },
   "copy": {
@@ -61,7 +45,7 @@ exports.config = {
      "htc", "htm", "json","txt",
      "xml", "xsd", "map", "md",
      "mp4", "apng", "mng", "phtml",
-     "volt", "fnt"],
+     "volt", "fnt", "model"],
     "exclude":[]
   }
 }

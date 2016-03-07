@@ -1,7 +1,7 @@
 import Graph from 'lib/Graph';
 import ThreeRender from 'lib/ThreeRender';
 
-var LogoLabel = React.createClass({
+let LogoLabel = React.createClass({
     mixins: [
         ThreeRender
     ],

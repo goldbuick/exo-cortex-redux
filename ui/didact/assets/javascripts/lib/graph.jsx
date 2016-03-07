@@ -57,25 +57,25 @@ class Graph {
     }
 
     drawPoints (points) {
-        var offset = this.glyph.count;
+        let offset = this.glyph.count;
 
         points.forEach(vert => {
             this.glyph.addVert(vert.x, vert.y, vert.z);
         });
 
-        for (var i=0; i < points.length; ++i) {
+        for (let i=0; i < points.length; ++i) {
             this.glyph.addPoint(offset + i);
         }
     }
 
     drawLine (points) {
-        var offset = this.glyph.count;
+        let offset = this.glyph.count;
 
         points.forEach(vert => {
             this.glyph.addVert(vert.x, vert.y, vert.z);
         });
 
-        for (var i=0; i < points.length-1; ++i) {
+        for (let i=0; i < points.length-1; ++i) {
             this.glyph.addLine(offset + i, offset + i + 1);
         }
     }
@@ -85,7 +85,7 @@ class Graph {
     }
 
     drawLoopDash (x, y, z, sides, radius, skip, front, back, drift, bump) {
-        var points = [ ],
+        let points = [ ],
             source = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
         skip = skip || 1;
@@ -103,7 +103,7 @@ class Graph {
     }
 
     drawLoopR (x, y, z, sides, radius, r, threshold, front, back, drift, bump) {
-        var points = [ ],
+        let points = [ ],
             source = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
         while (source.length) {
@@ -120,10 +120,10 @@ class Graph {
     }
 
     drawRect (x, y, w, h, z, alpha) {
-        var offset = this.glyph.count;
+        let offset = this.glyph.count;
 
         z = z || 0;
-        var hw = w * 0.5,
+        let hw = w * 0.5,
             hh = h * 0.5;
 
         this.glyph.addVert(x - hw, y - hh, z);
@@ -136,24 +136,24 @@ class Graph {
     }
 
     drawCircle (x, y, z, sides, radius, front, back, drift, bump, alpha) {
-        var offset = this.glyph.count,
+        let offset = this.glyph.count,
             points = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
-        var center = offset,
+        let center = offset,
             base = center + 1;
 
         this.glyph.addVert(x, y, z);
-        for (var i=0; i<points.length; ++i) {
+        for (let i=0; i<points.length; ++i) {
             this.glyph.addVert(points[i].x , points[i].y, points[i].z);
         }
 
-        for (var i=0; i<points.length-1; ++i) {
+        for (let i=0; i<points.length-1; ++i) {
             this.glyph.addFill(center, base + i + 1, base + i, alpha);
         }
     }
 
     drawSwipe (x, y, z, sides, radius, width, front, back, drift, bump, alpha) {
-        var offset = this.glyph.count,
+        let offset = this.glyph.count,
             innerRadius = radius,
             outerRadius = radius + width,
             ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift, bump),
@@ -162,8 +162,24 @@ class Graph {
         ipoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
         opoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
 
-        var base, len = ipoints.length;
-        for (var i=0; i<len-1; ++i) {
+        let base, len = ipoints.length;
+        for (let i=0; i<len-1; ++i) {
+            base = offset + i;
+            this.glyph.addFill(base, base + 1, base + len, alpha);
+            this.glyph.addFill(base + len, base + 1, base + len + 1, alpha);
+        }
+    }
+
+    drawSwipeAlt (x, y, z, sides, radius, width, front, back, drift, bump, alpha) {
+        let offset = this.glyph.count,
+            ipoints = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump),
+            opoints = Graph.genArc(x, y + width, z, sides, radius, front, back, drift, bump);
+
+        ipoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
+        opoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
+
+        let base, len = ipoints.length;
+        for (let i=0; i<len-1; ++i) {
             base = offset + i;
             this.glyph.addFill(base, base + 1, base + len, alpha);
             this.glyph.addFill(base + len, base + 1, base + len + 1, alpha);
@@ -171,7 +187,7 @@ class Graph {
     }
 
     drawSwipeLine (x, y, z, sides, radius, width, front, back, drift, bump) {
-        var innerRadius = radius,
+        let innerRadius = radius,
             outerRadius = radius + width,
             ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift, bump),
             opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift, bump);
@@ -180,151 +196,150 @@ class Graph {
         this.drawLine(opoints);
     }
 
-}
+    static get baseColor () { return Glyph.baseColor; }
+    static get deepColor () { return Glyph.deepColor; }
 
-Graph.baseColor = Glyph.baseColor;
-Graph.deepColor = Glyph.deepColor;
+    static projectPlane (scale) {
+        return (x, y, z) => {
+            let _x = x * scale,
+                _y = z * scale,
+                _z = y * scale;
+            return [ _x, _y, _z ];
+        };
+    }
 
-Graph.projectPlane = function (scale) {
-    return function (x, y, z) {
-        var _x = x * scale,
-            _y = z * scale,
-            _z = y * scale;
-        return [ _x, _y, _z ];
+    static projectAltPlane (scale) {
+        return (x, y, z) => {
+            let _x = z * scale,
+                _y = x * scale,
+                _z = y * scale;
+            return [ _x, _y, _z ];
+        };
+    }
+
+    static projectFacePlane (scale) {
+        return (x, y, z) => {
+            let _x = x * scale,
+                _y = y * scale,
+                _z = z * scale;
+            return [ _x, _y, _z ];
+        };
+    }
+
+    static projectColumn (radius, scale) {
+        return (x, y, z) => {
+            y = y * scale;
+            let _radius = radius + z,
+                _x = Math.sin(y) * _radius,
+                _y = x,
+                _z = Math.cos(y) * _radius;
+            return [ _x, _y, _z ];
+        };
+    }
+
+    static projectSphere (radius, scale) {
+        return (x, y, z) => {
+            x = x * scale;
+            y = y * scale;
+            let xcos = Math.cos(x),
+                xsin = Math.sin(x),
+                ycos = Math.cos(y),
+                ysin = Math.sin(y),
+                height = z + radius,
+                _x = -height * xcos * ycos,
+                _y = height * xsin,
+                _z = height * xcos * ysin;
+            return [ _x, _y, _z ];
+        };
+    }
+
+    static genArc (x, y, z, sides, radius, front, back, drift, bump) {
+        let points = [ ],
+            step = (Math.PI * 2) / sides;
+
+        front = front || 0;
+        back = back || 0;
+        drift = drift || 0;
+        bump = bump || 0;
+
+        sides -= front + back;
+
+        let angle = (front * step) + bump;
+        for (let i=0; i <= sides; ++i) {
+            points.push({
+                x: x + Math.cos(angle) * radius,
+                y: y + Math.sin(angle) * radius,
+                z: z
+            });
+            angle += step;
+            radius += drift;
+        }
+
+        return points;
     };
-}
 
-Graph.projectAltPlane = function (scale) {
-    return function (x, y, z) {
-        var _x = z * scale,
-            _y = x * scale,
-            _z = y * scale;
-        return [ _x, _y, _z ];
-    };
-};
+    static genTextRetry (temp, opts, callback) {
+        let _opts = JSON.parse(JSON.stringify(opts));
+        return function() {
+            let text = Graph.genText(_opts, callback, true);
+            temp.add(text);
+            if (callback) callback(temp, text);
+        };
+    }
 
-Graph.projectFacePlane = function (scale) {
-    return function (x, y, z) {
-        var _x = x * scale,
-            _y = y * scale,
-            _z = z * scale;
-        return [ _x, _y, _z ];
-    };
-};
+    static genText (opts, callback, flat) {
+        let temp = new THREE.Object3D(),
+            useFont = opts.font || 'OCRA';
 
-Graph.projectColumn = function (radius, scale) {
-    return function (x, y, z) {
-        y = y * scale;
-        var _radius = radius + z,
-            _x = Math.sin(y) * _radius,
-            _y = x,
-            _z = Math.cos(y) * _radius;
-        return [ _x, _y, _z ];
-    };
-}
-    
-Graph.projectSphere = function (radius, scale) {
-    return function (x, y, z) {
-        x = x * scale;
-        y = y * scale;
-        var xcos = Math.cos(x),
-            xsin = Math.sin(x),
-            ycos = Math.cos(y),
-            ysin = Math.sin(y),
-            height = z + radius,
-            _x = -height * xcos * ycos,
-            _y = height * xsin,
-            _z = height * xcos * ysin;
-        return [ _x, _y, _z ];
-    };
-};
-
-Graph.genArc = function (x, y, z, sides, radius, front, back, drift, bump) {
-    var points = [ ],
-        step = (Math.PI * 2) / sides;
-
-    front = front || 0;
-    back = back || 0;
-    drift = drift || 0;
-    bump = bump || 0;
-
-    sides -= front + back;
-
-    var angle = (front * step) + bump;
-    for (var i=0; i <= sides; ++i) {
-        points.push({
-            x: x + Math.cos(angle) * radius,
-            y: y + Math.sin(angle) * radius,
-            z: z
+        let font = fetchFont(useFont, () => {
+            return Graph.genTextRetry(temp, opts, callback);
         });
-        angle += step;
-        radius += drift;
-    }
+        if (font === undefined) return temp;
+        
+        let fopts = {
+            text: opts.text,
+            font: font.config
+        };
+        if (opts.mode !== undefined) fopts.mode = opts.mode;
+        if (opts.width !== undefined) fopts.width = opts.width;
+        
+        let geometry = BmFontText(fopts),
+            material = new THREE.ShaderMaterial(BmFontShader({
+                map: font.texture,
+                smooth: 1 / 16,
+                transparent: true,
+                side: THREE.DoubleSide,
+                color: fontColor,
+                scramble: 0
+            }));
 
-    return points;
-};
+        let mesh = new THREE.Mesh(geometry, material);
 
-function genTextRetry (temp, opts, callback) {
-    let _opts = JSON.parse(JSON.stringify(opts));
-    return function() {
-        let text = Graph.genText(_opts, callback, true);
-        temp.add(text);
-        if (callback) callback(temp, text);
+        opts.scale = opts.scale || 1;
+        let _width = geometry.layout.width * opts.scale,
+            _height = geometry.layout.height * opts.scale;
+
+        let flip = opts.flip ? 1 : -1;
+        if (opts.ax === undefined) opts.ax = 0.5;
+        if (opts.ay === undefined) opts.ay = 0.5;
+
+        mesh.scale.multiplyScalar(opts.scale);
+        mesh.scale.x *= flip;
+        opts.pos[0] -= _width * opts.ax * -flip;
+        opts.pos[1] -= _height * opts.ay;
+
+        if (opts.nudge) {
+            for (let i=0; i<3; ++i) opts.pos[i] += opts.nudge[i];
+        }
+        mesh.position.set(opts.pos[0], opts.pos[1], opts.pos[2]);
+        mesh.rotation.z = Math.PI;
+
+        if (flat) return mesh;
+
+        temp.add(mesh);
+        if (callback) callback(temp, mesh);
+        return temp;
     };
 }
-
-Graph.genText = function (opts, callback, flat) {
-    let temp = new THREE.Object3D(),
-        useFont = opts.font || 'OCRA';
-
-    let font = fetchFont(useFont, () => {
-        return genTextRetry(temp, opts, callback);
-    });
-    if (font === undefined) return temp;
-    
-    let fopts = {
-        text: opts.text,
-        font: font.config
-    };
-    if (opts.mode !== undefined) fopts.mode = opts.mode;
-    if (opts.width !== undefined) fopts.width = opts.width;
-    
-    var geometry = BmFontText(fopts),
-        material = new THREE.ShaderMaterial(BmFontShader({
-            map: font.texture,
-            smooth: 1 / 16,
-            transparent: true,
-            side: THREE.DoubleSide,
-            color: fontColor,
-            scramble: 0
-        }));
-
-    var mesh = new THREE.Mesh(geometry, material);
-
-    opts.scale = opts.scale || 1;
-    var _width = geometry.layout.width * opts.scale,
-        _height = geometry.layout.height * opts.scale;
-
-    var flip = opts.flip ? 1 : -1;
-    if (opts.ax === undefined) opts.ax = 0.5;
-    if (opts.ay === undefined) opts.ay = 0.5;
-
-    mesh.scale.multiplyScalar(opts.scale);
-    mesh.scale.x *= flip;
-    opts.pos[0] -= _width * opts.ax * -flip;
-    opts.pos[1] -= _height * opts.ay;
-
-    if (opts.nudge) {
-        for (let i=0; i<3; ++i) opts.pos[i] += opts.nudge[i];
-    }
-    mesh.position.set(opts.pos[0], opts.pos[1], opts.pos[2]);
-    mesh.rotation.z = Math.PI;
-
-    if (flat) return mesh;
-
-    temp.add(mesh);
-    if (callback) callback(temp, mesh);
-    return temp;
-};
 
 export default Graph;

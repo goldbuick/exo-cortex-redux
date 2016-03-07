@@ -1,31 +1,36 @@
 import Css from 'lib/Css';
 
-var baseColor = Css.getStyleRuleValue('.fg-color', 'color');
-baseColor = baseColor.substring(4, baseColor.length - 1).split(',').map(str => {
+let vertColor = Css.getStyleRuleValue('.fg-color', 'color');
+vertColor = vertColor.substring(4, vertColor.length - 1).split(',').map(str => {
     return parseFloat(str.trim(str)) / 255.0;
 });
 
-var pointMaterial = new THREE.PointsMaterial({
+let pointMaterial = new THREE.PointsMaterial({
     size: 1,
     sizeAttenuation: false,
     vertexColors: THREE.VertexColors
 });
 
-var lineMaterial = new THREE.LineBasicMaterial({
+let lineMaterial = new THREE.LineBasicMaterial({
     vertexColors: THREE.VertexColors
 });
 
-var fillMaterial = new THREE.MeshBasicMaterial({
+let fillMaterial = new THREE.MeshBasicMaterial({
     side: THREE.DoubleSide,
     vertexColors: THREE.VertexColors
 });
 
-var alphaFillMaterial = new THREE.MeshBasicMaterial({
+let alphaFillMaterial = new THREE.MeshBasicMaterial({
     opacity: 0.05,
     transparent: true,
     side: THREE.DoubleSide,
     vertexColors: THREE.VertexColors
 });
+
+let bgColor = Css.getStyleRuleValue('.bg-color', 'color');
+let altColor = Css.getStyleRuleValue('.alt-color', 'color');
+let baseColor = Css.getStyleRuleValue('.fg-color', 'color');
+let deepColor = Css.getStyleRuleValue('.deep-color', 'color');
 
 class Glyph {
     constructor () {
@@ -38,15 +43,20 @@ class Glyph {
         this.alphaFills = [ ];
     }
 
+    static get bgColor () { return bgColor; }
+    static get altColor () { return altColor; }
+    static get baseColor () { return baseColor; }
+    static get deepColor () { return deepColor; }
+
     addVert (x, y, z) {
         // 00D8FF
-        this.colors.push(baseColor[0], baseColor[1], baseColor[2]);
+        this.colors.push(vertColor[0], vertColor[1], vertColor[2]);
         this.positions.push(-y, x, z);
         return this.count++;
     }
 
     splitVert (x, y, z) {
-        this.colors.push(baseColor[0], baseColor[1], baseColor[2]);
+        this.colors.push(vertColor[0], vertColor[1], vertColor[2]);
         this.positions.push(x, y, z);
         return this.count++;
     }
@@ -284,10 +294,5 @@ class Glyph {
         return group;
     }
 }
-
-Glyph.baseColor = Css.getStyleRuleValue('.fg-color', 'color');
-Glyph.bgColor = Css.getStyleRuleValue('.bg-color', 'color');
-Glyph.altColor = Css.getStyleRuleValue('.alt-color', 'color');
-Glyph.deepColor = Css.getStyleRuleValue('.deep-color', 'color');
 
 export default Glyph;

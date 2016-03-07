@@ -30,13 +30,20 @@ var ThreeScene = React.createClass({
         // core rendering objects
         this.renderer = new THREE.WebGLRenderer({
             // alpha: true,
-            stencil: false,
+            // stencil: false,
             preserveDrawingBuffer: true
         });
-        this.camera = new THREE.PerspectiveCamera(60, 4 / 3, 0.1, 10000);
-        
+        this.camera = new THREE.PerspectiveCamera(60, 4 / 3, 0.1, 20000);
+
+        // default lights
+        this.ambientLight = new THREE.AmbientLight(0x222222);
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.25);
+        this.directionalLight.position.set(0, 1, 1);
+
         // default scene setup
         this._object3D.add(this.camera);
+        this._object3D.add(this.ambientLight);
+        this._object3D.add(this.directionalLight);
         this.renderer.setSize(size.width, size.height);
         this.renderer.autoClear = false;
         window.maxAni = this.renderer.getMaxAnisotropy();
@@ -45,7 +52,7 @@ var ThreeScene = React.createClass({
         let renderPass = new THREE.RenderPass(this._object3D, this.camera);
         let effectBloom = new THREE.BloomPass(2, 25, 4, 256);
         let effectCopy = new THREE.ShaderPass(THREE.CopyShader);
-        let effectFilm = new THREE.FilmPass(2.0, 0.2, size.height * 2, false);
+        let effectFilm = new THREE.FilmPass(0.25, 0.5, size.height * 2, false);
         let effectGlitch = new THREE.GlitchPass(64);
 
         let passes = [

@@ -2,15 +2,15 @@ import Graph from 'lib/Graph';
 import ThreeRender from 'lib/ThreeRender';
 import 'lib/threejs/SimplexNoise';
 
-var Background = React.createClass({
+let Background = React.createClass({
     mixins: [
         ThreeRender
     ],
 
     animate3D: function (delta, anim, obj) {
         anim.angle = (anim.angle || 0) + delta * 0.007;
-        obj.rotation.x = Math.cos(anim.angle);
-        obj.rotation.y = Math.cos(anim.angle) + Math.sin(-anim.angle);
+        // obj.rotation.x = Math.cos(anim.angle);
+        // obj.rotation.y = Math.cos(anim.angle) + Math.sin(-anim.angle);
         obj.rotation.z = Math.sin(anim.angle);
     },
 
@@ -19,10 +19,11 @@ var Background = React.createClass({
             points = [ ],
             sparks = new Graph();
 
-        let nudge = 64,
+        let nudge = 512,
             count = 50,
-            range = 3000,
+            range = 18000,
             scale = 0.051,
+            hrange = 1700,
             hcount = count * 0.5;
         let rr = new SimplexNoise({ random: r }); 
         for (let x=0; x<count; ++x) {
@@ -31,7 +32,7 @@ var Background = React.createClass({
                     let v = rr.noise3d(x * scale, y * scale, z * scale);
                     if (v > 0.5 && v < 0.6) {
                         let pt = {
-                            x: ((x - hcount) / count) * range,
+                            x: ((x - hcount) / count) * hrange,
                             y: ((y - hcount) / count) * range,
                             z: ((z - hcount) / count) * range,
                         };
@@ -45,7 +46,7 @@ var Background = React.createClass({
         }
         for (let i=0; i<2000; ++i) {
             points.push({
-                x: (r()-0.5) * range,
+                x: (r()-0.5) * hrange,
                 y: (r()-0.5) * range,
                 z: (r()-0.5) * range,
             });
@@ -53,9 +54,13 @@ var Background = React.createClass({
 
         sparks.drawPoints(points);
 
-        return sparks.build({
+        sparks = sparks.build({
             transform: Graph.projectPlane(1)
         });
+
+        sparks.position.z = -6000;
+
+        return sparks;
     }
 });
 
