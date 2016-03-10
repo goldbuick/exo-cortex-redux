@@ -1,5 +1,6 @@
 import ThreeRender from 'lib/ThreeRender';
 import 'lib/threejs/OBJLoader';
+import 'lib/threejs/TessellateModifier';
 
 let normal = new THREE.TextureLoader().load('media/lib/TERRAIN.A.NORMAL.png'),
     diffuse = new THREE.TextureLoader().load('media/lib/TERRAIN.A.DIFFUSE.png');
@@ -16,32 +17,33 @@ let RezTerrain = React.createClass({
 
     render3D: function () {
         let base = new THREE.Group();
-        base.rotation.x = 0.1;
-        base.position.z = -3500;
-        base.position.y = -2000;
+        base.rotation.x = 0.2;
+        base.position.z = -3800;
+        base.position.y = -1900;
 
         let loader = new THREE.OBJLoader().load('media/lib/TERRAIN.A.model', obj => {
             let terrain = obj.children[0];
-            terrain.scale.multiplyScalar(1);
 
             let geometry = new THREE.Geometry().fromBufferGeometry(terrain.geometry);
-            geometry.computeFaceNormals();
             geometry.mergeVertices();
+            
+            // let tess = new THREE.TessellateModifier(1);
+            // tess.modify(geometry);
+            geometry.computeFaceNormals();
             geometry.computeVertexNormals();
             terrain.geometry = new THREE.BufferGeometry().fromGeometry(geometry);
 
             [ normal, diffuse ].forEach(tex => {
                 tex.anisotropy = window.maxAni;
-                tex.minFilter = THREE.LinearFilter;
+                tex.needsUpdate = true;
             });
 
             terrain.material = new THREE.MeshPhongMaterial({
                 map: diffuse,
-                bumpScale: 32,
-                shininess: 50,
-                bumpMap: normal,
-                color: 0x888888,
-                specular: 0x444444,
+                shininess: 4,
+                color: 0xffffff,
+                normalMap: normal,
+                specular: 0xffffff,
                 shading: THREE.SmoothShading
             });
 

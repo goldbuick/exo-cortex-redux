@@ -36,14 +36,16 @@ var ThreeScene = React.createClass({
         this.camera = new THREE.PerspectiveCamera(60, 4 / 3, 0.1, 20000);
 
         // default lights
-        this.ambientLight = new THREE.AmbientLight(0x222222);
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.25);
-        this.directionalLight.position.set(0, 1, 1);
+        let tilt = 32;
+        this.directionalLight = [ -tilt, tilt ].map(tilt => {
+            let light = new THREE.DirectionalLight(0xffffff, 0.2);
+            light.position.set(tilt, 0, 8);
+            return light;
+        })
 
         // default scene setup
         this._object3D.add(this.camera);
-        this._object3D.add(this.ambientLight);
-        this._object3D.add(this.directionalLight);
+        this.directionalLight.forEach(light => this._object3D.add(light));
         this.renderer.setSize(size.width, size.height);
         this.renderer.autoClear = false;
         window.maxAni = this.renderer.getMaxAnisotropy();
