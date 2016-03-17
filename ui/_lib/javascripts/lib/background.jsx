@@ -1,4 +1,4 @@
-import Graph from 'lib/Graph';
+import Etch from 'lib/viz/Etch';
 import ThreeRender from 'lib/ThreeRender';
 import 'lib/threejs/SimplexNoise';
 
@@ -17,7 +17,7 @@ let Background = React.createClass({
     render3D: function () {
         let r = alea(this.props.seed || 'star-speckle-background'),
             points = [ ],
-            sparks = new Graph();
+            sparks = new Etch();
 
         let nudge = 512,
             count = 50,
@@ -55,7 +55,7 @@ let Background = React.createClass({
         sparks.drawPoints(points);
 
         sparks = sparks.build({
-            transform: Graph.projectPlane(1)
+            transform: Etch.projectPlane(1)
         });
 
         sparks.position.z = -6000;

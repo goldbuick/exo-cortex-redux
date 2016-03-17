@@ -1,4 +1,4 @@
-import Glyph from 'lib/Glyph';
+import Glyph from 'lib/viz/Glyph';
 import ThreeRender from 'lib/ThreeRender';
 import 'lib/threejs/SimplexNoise';
 

@@ -1,4 +1,4 @@
-import Graph from 'lib/Graph';
+import Etch from 'lib/viz/Etch';
 import Animate from 'lib/Animate';
 import ThreeRender from 'lib/ThreeRender';
 import ExoStore from 'app/ExoStore';
@@ -55,7 +55,7 @@ var JellyBase = React.createClass({
 
     drawAnchor: function (r, radius, name) {
         let skip,
-            service = new Graph();
+            service = new Etch();
 
         let hub = new THREE.Group();
         hub.position.x = -radius;
@@ -81,12 +81,12 @@ var JellyBase = React.createClass({
         service.drawLoopR(0, 0, -25, 32, 10 + r() * 2, r, 0.3, skip, 0, 0, r() * Math.PI * 2);
 
         service = service.build({
-            transform: Graph.projectFacePlane(1)
+            transform: Etch.projectFacePlane(1)
         });
         hub.add(service);
         hub.userData.spinner = service;
 
-        let label = Graph.genText({
+        let label = Etch.genText({
             ax: 0.5,
             ay: 0.8,
             scale: 0.85,
@@ -103,11 +103,11 @@ var JellyBase = React.createClass({
 
     drawService: function (name, radius) {
         let r = alea('jelly-base-' + name),
-            jelly = new Graph();
+            jelly = new Etch();
 
         this.drawRing(r, jelly, radius);
         jelly = jelly.build({
-            transform: Graph.projectPlane(1)
+            transform: Etch.projectPlane(1)
         });
 
         let hub = this.drawAnchor(r, radius, name);

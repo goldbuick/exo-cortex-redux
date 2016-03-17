@@ -1,4 +1,4 @@
-import Graph from 'lib/Graph';
+import Etch from 'lib/viz/Etch';
 import Animate from 'lib/Animate';
 import ThreeRender from 'lib/ThreeRender';
 import ExoStore from 'app/ExoStore';
@@ -18,7 +18,7 @@ var JellyArms = React.createClass({
     drawRoot: function () {
         let skip,
             radius,
-            root = new Graph(),
+            root = new Etch(),
             r = alea('jelly-arms-root');
 
         // for (let i=0; i<4; ++i) {
@@ -36,7 +36,7 @@ var JellyArms = React.createClass({
         }
 
         return root.build({
-            transform: Graph.projectPlane(1)
+            transform: Etch.projectPlane(1)
         });
     },
 
@@ -48,7 +48,7 @@ var JellyArms = React.createClass({
         base.userData.root.rotation.x = 0.4;
         base.add(base.userData.root);
 
-        let label = Graph.genText({
+        let label = Etch.genText({
             text: 'ui-facade',
             pos: [ 0, 128, 0 ], 
             nudge: [ 0, 0, 0 ],

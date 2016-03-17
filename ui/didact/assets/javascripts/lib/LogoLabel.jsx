@@ -1,4 +1,4 @@
-import Graph from 'lib/Graph';
+import Etch from 'lib/viz/Etch';
 import ThreeRender from 'lib/ThreeRender';
 
 let LogoLabel = React.createClass({
@@ -13,7 +13,7 @@ let LogoLabel = React.createClass({
     },
 
     render3D: function () {
-        return Graph.genText({
+        return Etch.genText({
             ax: this.props.center ? 0.5 : 0,
             scale: 3,
             font: 'LOGO',

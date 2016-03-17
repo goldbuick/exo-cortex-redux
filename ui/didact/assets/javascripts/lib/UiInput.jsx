@@ -1,4 +1,4 @@
-import Graph from 'lib/Graph';
+import Etch from 'lib/viz/Etch';
 import UiButton from 'lib/UiButton';
 import ThreeRender from 'lib/ThreeRender';
 
@@ -138,7 +138,7 @@ var UiInput = React.createClass({
 
         this._object3D = new THREE.Group();
 
-        graph = new Graph();
+        graph = new Etch();
         graph.drawLine([
             { x: 0, y:  1, z: 50 * scale },
             { x: 0, y:  2, z: -32 * scale },
@@ -146,10 +146,10 @@ var UiInput = React.createClass({
             { x: 0, y: -1, z: -50 * scale },
         ]);
         this._object3D.userData.caret = graph.build({
-            transform: Graph.projectPlane(1)
+            transform: Etch.projectPlane(1)
         });
 
-        this._object3D.userData.text = Graph.genText({
+        this._object3D.userData.text = Etch.genText({
             ax: ax,
             scale: scale,
             text: value,
@@ -158,23 +158,23 @@ var UiInput = React.createClass({
             font: fontName
         });
 
-        graph = new Graph();
+        graph = new Etch();
         graph.drawRect(0, 0, 100 * scale, 100, 0, true);
         this._object3D.userData.plate = graph.build({
-            transform: Graph.projectFacePlane(1)
+            transform: Etch.projectFacePlane(1)
         });
 
-        graph = new Graph();
+        graph = new Etch();
         graph.drawLine([
             { x: 0, y:  50, z: -20 * scale },
             { x: 0, y:  50, z: -50 * scale },
             { x: 0, y: -50, z: -50 * scale },
         ]);
         this._object3D.userData.plate.add(graph.build({
-            transform: Graph.projectPlane(1)
+            transform: Etch.projectPlane(1)
         }));
 
-        graph = new Graph();
+        graph = new Etch();
         graph.drawLine([
             { x: 0, y:  40, z: (-50 * scale) - 8 },
             { x: 0, y:   0, z: (-50 * scale) - 32 },
@@ -186,7 +186,7 @@ var UiInput = React.createClass({
             { x: 0, y: -30, z: (-50 * scale) - 18 },
         ]);
         this._object3D.userData.underline = graph.build({
-            transform: Graph.projectPlane(1)
+            transform: Etch.projectPlane(1)
         });
         this._object3D.userData.plate.add(this._object3D.userData.underline);
         this._object3D.userData.underline.visible = false;

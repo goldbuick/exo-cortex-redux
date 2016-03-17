@@ -1,4 +1,4 @@
-import Graph from 'lib/Graph';
+import Etch from 'lib/viz/Etch';
 import UiButton from 'lib/UiButton';
 import ThreeRender from 'lib/ThreeRender';
 
@@ -31,7 +31,7 @@ var TestButton = React.createClass({
 
     render3D: function () {
         let r = alea(),
-            button = new Graph();
+            button = new Etch();
 
         button.drawCircle(0, 0, 0, 32, 100, 
             undefined, undefined, undefined, undefined, this.props.fill === undefined);
@@ -41,7 +41,7 @@ var TestButton = React.createClass({
         button.drawLoopR(0, 0, 0, 32, 124, r, 0.5, 4, 16, 3);
 
         return button.build({
-            transform: Graph.projectFacePlane(1)
+            transform: Etch.projectFacePlane(1)
         });
     }
 });

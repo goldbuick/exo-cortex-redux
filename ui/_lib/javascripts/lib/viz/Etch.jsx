@@ -1,4 +1,4 @@
-import Glyph from 'lib/Glyph';
+import Glyph from 'lib/viz/Glyph';
 import BmFontText from 'lib/threejs/bmfont/text';
 import BmFontShader from 'lib/threejs/bmfont/sdf';
 import BmFontLoad from 'lib/threejs/bmfont/load';
@@ -43,7 +43,7 @@ function fetchFont (name, retry) {
     });
 });
 
-class Graph {
+class Etch {
     constructor () {
         this.glyph = new Glyph();
     }
@@ -81,12 +81,12 @@ class Graph {
     }
 
     drawLoop (x, y, z, sides, radius, front, back, drift, bump) {
-        this.drawLine(Graph.genArc(x, y, z, sides, radius, front, back, drift, bump));
+        this.drawLine(Etch.genArc(x, y, z, sides, radius, front, back, drift, bump));
     }
 
     drawLoopDash (x, y, z, sides, radius, skip, front, back, drift, bump) {
         let points = [ ],
-            source = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
+            source = Etch.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
         skip = skip || 1;
         while (source.length) {
@@ -104,7 +104,7 @@ class Graph {
 
     drawLoopR (x, y, z, sides, radius, r, threshold, front, back, drift, bump) {
         let points = [ ],
-            source = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
+            source = Etch.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
         while (source.length) {
             points.push(source.shift());
@@ -137,7 +137,7 @@ class Graph {
 
     drawCircle (x, y, z, sides, radius, front, back, drift, bump, alpha) {
         let offset = this.glyph.count,
-            points = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump);
+            points = Etch.genArc(x, y, z, sides, radius, front, back, drift, bump);
 
         let center = offset,
             base = center + 1;
@@ -156,8 +156,8 @@ class Graph {
         let offset = this.glyph.count,
             innerRadius = radius,
             outerRadius = radius + width,
-            ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift, bump),
-            opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift, bump);
+            ipoints = Etch.genArc(x, y, z, sides, innerRadius, front, back, drift, bump),
+            opoints = Etch.genArc(x, y, z, sides, outerRadius, front, back, drift, bump);
 
         ipoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
         opoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
@@ -172,8 +172,8 @@ class Graph {
 
     drawSwipeAlt (x, y, z, sides, radius, width, front, back, drift, bump, alpha) {
         let offset = this.glyph.count,
-            ipoints = Graph.genArc(x, y, z, sides, radius, front, back, drift, bump),
-            opoints = Graph.genArc(x, y + width, z, sides, radius, front, back, drift, bump);
+            ipoints = Etch.genArc(x, y, z, sides, radius, front, back, drift, bump),
+            opoints = Etch.genArc(x, y + width, z, sides, radius, front, back, drift, bump);
 
         ipoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
         opoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
@@ -189,8 +189,8 @@ class Graph {
     drawSwipeLine (x, y, z, sides, radius, width, front, back, drift, bump) {
         let innerRadius = radius,
             outerRadius = radius + width,
-            ipoints = Graph.genArc(x, y, z, sides, innerRadius, front, back, drift, bump),
-            opoints = Graph.genArc(x, y, z, sides, outerRadius, front, back, drift, bump);
+            ipoints = Etch.genArc(x, y, z, sides, innerRadius, front, back, drift, bump),
+            opoints = Etch.genArc(x, y, z, sides, outerRadius, front, back, drift, bump);
 
         this.drawLine(ipoints);
         this.drawLine(opoints);
@@ -281,7 +281,7 @@ class Graph {
     static genTextRetry (temp, opts, callback) {
         let _opts = JSON.parse(JSON.stringify(opts));
         return function() {
-            let text = Graph.genText(_opts, callback, true);
+            let text = Etch.genText(_opts, callback, true);
             temp.add(text);
             if (callback) callback(temp, text);
         };
@@ -292,7 +292,7 @@ class Graph {
             useFont = opts.font || 'OCRA';
 
         let font = fetchFont(useFont, () => {
-            return Graph.genTextRetry(temp, opts, callback);
+            return Etch.genTextRetry(temp, opts, callback);
         });
         if (font === undefined) return temp;
         
@@ -342,4 +342,4 @@ class Graph {
     };
 }
 
-export default Graph;
+export default Etch;
