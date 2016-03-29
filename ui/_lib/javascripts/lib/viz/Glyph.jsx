@@ -21,7 +21,7 @@ let fillMaterial = new THREE.MeshBasicMaterial({
 });
 
 let alphaFillMaterial = new THREE.MeshBasicMaterial({
-    opacity: 0.05,
+    opacity: 0.08,
     transparent: true,
     side: THREE.DoubleSide,
     vertexColors: THREE.VertexColors

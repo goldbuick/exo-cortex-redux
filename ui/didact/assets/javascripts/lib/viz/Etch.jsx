@@ -196,6 +196,19 @@ class Etch {
         this.drawLine(opoints);
     }
 
+    drawSwipeWith (ipoints, opoints, alpha) {
+        let offset = this.glyph.count;
+        ipoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
+        opoints.forEach(vert => { this.glyph.addVert(vert.x , vert.y, vert.z); });
+
+        let base, len = ipoints.length;
+        for (let i=0; i<len-1; ++i) {
+            base = offset + i;
+            this.glyph.addFill(base, base + 1, base + len, alpha);
+            this.glyph.addFill(base + len, base + 1, base + len + 1, alpha);
+        }
+    }
+
     static get baseColor () { return Glyph.baseColor; }
     static get deepColor () { return Glyph.deepColor; }
 

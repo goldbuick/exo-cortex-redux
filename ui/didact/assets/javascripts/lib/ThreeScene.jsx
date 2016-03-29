@@ -52,7 +52,7 @@ var ThreeScene = React.createClass({
 
         this.composer = new THREE.EffectComposer(this.renderer);
         let renderPass = new THREE.RenderPass(this._object3D, this.camera);
-        let effectBloom = new THREE.BloomPass(2, 25, 4, 256);
+        let effectBloom = new THREE.BloomPass(2.5, 25, 4, 256);
         let effectCopy = new THREE.ShaderPass(THREE.CopyShader);
         let effectFilm = new THREE.FilmPass(0.25, 0.5, size.height * 2, false);
         let effectGlitch = new THREE.GlitchPass(64);
@@ -107,8 +107,17 @@ var ThreeScene = React.createClass({
         this.composer.setSize(size.width, size.height);
     },
 
-    update: function () {
-        let delta = (1.0 / 60.0);
+    update: function (now) {
+        let diff;
+        if (this.last) {
+            diff = now - this.last;
+        } else {
+            diff = (1.0 / 60.0);
+        }
+        this.last = now;
+        // 1000 µs = 1 ms
+        // 1000 ms = 1 second
+        let delta = diff / 1000;
         TWEEN.update();
         this.animate(delta);
         this.renderer.clear();
