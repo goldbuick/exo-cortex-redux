@@ -1,4 +1,5 @@
 import Etch from 'lib/viz/Etch';
+import 'lib/threejs/SimplexNoise';
 
 class Draft extends Etch {
 
@@ -6,7 +7,7 @@ class Draft extends Etch {
         super();
     }
 
-    // processing
+    // utils
 
     map (points, fn) {
         let result = [ ],
@@ -15,6 +16,22 @@ class Draft extends Etch {
             result.push(fn(points[i], i, count, points));
         }
         return result;
+    }
+
+    noise (seed) {
+        let r = alea(seed);
+        return new SimplexNoise({ random: r });
+    }
+
+    filterByNoise (points, seed, scale, fn) {
+        let r = this.noise(seed);
+        return points.filter(pt => {
+            let v = r.noise3d(
+                pt.x * scale,
+                pt.y * scale,
+                pt.z * scale);
+            return fn(v, pt.x, pt.y, pt.z);
+        });
     }
 
     // deco objects
@@ -210,13 +227,52 @@ class Draft extends Etch {
         return result;
     }
 
-    static genSpaces (x, y, z, xr, yr, zr, depth) {
-        // recursive squares 
-        // depth is how far to potential recurse 
+    static genSpaces (x, y, z, wx, wy, fn) {
+        let points = [],
+            build = (count, left, top, right, bottom) => {
+                let cx = left + (right - left) * 0.5,
+                    cy = top + (bottom - top) * 0.5;
+
+                points.push({ x: left,  y: top,    z: z});
+                points.push({ x: right, y: top,    z: z});
+                points.push({ x: left,  y: bottom, z: z});
+                points.push({ x: right, y: bottom, z: z});
+
+                // top left
+                if (fn(count, left, top)) build(count + 1, left, top, cx, cy);
+                // top right
+                if (fn(count, right, top)) build(count + 1, cx, top, right, cy);
+                // bottom left
+                if (fn(count, left, bottom)) build(count + 1, left, cy, cx, bottom);
+                // bottom right
+                if (fn(count, right, bottom)) build(count + 1, cx, cy, right, bottom);
+            };
+
+        build(0, x - wx, y - wy, x + wx, y + wy);
+        
+        return points;
     }
 
-    static genGrid (x, y, z, xc, yc, zc, step) {
-        //
+    static genGrid (x, y, z, cx, cy, cz, step) {
+        let points = [],
+            sx = x - ((cx - 1) * step * 0.5),
+            sy = y - ((cy - 1) * step * 0.5),
+            pz = z - ((cz - 1) * step * 0.5);
+
+        for (let iz=0; iz < cz; ++iz) {
+            let py = sy;
+            for (let iy=0; iy < cy; ++iy) {
+                let px = sx;
+                for (let ix=0; ix < cx; ++ix) {
+                    points.push({ x: px, y: py, z: pz });
+                    px += step; 
+                }
+                py += step; 
+            }
+            pz += step; 
+        }
+
+        return points;
     }
 
 }
