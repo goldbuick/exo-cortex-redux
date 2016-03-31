@@ -18,7 +18,6 @@ var DraftTest = React.createClass({
             test = new Draft();
 
         let points = Draft.genSpaces(0, 0, 0, 512, 512, count => {
-            console.log(count);
             return count === 0 || (count < 4 && r() < 0.5);
         });
 
@@ -28,12 +27,12 @@ var DraftTest = React.createClass({
         //     return v < -0.2;
         // });
 
-        console.log(points);
         test.map(points, pt => {
-            // let gap = 256;
-            // test.drawLine([{ x: 0, y: 0, z: gap }, pt]);
-            // test.drawLine([{ x: 0, y: 0, z: -gap }, pt]);
-            test.drawHexPod(pt.x, pt.y, pt.z + r() * 64, 8, Math.floor(2 + r() * 2), 4 + r() * 2);
+            let gap = 64 + (r() - 0.5) * 256,
+                z = pt.z + (r() - 0.5) * 256;
+            test.drawLine([{ x: pt.x, y: pt.y, z: z + gap }, pt]);
+            test.drawLine([{ x: pt.x, y: pt.y, z: z - gap }, pt]);
+            test.drawHexPod(pt.x, pt.y, z, 8, Math.floor(2 + r() * 2), 4 + r() * 2);
         });
 
         // let arc = (x, y, z, i, count) => {
