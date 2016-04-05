@@ -249,7 +249,7 @@ class Draft extends Etch {
             };
 
         build(0, x - wx, y - wy, x + wx, y + wy);
-        
+
         return points;
     }
 
@@ -275,13 +275,52 @@ class Draft extends Etch {
         return points;
     }
 
+    static genTracers (points, cols, rows) {
+        let paths = [],
+            goals = Array.prototype.slice.call(arguments, 3),
+            finder = new PF.AStarFinder({
+                heuristic: PF.Heuristic.chebyshev,
+                diagonalMovement: PF.DiagonalMovement.IfAtMostOneObstacle
+            });
+
+        let grid = new PF.Grid(cols, rows);
+        return goals.map(coords => {
+            let result = [ ];
+
+            let a, b = [ coords.shift(), coords.shift() ];
+            do {
+                a = b,
+                b = [ coords.shift(), coords.shift() ];
+                let path = finder.findPath(a[0], a[1], b[0], b[1], grid);
+                paths.push(path);
+                if (result.length) path.shift();
+                result = result.concat(path);
+
+                // gen grid for next path
+                grid = new PF.Grid(cols, rows);
+                paths.forEach(pts => {
+                    pts.forEach(pt => {
+                        grid.setWalkableAt(pt[0], pt[1], false);
+                    });
+                });
+            } while (coords.length);
+
+            return result.map(pt => {
+                let offset = pt[0] + pt[1] * cols;
+                return {
+                    x: points[offset].x,
+                    y: points[offset].y,
+                    z: points[offset].z
+                };
+            });
+        });
+    }
+
 }
 
 export default Draft;
 
 /* more complex structures 
-
-recursive squares 
 
 
 diamond gridded backgrounds
