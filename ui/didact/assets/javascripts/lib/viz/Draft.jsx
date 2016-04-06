@@ -7,33 +7,6 @@ class Draft extends Etch {
         super();
     }
 
-    // utils
-
-    map (points, fn) {
-        let result = [ ],
-            count = points.length-1;
-        for (let i=0; i < points.length; ++i) {
-            result.push(fn(points[i], i, count, points));
-        }
-        return result;
-    }
-
-    noise (seed) {
-        let r = alea(seed);
-        return new SimplexNoise({ random: r });
-    }
-
-    filterByNoise (points, seed, scale, fn) {
-        let r = this.noise(seed);
-        return points.filter(pt => {
-            let v = r.noise3d(
-                pt.x * scale,
-                pt.y * scale,
-                pt.z * scale);
-            return fn(v, pt.x, pt.y, pt.z);
-        });
-    }
-
     // deco objects
 
     drawHexPod (x, y, z, radius, count, step) {
@@ -61,6 +34,33 @@ class Draft extends Etch {
         for (let i=0; i < ipoints.length; ++i) {
             this.drawLine([ipoints[i], opoints[i]]);
         }
+    }
+
+    // utils
+
+    static map (points, fn) {
+        let result = [ ],
+            count = points.length-1;
+        for (let i=0; i < points.length; ++i) {
+            result.push(fn(points[i], i, count, points));
+        }
+        return result;
+    }
+
+    static noise (seed) {
+        let r = alea(seed);
+        return new SimplexNoise({ random: r });
+    }
+
+    static filterByNoise (points, seed, scale, fn) {
+        let r = this.noise(seed);
+        return points.filter(pt => {
+            let v = r.noise3d(
+                pt.x * scale,
+                pt.y * scale,
+                pt.z * scale);
+            return fn(v, pt.x, pt.y, pt.z);
+        });
     }
 
     // generators 
@@ -314,6 +314,21 @@ class Draft extends Etch {
                 };
             });
         });
+    }
+
+    static genFlow (rr, x, y, z, velocity, steps) {
+        let points = [{ x: x, y: y, z: z }];
+
+        let pscale = 0.002,
+            tscale = 0.03;
+        for (let i=0; i < steps; ++i) {
+            x += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale, i * tscale);
+            y += velocity * rr.noise4d(y * pscale, x * pscale, z * pscale, i * tscale + 2.1);
+            z += velocity * rr.noise4d(z * pscale, y * pscale, x * pscale, i * tscale + 1.1);
+            points.push({ x: x, y: y, z: z });
+        }
+
+        return points;
     }
 
 }
