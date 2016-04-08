@@ -250,7 +250,11 @@ class Glyph {
         if (this.fills.length) {
             let fillGeometry = new THREE.BufferGeometry();
             fillGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.fills), 1));
-            fillGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+                        
+            let attrPositions = new THREE.BufferAttribute(new Float32Array(positions), 3);
+            attrPositions.setDynamic(true);
+            fillGeometry.addAttribute('position', attrPositions);
+
             fillGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
             fillGeometry.computeBoundingSphere();
 
@@ -261,7 +265,11 @@ class Glyph {
         if (this.alphaFills.length) {
             let alphaFillGeometry = new THREE.BufferGeometry();
             alphaFillGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.alphaFills), 1));
-            alphaFillGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+            
+            let attrPositions = new THREE.BufferAttribute(new Float32Array(positions), 3);
+            attrPositions.setDynamic(true);
+            alphaFillGeometry.addAttribute('position', attrPositions);
+
             alphaFillGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
             alphaFillGeometry.computeBoundingSphere();
 

@@ -13,7 +13,7 @@ var DraftTest = React.createClass({
             radius = 512,
             step = (Math.PI * 2) / (count-1);
 
-        let angle = 0,
+        let angle = t,
             rr = Draft.noise('rando-c');
 
         for (let i=0; i < count; ++i) {
@@ -26,7 +26,7 @@ var DraftTest = React.createClass({
     },
 
     animate3D: function (delta, anim, obj) {
-        anim.toffset = (anim.toffset || 0) + delta * 0.1;
+        anim.toffset = (anim.toffset || 0) + delta * 1;
         let geometry = obj.children[1].geometry,
             position = geometry.getAttribute('position');
 
@@ -52,7 +52,7 @@ var DraftTest = React.createClass({
         let count = 256,
             radius = 512;
 
-        this.getFlows(1000).forEach(points => test.drawLine(points));
+        this.getFlows(0).forEach(points => test.drawLine(points));
 
         let points = Draft.genCircle(0, 0, 0, count, Draft.genValue(radius));
         test.drawSwipeWith(
