@@ -316,15 +316,16 @@ class Draft extends Etch {
         });
     }
 
-    static genFlow (rr, x, y, z, velocity, steps) {
+    static genFlow (rr, x, y, z, velocity, steps, toffset) {
         let points = [{ x: x, y: y, z: z }];
 
-        let pscale = 0.002,
-            tscale = 0.03;
+        let pscale = 0.002;
+        let tscale = 0.003;
+        toffset = toffset || 0;
         for (let i=0; i < steps; ++i) {
-            x += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale, i * tscale + (Math.PI * 0));
-            y += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale, i * tscale + (Math.PI * 0.25));
-            z += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale, i * tscale + (Math.PI * 0.25));
+            x += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale + toffset, i * tscale);
+            y += velocity * rr.noise4d(y * pscale, x * pscale, z * pscale + toffset, i * tscale);
+            z += velocity * rr.noise4d(z * pscale, y * pscale, x * pscale + toffset, i * tscale);
             points.push({ x: x, y: y, z: z });
         }
 

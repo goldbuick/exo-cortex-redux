@@ -7,31 +7,57 @@ var DraftTest = React.createClass({
         ThreeRender
     ],
 
+    getFlows: function (t) {
+        let flows = [ ],
+            count = 256,
+            radius = 512,
+            step = (Math.PI * 2) / (count-1);
+
+        let angle = 0,
+            rr = Draft.noise('rando-c');
+
+        for (let i=0; i < count; ++i) {
+            let points = Draft.genFlow(rr, Math.cos(angle) * radius, Math.sin(angle) * radius, 0, 100, 64, t);
+            flows.push(points);
+            angle += step;
+        }
+
+        return flows;
+    },
+
     animate3D: function (delta, anim, obj) {
-        anim.angle = (anim.angle || 0) + delta * 0.25;
-        // obj.rotation.y = anim.angle;
-        obj.rotation.x = anim.angle;
-        obj.rotation.z = anim.angle * 0.25;
+        anim.toffset = (anim.toffset || 0) + delta * 0.1;
+        let geometry = obj.children[1].geometry,
+            position = geometry.getAttribute('position');
+
+        let index = 0;
+        this.getFlows(anim.toffset).forEach(points => {
+            points.forEach(pt => {
+                position.array[index++] = pt.x;
+                position.array[index++] = pt.y;
+                position.array[index++] = pt.z;
+            });
+        });
+        position.needsUpdate = true;
+
+        // anim.angle = (anim.angle || 0) + delta * 0.25;
+        // obj.rotation.x = anim.angle;
+        // obj.rotation.z = anim.angle * 0.25;
     },
 
     render3D: function () {
         let r = alea('rando-b'),
             test = new Draft();
 
-        let range = 128,
-            rr = Draft.noise('rando-c');
+        let count = 256,
+            radius = 512;
 
-        for (let i=0; i < 256; ++i) {
-            let points = Draft.genFlow(rr, 
-                (r()-0.5) * range,
-                (r()-0.5) * range,
-                (r()-0.5) * range,
-                64, 256);
-            points = Draft.map(points, pt => {
-                return { x: pt.x, y: pt.y - 512, z: pt.z };
-            });
-            test.drawLine(points);
-        }
+        this.getFlows(1000).forEach(points => test.drawLine(points));
+
+        let points = Draft.genCircle(0, 0, 0, count, Draft.genValue(radius));
+        test.drawSwipeWith(
+            Draft.genEdge(points, Draft.genValue(16)),
+            Draft.genEdge(points, Draft.genValue(-16)));
 
         return test.build({
             transform: Draft.projectFacePlane(1)

@@ -83,17 +83,17 @@ class Glyph {
     }
 
     tessellateLines (step) {
-        var done = true,
+        let done = true,
             lines = [ ];
 
-        var len,
+        let len,
             index,
             dist = new THREE.Vector3(),
             v1 = new THREE.Vector3(),
             v2 = new THREE.Vector3(),
             v3 = new THREE.Vector3();
 
-        for (var i=0; i < this.lines.length; i += 2) {
+        for (let i=0; i < this.lines.length; i += 2) {
             this.getPosition(this.lines[i], v1);
             this.getPosition(this.lines[i+1], v2);
             dist.subVectors(v2, v1);
@@ -115,10 +115,10 @@ class Glyph {
     }
 
     tessellateFills (step) {
-        var done = true,
+        let done = true,
             fills = [ ];
 
-        var len = [ 0, 0, 0 ],
+        let len = [ 0, 0, 0 ],
             index = [ 0, 0, 0 ],
             dist = [
                 new THREE.Vector3(),
@@ -136,8 +136,8 @@ class Glyph {
                 new THREE.Vector3() 
             ];
 
-        var v;
-        for (var i=0; i < this.fills.length; i += 3) {
+        let v;
+        for (let i=0; i < this.fills.length; i += 3) {
             for (v=0; v < 3; ++v)
                 this.getPosition(this.fills[i+v], vec[v]);
 
@@ -174,10 +174,10 @@ class Glyph {
     }
 
     tessellateAlphaFills (step) {
-        var done = true,
+        let done = true,
             alphaFills = [ ];
 
-        var len = [ 0, 0, 0 ],
+        let len = [ 0, 0, 0 ],
             index = [ 0, 0, 0 ],
             dist = [
                 new THREE.Vector3(),
@@ -195,8 +195,8 @@ class Glyph {
                 new THREE.Vector3() 
             ];
 
-        var v;
-        for (var i=0; i < this.alphaFills.length; i += 3) {
+        let v;
+        for (let i=0; i < this.alphaFills.length; i += 3) {
             for (v=0; v < 3; ++v)
                 this.getPosition(this.alphaFills[i+v], vec[v]);
 
@@ -239,55 +239,63 @@ class Glyph {
     }
 
     build (opts) {
-        var group = new THREE.Group();
+        let group = new THREE.Group();
 
-        var positions = [ ];
-        for (var i=0; i<this.positions.length; i+=3) {
-            var result = opts.transform(this.positions[i], this.positions[i+1], this.positions[i+2]);
+        let positions = [ ];
+        for (let i=0; i<this.positions.length; i+=3) {
+            let result = opts.transform(this.positions[i], this.positions[i+1], this.positions[i+2]);
             positions.push(result[0], result[1], result[2]);
         }
 
         if (this.fills.length) {
-            var fillGeometry = new THREE.BufferGeometry();
+            let fillGeometry = new THREE.BufferGeometry();
             fillGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.fills), 1));
             fillGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
             fillGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
             fillGeometry.computeBoundingSphere();
 
-            var fillMesh = new THREE.Mesh(fillGeometry, fillMaterial);
+            let fillMesh = new THREE.Mesh(fillGeometry, fillMaterial);
             group.add(fillMesh);
         }
 
         if (this.alphaFills.length) {
-            var alphaFillGeometry = new THREE.BufferGeometry();
+            let alphaFillGeometry = new THREE.BufferGeometry();
             alphaFillGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.alphaFills), 1));
             alphaFillGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
             alphaFillGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
             alphaFillGeometry.computeBoundingSphere();
 
-            var alphaFillMesh = new THREE.Mesh(alphaFillGeometry, alphaFillMaterial);
+            let alphaFillMesh = new THREE.Mesh(alphaFillGeometry, alphaFillMaterial);
             group.add(alphaFillMesh);
         }
 
         if (this.points.length) {
-            var pointGeometry = new THREE.BufferGeometry();
+            let pointGeometry = new THREE.BufferGeometry();
             pointGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.points), 1));
-            pointGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+
+            let attrPositions = new THREE.BufferAttribute(new Float32Array(positions), 3);
+            attrPositions.setDynamic(true);
+            pointGeometry.addAttribute('position', attrPositions);
+
             pointGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
             pointGeometry.computeBoundingSphere();
 
-            var pointMesh = new THREE.Points(pointGeometry, pointMaterial);
+            let pointMesh = new THREE.Points(pointGeometry, pointMaterial);
             group.add(pointMesh);
         }
 
         if (this.lines.length) {
-            var lineGeometry = new THREE.BufferGeometry();
+            let lineGeometry = new THREE.BufferGeometry();
             lineGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(this.lines), 1));
-            lineGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+            
+            let attrPositions = new THREE.BufferAttribute(new Float32Array(positions), 3);
+            attrPositions.setDynamic(true);
+            lineGeometry.addAttribute('position', attrPositions);
+
             lineGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(this.colors), 3));
             lineGeometry.computeBoundingSphere();
 
-            var lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
+            let lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
             group.add(lineMesh);
         }
 
