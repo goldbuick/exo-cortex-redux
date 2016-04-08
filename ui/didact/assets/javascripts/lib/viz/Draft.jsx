@@ -322,9 +322,9 @@ class Draft extends Etch {
         let pscale = 0.002,
             tscale = 0.03;
         for (let i=0; i < steps; ++i) {
-            x += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale, i * tscale);
-            y += velocity * rr.noise4d(y * pscale, x * pscale, z * pscale, i * tscale + 2.1);
-            z += velocity * rr.noise4d(z * pscale, y * pscale, x * pscale, i * tscale + 1.1);
+            x += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale, i * tscale + (Math.PI * 0));
+            y += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale, i * tscale + (Math.PI * 0.25));
+            z += velocity * rr.noise4d(x * pscale, y * pscale, z * pscale, i * tscale + (Math.PI * 0.25));
             points.push({ x: x, y: y, z: z });
         }
 
