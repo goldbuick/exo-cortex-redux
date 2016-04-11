@@ -275,6 +275,33 @@ class Draft extends Etch {
         return points;
     }
 
+    static genTriGrid (x, y, z, cx, cy, cz, step) {
+        let points = [],
+            hstep = step * 0.5,
+            sx = x - ((cx - 1) * step * 0.5),
+            sy = y - ((cy - 1) * step * 0.5),
+            pz = z - ((cz - 1) * step * 0.5);
+
+        for (let iz=0; iz < cz; ++iz) {
+            let py = sy;
+            for (let iy=0; iy < cy; ++iy) {
+                let px = sx;
+                for (let ix=0; ix < cx; ++ix) {
+                    points.push({
+                        x: px,
+                        y: py + (ix % 2 === 0 ? 0 : hstep),
+                        z: pz
+                    });
+                    px += step; 
+                }
+                py += step; 
+            }
+            pz += step; 
+        }
+
+        return points;
+    }
+
     static genTracers (points, cols, rows) {
         let paths = [],
             goals = Array.prototype.slice.call(arguments, 3),
@@ -338,16 +365,11 @@ export default Draft;
 
 /* more complex structures 
 
-
 diamond gridded backgrounds
 gridded backgrounds
 cross hatching fields 
 dot fields ( each dot can be scalable )
 hex fields ( each hex can be scalable )
-
-vector flows
-particle flows ? (next layer up from digram?)
-
 
 linear auto-rigging for skeleton animation
 

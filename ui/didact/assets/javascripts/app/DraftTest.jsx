@@ -26,38 +26,54 @@ var DraftTest = React.createClass({
     },
 
     animate3D: function (delta, anim, obj) {
-        anim.toffset = (anim.toffset || 0) + delta * 1;
-        let geometry = obj.children[1].geometry,
-            position = geometry.getAttribute('position');
+        // anim.toffset = (anim.toffset || 0) + delta * 0.01;
+        // let geometry = obj.children[1].geometry,
+        //     position = geometry.getAttribute('position');
 
-        let index = 0;
-        this.getFlows(anim.toffset).forEach(points => {
-            points.forEach(pt => {
-                position.array[index++] = pt.x;
-                position.array[index++] = pt.y;
-                position.array[index++] = pt.z;
-            });
-        });
-        position.needsUpdate = true;
+        // let index = 0;
+        // this.getFlows(anim.toffset).forEach(points => {
+        //     points.forEach(pt => {
+        //         position.array[index++] = pt.x;
+        //         position.array[index++] = pt.y;
+        //         position.array[index++] = pt.z;
+        //     });
+        // });
+        // position.needsUpdate = true;
 
-        // anim.angle = (anim.angle || 0) + delta * 0.25;
+        anim.angle = (anim.angle || 0) + delta * 0.25;
         // obj.rotation.x = anim.angle;
-        // obj.rotation.z = anim.angle * 0.25;
+        obj.rotation.y = anim.angle * 0.25;
     },
 
     render3D: function () {
         let r = alea('rando-b'),
             test = new Draft();
 
-        let count = 256,
-            radius = 512;
+        let points = Draft.genTriGrid(0, 0, 0, 16, 16, 1, 64);
 
-        this.getFlows(0).forEach(points => test.drawLine(points));
+        points.forEach(pt => {
+            let depth = (r() - 0.5) * 128;
+            pt.z += depth;
+            test.drawHexPod(pt.x, pt.y, pt.z, 8, 1 + Math.floor(r() * 3), 8);
+        });
 
-        let points = Draft.genCircle(0, 0, 0, count, Draft.genValue(radius));
-        test.drawSwipeWith(
-            Draft.genEdge(points, Draft.genValue(16)),
-            Draft.genEdge(points, Draft.genValue(-16)));
+        Draft.genTracers(points, 16, 16, [
+            3, 3, 12, 12
+        ],[
+            4, 3, 12, 15
+        ],[
+            5, 3, 13, 15
+        ]).forEach(path => test.drawLine(path));
+
+        // let count = 256,
+        //     radius = 512;
+
+        // this.getFlows(0).forEach(points => test.drawLine(points));
+
+        // let points = Draft.genCircle(0, 0, 0, count, Draft.genValue(radius));
+        // test.drawSwipeWith(
+        //     Draft.genEdge(points, Draft.genValue(16)),
+        //     Draft.genEdge(points, Draft.genValue(-16)));
 
         return test.build({
             transform: Draft.projectFacePlane(1)
