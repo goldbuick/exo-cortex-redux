@@ -2,6 +2,6 @@
   "name": "barrier",
   "version": "0.1.0",
   "dependencies": {
-    "_deps": "../_deps"
+    "_lib": "../_lib"
   }
 }
